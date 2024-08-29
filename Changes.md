@@ -1,6 +1,15 @@
 
 
 #
+### **+05:30 12:17:50 AM 30-08-2024, Friday**
+
+  - Added `extract_info_from_pcb()` to extract project information from the KiCad PCB file.
+  - Now creates Gerber output directory from project revision, current date and a sequence number.
+  - `to_overwrite` in `generateGerbers()` function now controls whether or not to overwrite the existing Gerber files in the target directory.
+  - Added `test` command and `test()` function.
+  - New Version `0.0.5`.
+  
+#
 ### **+05:30 11:39:24 PM 29-08-2024, Thursday**
 
   - Output directory is now created if it does not exist, in `generateGerbers()` function.
