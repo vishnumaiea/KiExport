@@ -1,5 +1,13 @@
 
 
+
+#
+### **+05:30 02:09:09 AM 30-08-2024, Friday**
+
+  - Generated Gerber files are now renamed with the revision tag after the project name.
+  - Gerber files are now compressed into a ZIP file using `zip_all_files()`.
+  - New Version `0.0.6`.
+
 #
 ### **+05:30 12:17:50 AM 30-08-2024, Friday**
 

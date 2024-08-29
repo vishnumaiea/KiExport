@@ -4,8 +4,8 @@
 # KiExport
 # Tool to export manufacturing files from KiCad PCB projects.
 # Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)
-# Version: 0.0.5
-# Last Modified: +05:30 00:21:13 AM 30-08-2024, Friday
+# Version: 0.0.6
+# Last Modified: +05:30 02:10:39 AM 30-08-2024, Friday
 # GitHub: https://github.com/vishnumaiea/KiExport
 # License: MIT
 
@@ -16,6 +16,7 @@ import argparse
 import os
 import re
 from datetime import datetime
+import zipfile
 
 #=============================================================================================#
 
@@ -59,6 +60,7 @@ def generateGerbers (output_dir, pcb_filename, to_overwrite = True):
   while not_completed:
     today_date = datetime.now()
     formatted_date = today_date.strftime ("%d-%m-%Y")
+    filename_date = today_date.strftime ("%d%m%Y")
     seq_number += 1
     date_directory = f"{rev_directory}/[{seq_number}] {formatted_date}"
     target_directory = f"{date_directory}/Gerber"
@@ -87,8 +89,49 @@ def generateGerbers (output_dir, pcb_filename, to_overwrite = True):
   try:
     subprocess.run (full_command, check = True)
     print ("generateGerbers [OK]: Gerber files exported successfully.")
+
+    # Rename the files by adding Revision after the project name
+    for filename in os.listdir (target_directory):
+      if filename.startswith (project_name):
+        # Construct the new filename with the revision tag
+        base_name = filename [len (project_name):]  # Remove the project name part
+        new_filename = f"{project_name}-R{info ['rev']}{base_name}"
+        
+        # Full paths for renaming
+        old_file_path = os.path.join (target_directory, filename)
+        new_file_path = os.path.join (target_directory, new_filename)
+        
+        # Rename the file
+        os.rename (old_file_path, new_file_path)
+        # print(f"Renamed: {filename} -> {new_filename}")
+    
+    zip_file_name = f"{project_name}-R{info ['rev']}-Gerber-{filename_date}-{seq_number}.zip"
+    zip_all_files (target_directory, f"{target_directory}/{zip_file_name}")
+    print (f"generateGerbers [OK]: ZIP file {zip_file_name} created successfully.")
+    
   except subprocess.CalledProcessError as e:
     print (f"generateGerbers [ERROR]: Error occurred: {e}")
+
+
+#=============================================================================================#
+
+def zip_all_files (source_folder, zip_file_path):
+  """
+  Compresses all files from a folder into a ZIP file.
+
+  Args:
+      source_folder (str): Path to the folder containing files.
+      zip_file_path (str): Path where the ZIP file will be saved.
+  """
+  with zipfile.ZipFile (zip_file_path, 'w') as zipf:
+    for foldername, subfolders, filenames in os.walk (source_folder):
+      for filename in filenames:
+        file_path = os.path.join (foldername, filename)
+        # Exclude the ZIP file itself from being added
+        if os.path.abspath (file_path) != os.path.abspath (zip_file_path):
+          zipf.write (file_path, arcname = os.path.relpath (file_path, source_folder))
+    
+    # print (f"ZIP file created: {os.path.basename (zip_file_path)}")
 
 #=============================================================================================#
 
