@@ -1,6 +1,13 @@
 
 
 #
+### **+05:30 11:39:24 PM 29-08-2024, Thursday**
+
+  - Output directory is now created if it does not exist, in `generateGerbers()` function.
+  - KiCad-CLI commands will fail if the output directory does not exist.
+  - New Version `0.0.4`.
+
+#
 ### **+05:30 11:33:55 PM 29-08-2024, Thursday**
 
   - Added `check_file_exists()` to check is a file exists.

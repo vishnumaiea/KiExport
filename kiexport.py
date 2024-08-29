@@ -4,8 +4,8 @@
 # KiExport
 # Tool to export manufacturing files from KiCad PCB projects.
 # Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)
-# Version: 0.0.2
-# Last Modified: +05:30 23:33:42 PM 29-08-2024, Thursday
+# Version: 0.0.4
+# Last Modified: +05:30 23:40:47 PM 29-08-2024, Thursday
 # GitHub: https://github.com/vishnumaiea/KiExport
 # License: MIT
 
@@ -33,6 +33,11 @@ def generateGerbers (output_dir, pcb_filename):
   file_name = extract_pcb_file_name (pcb_filename)
   project_name = extract_project_name (file_name)
   print (f"generateGerbers [INFO]: Project name is {project_name}.")
+  
+  # Check if the ouptut directory exists, and create if not.
+  if not os.path.exists (output_dir):
+    print (f"generateGerbers [INFO]: Output directory {output_dir} does not exist. Creating it now.")
+    os.makedirs (output_dir)
 
   full_command = gerber_export_command + \
                 ["--output", output_dir] + \
