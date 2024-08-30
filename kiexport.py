@@ -4,8 +4,8 @@
 # KiExport
 # Tool to export manufacturing files from KiCad PCB projects.
 # Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)
-# Version: 0.0.7
-# Last Modified: +05:30 22:18:24 PM 30-08-2024, Friday
+# Version: 0.0.8
+# Last Modified: +05:30 22:44:05 PM 30-08-2024, Friday
 # GitHub: https://github.com/vishnumaiea/KiExport
 # License: MIT
 
@@ -190,6 +190,124 @@ def generateDrills (target_dir, pcb_filename):
 
 #=============================================================================================#
 
+def generatePositions (output_dir, pcb_filename, to_overwrite = True):
+  # Common base command
+  position_export_command = ["kicad-cli", "pcb", "export", "pos"]
+
+  if not check_file_exists (pcb_filename):
+    print (f"generatePositions [ERROR]: {pcb_filename} does not exist.")
+    return
+
+  file_name = extract_pcb_file_name (pcb_filename)
+  project_name = extract_project_name (file_name)
+  info = extract_info_from_pcb (pcb_filename)
+  
+  print (f"generatePositions [INFO]: Project name is {project_name} and revision is {info ['rev']}.")
+  
+  # Check if the ouptut directory exists, and create if not.
+  if not os.path.exists (output_dir):
+    print (f"generatePositions [INFO]: Output directory {output_dir} does not exist. Creating it now.")
+    os.makedirs (output_dir)
+
+  rev_directory = f"{output_dir}/R{info ['rev']}"
+
+  if not os.path.exists (rev_directory):
+    print (f"generatePositions [INFO]: Revision directory {rev_directory} does not exist. Creating it now.")
+    os.makedirs (rev_directory)
+  
+  not_completed = True
+  seq_number = 0
+  
+  while not_completed:
+    today_date = datetime.now()
+    formatted_date = today_date.strftime ("%d-%m-%Y")
+    filename_date = today_date.strftime ("%d%m%Y")
+    seq_number += 1
+    date_directory = f"{rev_directory}/[{seq_number}] {formatted_date}"
+    target_directory = f"{date_directory}/Assembly"
+
+    if not os.path.exists (target_directory):
+      print (f"generatePositions [INFO]: Target directory {target_directory} does not exist. Creating it now.")
+      os.makedirs (target_directory)
+      not_completed = False
+    else:
+      if to_overwrite:
+        print (f"generatePositions [INFO]: Target directory {target_directory} already exists. Any files will be overwritten.")
+        delete_non_zip_files (target_directory)
+        not_completed = False
+      else:
+        print (f"generatePositions [INFO]: Target directory {target_directory} already exists. Creating another one.")
+        not_completed = True
+
+  # # Check if the target directory ends with a slash, and add one if not
+  # if target_directory [-1] != '/':
+  #   target_directory += '/'
+    
+  full_command_1 = position_export_command + \
+                ["--output", f"{target_directory}/{project_name}-Pos-Front.csv"] + \
+                ["--side", "front"] + \
+                ["--format", "csv"] + \
+                ["--units", "mm"] + \
+                ["--use-drill-file-origin"] + \
+                [pcb_filename]
+  
+  full_command_2 = position_export_command + \
+                ["--output", f"{target_directory}/{project_name}-Pos-Back.csv"] + \
+                ["--side", "back"] + \
+                ["--format", "csv"] + \
+                ["--units", "mm"] + \
+                ["--use-drill-file-origin"] + \
+                [pcb_filename]
+  
+  full_command_3 = position_export_command + \
+                ["--output", f"{target_directory}/{project_name}-Pos-All.csv"] + \
+                ["--side", "both"] + \
+                ["--format", "csv"] + \
+                ["--units", "mm"] + \
+                ["--use-drill-file-origin"] + \
+                [pcb_filename]
+  
+  # Run the command
+  try:
+    subprocess.run (full_command_1, check = True)
+    subprocess.run (full_command_2, check = True)
+    subprocess.run (full_command_3, check = True)
+    print ("generatePositions [OK]: Position files exported successfully.")
+
+    # Rename the files by adding Revision after the project name
+    for filename in os.listdir (target_directory):
+      if filename.startswith (project_name) and not filename.endswith ('.zip'):
+        # Construct the new filename with the revision tag
+        base_name = filename [len (project_name):]  # Remove the project name part
+        new_filename = f"{project_name}-R{info ['rev']}{base_name}"
+        
+        # Full paths for renaming
+        old_file_path = os.path.join (target_directory, filename)
+        new_file_path = os.path.join (target_directory, new_filename)
+        
+        # Rename the file
+        os.rename (old_file_path, new_file_path)
+        # print(f"Renamed: {filename} -> {new_filename}")
+    
+    seq_number = 1
+    not_completed = True
+    
+    while not_completed:
+      zip_file_name = f"{project_name}-R{info ['rev']}-Position-Files-{filename_date}-{seq_number}.zip"
+
+      if os.path.exists (f"{target_directory}/{zip_file_name}"):
+        seq_number += 1
+      else:
+        zip_all_files (target_directory, f"{target_directory}/{zip_file_name}")
+        print (f"generatePositions [OK]: ZIP file {zip_file_name} created successfully.")
+        not_completed = False
+
+  except subprocess.CalledProcessError as e:
+    print (f"generatePositions [ERROR]: Error occurred: {e}")
+
+
+#=============================================================================================#
+
 def zip_all_files (source_folder, zip_file_path):
   """
   Compresses all files from a folder into a ZIP file.
@@ -311,6 +429,11 @@ def parseArguments():
   gerber_parser.add_argument ("-if", "--input_filename", required = True, help = "Path to the .kicad_pcb file.")
   gerber_parser.add_argument ("-od", "--output_dir", required = True, help = "Directory to save the Gerber files to.")
 
+  # Subparser for the Position file export command
+  position_parser = subparsers.add_parser ("positions", help = "Export Position files.")
+  position_parser.add_argument ("-if", "--input_filename", required = True, help = "Path to the .kicad_pcb file.")
+  position_parser.add_argument ("-od", "--output_dir", required = True, help = "Directory to save the Position files to.")
+
   test_parser = subparsers.add_parser ("test", help = "Test.")
 
   # Parse arguments
@@ -319,6 +442,10 @@ def parseArguments():
   if args.command == "gerbers":    
     # Call the generateGerbers function with the parsed arguments
     generateGerbers (args.output_dir, args.input_filename)
+  
+  elif args.command == "positions":
+    # Call the generatePositions function with the parsed arguments
+    generatePositions (args.output_dir, args.input_filename)
 
   elif args.command == "test":
     test()

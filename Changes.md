@@ -1,5 +1,13 @@
 
 
+
+#
+### **+05:30 10:40:59 PM 30-08-2024, Friday**
+
+  - Added `generatePositions()` to export position/centroid files.
+  - Added new command `positions`.
+  - New Version `0.0.8`.
+
 #
 ### **+05:30 09:38:10 PM 30-08-2024, Friday**
 
