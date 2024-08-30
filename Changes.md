@@ -2,6 +2,13 @@
 
 
 #
+### **+05:30 11:10:42 PM 30-08-2024, Friday**
+
+  - Added `generatePcbPdf()` to export the PCB as PDF files. Layers are imported in individual files with the `Edge.Cuts` as the common layer.
+  - Added `pcb_pdf` command.
+  - New Version `0.0.9`.
+
+#
 ### **+05:30 10:40:59 PM 30-08-2024, Friday**
 
   - Added `generatePositions()` to export position/centroid files.
