@@ -1,5 +1,13 @@
 
 
+#
+### **+05:30 09:38:10 PM 30-08-2024, Friday**
+
+  - Added `generateDrills()`.
+  - Drill files are now generated with the Gerbers.
+  - All files in the Gerber target directory, except ZIP files are now deleted before overwriting. This fixes the rename conflicts.
+  - If a ZIP file already exists, the new one will now get a new sequence number. This will keep single set of manufacturing files but multiple ZIP files.
+  - New Version `0.0.7`.
 
 #
 ### **+05:30 02:09:09 AM 30-08-2024, Friday**

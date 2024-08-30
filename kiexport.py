@@ -4,8 +4,8 @@
 # KiExport
 # Tool to export manufacturing files from KiCad PCB projects.
 # Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)
-# Version: 0.0.6
-# Last Modified: +05:30 02:10:39 AM 30-08-2024, Friday
+# Version: 0.0.7
+# Last Modified: +05:30 22:18:24 PM 30-08-2024, Friday
 # GitHub: https://github.com/vishnumaiea/KiExport
 # License: MIT
 
@@ -68,10 +68,13 @@ def generateGerbers (output_dir, pcb_filename, to_overwrite = True):
     if not os.path.exists (target_directory):
       print (f"generateGerbers [INFO]: Target directory {target_directory} does not exist. Creating it now.")
       os.makedirs (target_directory)
+      generateDrills (target_directory, pcb_filename)
       not_completed = False
     else:
       if to_overwrite:
         print (f"generateGerbers [INFO]: Target directory {target_directory} already exists. Any files will be overwritten.")
+        delete_non_zip_files (target_directory)
+        generateDrills (target_directory, pcb_filename)
         not_completed = False
       else:
         print (f"generateGerbers [INFO]: Target directory {target_directory} already exists. Creating another one.")
@@ -92,7 +95,7 @@ def generateGerbers (output_dir, pcb_filename, to_overwrite = True):
 
     # Rename the files by adding Revision after the project name
     for filename in os.listdir (target_directory):
-      if filename.startswith (project_name):
+      if filename.startswith (project_name) and not filename.endswith ('.zip'):
         # Construct the new filename with the revision tag
         base_name = filename [len (project_name):]  # Remove the project name part
         new_filename = f"{project_name}-R{info ['rev']}{base_name}"
@@ -105,13 +108,85 @@ def generateGerbers (output_dir, pcb_filename, to_overwrite = True):
         os.rename (old_file_path, new_file_path)
         # print(f"Renamed: {filename} -> {new_filename}")
     
-    zip_file_name = f"{project_name}-R{info ['rev']}-Gerber-{filename_date}-{seq_number}.zip"
-    zip_all_files (target_directory, f"{target_directory}/{zip_file_name}")
-    print (f"generateGerbers [OK]: ZIP file {zip_file_name} created successfully.")
+    seq_number = 1
+    not_completed = True
     
+    while not_completed:
+      zip_file_name = f"{project_name}-R{info ['rev']}-Gerber-{filename_date}-{seq_number}.zip"
+
+      if os.path.exists (f"{target_directory}/{zip_file_name}"):
+        seq_number += 1
+      else:
+        zip_all_files (target_directory, f"{target_directory}/{zip_file_name}")
+        print (f"generateGerbers [OK]: ZIP file {zip_file_name} created successfully.")
+        not_completed = False
+
   except subprocess.CalledProcessError as e:
     print (f"generateGerbers [ERROR]: Error occurred: {e}")
 
+#=============================================================================================#
+
+def delete_non_zip_files (directory):
+  """
+  Deletes all files in the specified directory except ZIP files.
+
+  Args:
+    directory (str): Path to the directory where the cleanup will occur.
+  """
+  for filename in os.listdir (directory):
+    file_path = os.path.join (directory, filename)
+    if os.path.isfile (file_path) and not filename.endswith ('.zip'):
+      os.remove (file_path)
+      # print(f"Deleted: {filename}")
+      
+#=============================================================================================#
+
+def generateDrills (target_dir, pcb_filename):
+  # Common base command
+  drill_export_command = ["kicad-cli", "pcb", "export", "drill"]
+
+  file_name = extract_pcb_file_name (pcb_filename)
+  project_name = extract_project_name (file_name)
+  info = extract_info_from_pcb (pcb_filename)
+
+  # Check if the target directory ends with a slash, and add one if not
+  if target_dir[-1] != '/':
+    target_dir += '/'
+  
+  full_command = drill_export_command + \
+                ["--output", target_dir] + \
+                ["--format", "excellon"] + \
+                ["--drill-origin", "plot"] + \
+                ["--excellon-zeros-format", "decimal"] + \
+                ["--excellon-oval-format", "route"] + \
+                ["--excellon-units", "mm"] + \
+                ["--excellon-separate-th"] + \
+                ["--generate-map"] + \
+                ["--map-format", "pdf"] + \
+                [pcb_filename]
+  
+  # Run the command
+  try:
+    subprocess.run (full_command, check = True)
+    print ("generateDrills [OK]: Drill files exported successfully.")
+
+    # Rename the files by adding Revision after the project name
+    for filename in os.listdir (target_dir):
+      if filename.startswith (project_name) and not filename.endswith ('.zip'):
+        # Construct the new filename with the revision tag
+        base_name = filename [len (project_name):]  # Remove the project name part
+        new_filename = f"{project_name}-R{info ['rev']}{base_name}"
+        
+        # Full paths for renaming
+        old_file_path = os.path.join (target_dir, filename)
+        new_file_path = os.path.join (target_dir, new_filename)
+        
+        # Rename the file
+        os.rename (old_file_path, new_file_path)
+        # print(f"Renamed: {filename} -> {new_filename}")
+        
+  except subprocess.CalledProcessError as e:
+    print (f"generateDrills [ERROR]: Error occurred: {e}")
 
 #=============================================================================================#
 
@@ -128,7 +203,7 @@ def zip_all_files (source_folder, zip_file_path):
       for filename in filenames:
         file_path = os.path.join (foldername, filename)
         # Exclude the ZIP file itself from being added
-        if os.path.abspath (file_path) != os.path.abspath (zip_file_path):
+        if os.path.abspath (file_path) != os.path.abspath (zip_file_path) and not filename.endswith('.zip'):
           zipf.write (file_path, arcname = os.path.relpath (file_path, source_folder))
     
     # print (f"ZIP file created: {os.path.basename (zip_file_path)}")
