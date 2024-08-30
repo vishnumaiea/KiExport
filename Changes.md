@@ -2,6 +2,13 @@
 
 
 #
+### **+05:30 12:16:46 AM 31-08-2024, Saturday**
+
+  - Added `ddd` command to export STEP and VRML files.
+  - Added `generate3D()` function.
+  - New Version `0.0.10`.
+
+#
 ### **+05:30 11:10:42 PM 30-08-2024, Friday**
 
   - Added `generatePcbPdf()` to export the PCB as PDF files. Layers are imported in individual files with the `Edge.Cuts` as the common layer.

@@ -4,8 +4,8 @@
 # KiExport
 # Tool to export manufacturing files from KiCad PCB projects.
 # Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)
-# Version: 0.0.9
-# Last Modified: +05:30 23:11:58 PM 30-08-2024, Friday
+# Version: 0.0.10
+# Last Modified: +05:30 00:16:38 AM 31-08-2024, Saturday
 # GitHub: https://github.com/vishnumaiea/KiExport
 # License: MIT
 
@@ -408,7 +408,104 @@ def generatePcbPdf (output_dir, pcb_filename, to_overwrite = True):
     #     print (f"generatePcbPdf [OK]: ZIP file {zip_file_name} created successfully.")
     #     not_completed = False
 
+#=============================================================================================#
 
+def generate3D (output_dir, pcb_filename, type, to_overwrite = True):
+  # Common base command
+  if type == "STEP" or type == "step":
+    ddd_export_command = ["kicad-cli", "pcb", "export", "step"]
+    type = "STEP"
+    extension = "step"
+  elif type == "VRML" or type == "vrml":
+    ddd_export_command = ["kicad-cli", "pcb", "export", "vrml"]
+    type = "VRML"
+    extension = "wrl"
+
+  if not check_file_exists (pcb_filename):
+    print (f"generate3D [ERROR]: {pcb_filename} does not exist.")
+    return
+
+  file_name = extract_pcb_file_name (pcb_filename)
+  project_name = extract_project_name (file_name)
+  info = extract_info_from_pcb (pcb_filename)
+  
+  print (f"generate3D [INFO]: Project name is {project_name} and revision is {info ['rev']}.")
+  
+  # Check if the ouptut directory exists, and create if not.
+  if not os.path.exists (output_dir):
+    print (f"generate3D [INFO]: Output directory {output_dir} does not exist. Creating it now.")
+    os.makedirs (output_dir)
+
+  rev_directory = f"{output_dir}/R{info ['rev']}"
+
+  if not os.path.exists (rev_directory):
+    print (f"generate3D [INFO]: Revision directory {rev_directory} does not exist. Creating it now.")
+    os.makedirs (rev_directory)
+  
+  not_completed = True
+  seq_number = 0
+  
+  while not_completed:
+    today_date = datetime.now()
+    formatted_date = today_date.strftime ("%d-%m-%Y")
+    filename_date = today_date.strftime ("%d%m%Y")
+    seq_number += 1
+    date_directory = f"{rev_directory}/[{seq_number}] {formatted_date}"
+    target_directory = f"{date_directory}/3D"
+
+    if not os.path.exists (target_directory):
+      print (f"generate3D [INFO]: Target directory {target_directory} does not exist. Creating it now.")
+      os.makedirs (target_directory)
+      not_completed = False
+    else:
+      if to_overwrite:
+        print (f"generate3D [INFO]: Target directory {target_directory} already exists. Any files will be overwritten.")
+        not_completed = False
+      else:
+        print (f"generate3D [INFO]: Target directory {target_directory} already exists. Creating another one.")
+        not_completed = True
+
+  # # Check if the target directory ends with a slash, and add one if not
+  # if target_directory [-1] != '/':
+  #   target_directory += '/'
+  
+  seq_number = 1
+  not_completed = True
+  
+  while not_completed:
+    file_name = f"{target_directory}/{project_name}-R{info ['rev']}-{type}-{filename_date}-{seq_number}.{extension}"
+
+    if os.path.exists (file_name):
+      seq_number += 1
+      not_completed = True
+    else:
+      if type == "STEP":
+        full_command = ddd_export_command + \
+                      ["--output", f"{target_directory}/{project_name}-R{info ['rev']}-{type}-{filename_date}-{seq_number}.{extension}"] + \
+                      ["--force"] + \
+                      ["--subst-models"] + \
+                      ["--include-tracks"] + \
+                      ["--include-zones"] + \
+                      [pcb_filename]
+        
+      elif type == "VRML":
+        full_command = ddd_export_command + \
+                      ["--output", f"{target_directory}/{project_name}-R{info ['rev']}-{type}-{filename_date}-{seq_number}.{extension}"] + \
+                      ["--force"] + \
+                      ["--units", "mm"] + \
+                      [pcb_filename]
+      not_completed = False
+
+  # Run the command
+  try:
+    subprocess.run (full_command, check = True)
+  
+  except subprocess.CalledProcessError as e:
+    print (f"generate3D [ERROR]: Error occurred: {e}")
+    return
+
+  print ("generate3D [OK]: STEP file exported successfully.")
+    
 #=============================================================================================#
 
 def zip_all_files (source_folder, zip_file_path):
@@ -542,12 +639,18 @@ def parseArguments():
   pcb_pdf_parser.add_argument ("-if", "--input_filename", required = True, help = "Path to the .kicad_pcb file.")
   pcb_pdf_parser.add_argument ("-od", "--output_dir", required = True, help = "Directory to save the PCB PDF files to.")
 
+  # Subparser for the STEP export command
+  ddd_parser = subparsers.add_parser ("ddd", help = "Export 3D files.")
+  ddd_parser.add_argument ("-if", "--input_filename", required = True, help = "Path to the .kicad_pcb file.")
+  ddd_parser.add_argument ("-od", "--output_dir", required = True, help = "Directory to save the STEP files to.")
+  ddd_parser.add_argument ("-t", "--type", required = True, help = "The type of file to generate. Can be STEP or VRML.")
+
   test_parser = subparsers.add_parser ("test", help = "Test.")
 
   # Parse arguments
   args = parser.parse_args()
 
-  if args.command == "gerbers":    
+  if args.command == "gerbers":
     # Call the generateGerbers function with the parsed arguments
     generateGerbers (args.output_dir, args.input_filename)
   
@@ -558,6 +661,10 @@ def parseArguments():
   elif args.command == "pcb_pdf":
     # Call the generatePCBPDF function with the parsed arguments
     generatePcbPdf (args.output_dir, args.input_filename)
+  
+  elif args.command == "ddd":
+    # Call the generateStep function with the parsed arguments
+    generate3D (args.output_dir, args.input_filename, args.type)
 
   elif args.command == "test":
     test()
