@@ -4,8 +4,8 @@
 # KiExport
 # Tool to export manufacturing files from KiCad PCB projects.
 # Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)
-# Version: 0.0.11
-# Last Modified: +05:30 10:41:30 AM 01-09-2024, Sunday
+# Version: 0.0.12
+# Last Modified: +05:30 11:16:54 AM 01-09-2024, Sunday
 # GitHub: https://github.com/vishnumaiea/KiExport
 # License: MIT
 
@@ -124,21 +124,6 @@ def generateGerbers (output_dir, pcb_filename, to_overwrite = True):
   except subprocess.CalledProcessError as e:
     print (f"generateGerbers [ERROR]: Error occurred: {e}")
 
-#=============================================================================================#
-
-def delete_non_zip_files (directory):
-  """
-  Deletes all files in the specified directory except ZIP files.
-
-  Args:
-    directory (str): Path to the directory where the cleanup will occur.
-  """
-  for filename in os.listdir (directory):
-    file_path = os.path.join (directory, filename)
-    if os.path.isfile (file_path) and not filename.endswith ('.zip'):
-      os.remove (file_path)
-      # print(f"Deleted: {filename}")
-      
 #=============================================================================================#
 
 def generateDrills (target_dir, pcb_filename):
@@ -452,7 +437,7 @@ def generateSchPdf (output_dir, sch_filename, to_overwrite = True):
       not_completed = False
     else:
       if to_overwrite:
-        print (f"generateSchPdf [INFO]: Target directory {target_directory} already exists. Any files will be overwritten.")
+        print (f"generateSchPdf [INFO]: Target directory {target_directory} already exists.")
         not_completed = False
       else:
         print (f"generateSchPdf [INFO]: Target directory {target_directory} already exists. Creating another one.")
@@ -466,7 +451,7 @@ def generateSchPdf (output_dir, sch_filename, to_overwrite = True):
   not_completed = True
   
   while not_completed:
-    file_name = f"{target_directory}/{project_name}-R{info ['rev']}-{type}-{filename_date}-{seq_number}.pdf"
+    file_name = f"{target_directory}/{project_name}-R{info ['rev']}-SCH-{filename_date}-{seq_number}.pdf"
 
     if os.path.exists (file_name):
       seq_number += 1
@@ -539,7 +524,7 @@ def generate3D (output_dir, pcb_filename, type, to_overwrite = True):
       not_completed = False
     else:
       if to_overwrite:
-        print (f"generate3D [INFO]: Target directory {target_directory} already exists. Any files will be overwritten.")
+        print (f"generate3D [INFO]: Target directory {target_directory} already exists.")
         not_completed = False
       else:
         print (f"generate3D [INFO]: Target directory {target_directory} already exists. Creating another one.")
@@ -585,7 +570,91 @@ def generate3D (output_dir, pcb_filename, type, to_overwrite = True):
     return
 
   print ("generate3D [OK]: STEP file exported successfully.")
-    
+
+#=============================================================================================#
+
+def generateBom (output_dir, sch_filename, type, to_overwrite = True):
+  # Common base command
+  bom_export_command = ["kicad-cli", "sch", "export", "bom"]
+
+  if not check_file_exists (sch_filename):
+    print (f"generateBom [ERROR]: {sch_filename} does not exist.")
+    return
+
+  file_name = extract_pcb_file_name (sch_filename)
+  project_name = extract_project_name (file_name)
+  info = extract_info_from_pcb (sch_filename)
+  
+  print (f"generateBom [INFO]: Project name is {project_name} and revision is {info ['rev']}.")
+  
+  # Check if the ouptut directory exists, and create if not.
+  if not os.path.exists (output_dir):
+    print (f"generateBom [INFO]: Output directory {output_dir} does not exist. Creating it now.")
+    os.makedirs (output_dir)
+
+  rev_directory = f"{output_dir}/R{info ['rev']}"
+
+  if not os.path.exists (rev_directory):
+    print (f"generateBom [INFO]: Revision directory {rev_directory} does not exist. Creating it now.")
+    os.makedirs (rev_directory)
+  
+  not_completed = True
+  seq_number = 0
+  
+  while not_completed:
+    today_date = datetime.now()
+    formatted_date = today_date.strftime ("%d-%m-%Y")
+    filename_date = today_date.strftime ("%d%m%Y")
+    seq_number += 1
+    date_directory = f"{rev_directory}/[{seq_number}] {formatted_date}"
+    target_directory = f"{date_directory}/BoM"
+
+    if not os.path.exists (target_directory):
+      print (f"generateBom [INFO]: Target directory {target_directory} does not exist. Creating it now.")
+      os.makedirs (target_directory)
+      not_completed = False
+    else:
+      if to_overwrite:
+        print (f"generateBom [INFO]: Target directory {target_directory} already exists.")
+        not_completed = False
+      else:
+        print (f"generateBom [INFO]: Target directory {target_directory} already exists. Creating another one.")
+        not_completed = True
+
+  # # Check if the target directory ends with a slash, and add one if not
+  # if target_directory [-1] != '/':
+  #   target_directory += '/'
+  
+  seq_number = 1
+  not_completed = True
+  
+  while not_completed:
+    file_name = f"{target_directory}/{project_name}-R{info ['rev']}-BoM-CSV-{filename_date}-{seq_number}.csv"
+
+    if os.path.exists (file_name):
+      seq_number += 1
+      not_completed = True
+    else:
+      full_command = bom_export_command + \
+                    ["--output", f"{target_directory}/{project_name}-R{info ['rev']}-BoM-CSV-{filename_date}-{seq_number}.csv"] + \
+                    ["--preset", "Group by MPN-DNP"] + \
+                    ["--format-preset", "CSV"] + \
+                    ["--fields", "${{ITEM_NUMBER}},Reference,Value,Name,Footprint,${{QUANTITY}},${{DNP}},MPN,MFR,Alt MPN"] + \
+                    ["--labels", "#,Reference,Value,Name,Footprint,Qty,DNP,MPN,MFR,Alt MPN"] + \
+                    ["--group-by", "${{DNP}},MPN"] + \
+                    [sch_filename]
+      not_completed = False
+
+  # Run the command
+  try:
+    subprocess.run (full_command, check = True)
+  
+  except subprocess.CalledProcessError as e:
+    print (f"generateBom [ERROR]: Error occurred: {e}")
+    return
+
+  print ("generateBom [OK]: BoM file exported successfully.")
+
 #=============================================================================================#
 
 def zip_all_files (source_folder, zip_file_path):
@@ -605,6 +674,21 @@ def zip_all_files (source_folder, zip_file_path):
           zipf.write (file_path, arcname = os.path.relpath (file_path, source_folder))
     
     # print (f"ZIP file created: {os.path.basename (zip_file_path)}")
+
+#=============================================================================================#
+
+def delete_non_zip_files (directory):
+  """
+  Deletes all files in the specified directory except ZIP files.
+
+  Args:
+    directory (str): Path to the directory where the cleanup will occur.
+  """
+  for filename in os.listdir (directory):
+    file_path = os.path.join (directory, filename)
+    if os.path.isfile (file_path) and not filename.endswith ('.zip'):
+      os.remove (file_path)
+      # print(f"Deleted: {filename}")
 
 #=============================================================================================#
 
@@ -735,29 +819,34 @@ def parseArguments():
   ddd_parser.add_argument ("-od", "--output_dir", required = True, help = "Directory to save the 3D files to.")
   ddd_parser.add_argument ("-t", "--type", required = True, help = "The type of file to generate. Can be STEP or VRML.")
 
+  # Subparser for the BoM file export command
+  # Example: python .\kiexport.py bom -od "Mitayi-Pico-D1/Export" -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb"
+  bom_parser = subparsers.add_parser ("bom", help = "Export BoM files.")
+  bom_parser.add_argument ("-if", "--input_filename", required = True, help = "Path to the .kicad_sch file.")
+  bom_parser.add_argument ("-od", "--output_dir", required = True, help = "Directory to save the BoM files to.")
+  bom_parser.add_argument ("-t", "--type", help = "The type of file to generate. Default is CSV.")
+  
   test_parser = subparsers.add_parser ("test", help = "Test.")
 
   # Parse arguments
   args = parser.parse_args()
 
   if args.command == "gerbers":
-    # Call the generateGerbers function with the parsed arguments
     generateGerbers (args.output_dir, args.input_filename)
   
   elif args.command == "positions":
-    # Call the generatePositions function with the parsed arguments
     generatePositions (args.output_dir, args.input_filename)
   
   elif args.command == "pcb_pdf":
-    # Call the generatePCBPDF function with the parsed arguments
     generatePcbPdf (args.output_dir, args.input_filename)
 
   elif args.command == "sch_pdf":
-    # Call the generatePCBPDF function with the parsed arguments
     generateSchPdf (args.output_dir, args.input_filename)
+
+  elif args.command == "bom":
+    generateBom (args.output_dir, args.input_filename, args.type)
   
   elif args.command == "ddd":
-    # Call the generateStep function with the parsed arguments
     generate3D (args.output_dir, args.input_filename, args.type)
 
   elif args.command == "test":

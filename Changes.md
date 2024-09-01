@@ -1,6 +1,13 @@
 
 
 #
+### **+05:30 11:16:59 AM 01-09-2024, Sunday**
+
+  - Added `bom` command to export BoM file. Only CSV is supported at the moment.
+  - Added `generateBom()` function.
+  - New Version `0.0.11`.
+
+#
 ### **+05:30 10:38:08 AM 01-09-2024, Sunday**
 
   - Added `sch_pdf` export command. This will export the schematic as a single PDF.
