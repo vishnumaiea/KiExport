@@ -1,5 +1,11 @@
 
 
+#
+### **+05:30 10:38:08 AM 01-09-2024, Sunday**
+
+  - Added `sch_pdf` export command. This will export the schematic as a single PDF.
+  - Added `generateSchPdf()` function.
+  - Schematic PDF generation is successful.
 
 #
 ### **+05:30 12:16:46 AM 31-08-2024, Saturday**
