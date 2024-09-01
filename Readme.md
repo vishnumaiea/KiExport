@@ -8,6 +8,8 @@
 
 ## Installation
 
+KiExport uses the [**KiCad-CLI**]((https://docs.kicad.org/8.0/en/cli/cli.html)) tool to generate the files. You should have a KiCad version installed in your system to use this tool. You can download and install the latest version of KiCad from [here](https://kicad.org/download/). After installation, browse to the installation folder and find the `bin` directory where the `kicad-cli.exe` file is located. Add the `bin` folder to your system path.
+
 You can clone/fork the project to obtain a copy of the repository in your system using the following command. Git should be installed and available on the path.
 
 ```
