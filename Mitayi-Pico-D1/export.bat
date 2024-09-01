@@ -11,5 +11,7 @@ kiexport bom -od "%OUTPUT_DIR%" -if "%SCH_FILE%"
 kiexport pcb_pdf -od "%OUTPUT_DIR%" -if "%PCB_FILE%"
 kiexport gerbers -od "%OUTPUT_DIR%" -if "%PCB_FILE%"
 kiexport positions -od "%OUTPUT_DIR%" -if "%PCB_FILE%"
+kiexport ddd -od "%OUTPUT_DIR%" -if "%PCB_FILE%" -t "STEP"
+kiexport ddd -od "%OUTPUT_DIR%" -if "%PCB_FILE%" -t "VRML"
 
 pause
