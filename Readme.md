@@ -3,6 +3,8 @@
 
 **KiExport** is a Python script for exporting manufacturing files from KiCad PCB design projects. This is a CLI (Command Line Interface) utility. Commands and arguments can be passed to the script while running. You should be familiar working with CLI tools and how to execute commands from the terminal.
 
+The **Mitayi Pico RP2040** project is added as a sample project to work on.
+
 - **Author:** [Vishnu Mohanan](https://github.com/vishnumaiea)
 - **Version:** `0.0.12`
 
@@ -28,6 +30,26 @@ In addition, you can also run the executable with the following command. The `di
 
 ```
 kiexport <command> <arguments>
+```
+
+You can automate running multiple commands with a batch script. Refer to the [`export.bat`](/Mitayi-Pico-D1/export.bat) file for an example.
+
+```bat
+@REM @echo off
+
+:: Set variables
+set OUTPUT_DIR=Export
+set SCH_FILE=Mitayi-Pico-RP2040.kicad_sch
+set PCB_FILE=Mitayi-Pico-RP2040.kicad_pcb
+
+:: Execute commands
+kiexport sch_pdf -od "%OUTPUT_DIR%" -if "%SCH_FILE%"
+kiexport bom -od "%OUTPUT_DIR%" -if "%SCH_FILE%"
+kiexport pcb_pdf -od "%OUTPUT_DIR%" -if "%PCB_FILE%"
+kiexport gerbers -od "%OUTPUT_DIR%" -if "%PCB_FILE%"
+kiexport positions -od "%OUTPUT_DIR%" -if "%PCB_FILE%"
+
+pause
 ```
 
 ## Commands

@@ -1,6 +1,13 @@
 
 
 #
+### **+05:30 12:41:33 PM 01-09-2024, Sunday**
+
+  - Added `export.bat` script.
+  - Updated Readme.
+    - Added the export batch file usage.
+
+#
 ### **+05:30 11:45:20 AM 01-09-2024, Sunday**
 
   - Added `printInfo()` to print the app information.
