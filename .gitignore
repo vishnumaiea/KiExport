@@ -2,3 +2,6 @@
 ~*.lck
 ~*.kicad_pcb.lck
 ~*.kicad_sch.lck
+/build/
+/*.spec
+/__pycache__/

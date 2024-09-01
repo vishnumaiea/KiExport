@@ -5,7 +5,7 @@
 # Tool to export manufacturing files from KiCad PCB projects.
 # Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)
 # Version: 0.0.12
-# Last Modified: +05:30 11:45:00 AM 01-09-2024, Sunday
+# Last Modified: +05:30 11:50:59 AM 01-09-2024, Sunday
 # GitHub: https://github.com/vishnumaiea/KiExport
 # License: MIT
 
