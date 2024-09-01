@@ -35,7 +35,7 @@ kiexport <command> <arguments>
 Run the following command to show the version of the tool.
 
 ```
-kiexport --v
+kiexport -v
 ```
 
 ```
@@ -47,11 +47,17 @@ kiexport --version
 Show the help menu.
 
 ```
-kiexport --h
+kiexport -h
 ```
 
 ```
 kiexport --help
+```
+
+You can include the command to get the help menu of a specific command. For example,
+
+```
+kiexport gerbers -h
 ```
 
 ### `gerbers` 
