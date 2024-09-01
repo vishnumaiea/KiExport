@@ -3,6 +3,9 @@
 
 **KiExport** is a Python script for exporting manufacturing files from KiCad PCB design projects. This is a CLI (Command Line Interface) utility. Commands and arguments can be passed to the script while running. You should be familiar working with CLI tools and how to execute commands from the terminal.
 
+- **Author:** [Vishnu Mohanan](https://github.com/vishnumaiea)
+- **Version:** `0.0.12`
+
 ## Installation
 
 You can clone/fork the project to obtain a copy of the repository in your system using the following command. Git should be installed and available on the path.
@@ -13,9 +16,151 @@ git clone https://github.com/vishnumaiea/KiExport.git
 
 ## Usage
 
+You can run the Python script directly from the source folder with the following command. Python should be installed and available on the path.
+
+```
+python kiexport.py <command> <arguments>
+```
+
+In addition, you can also run the executable with the following command. The `dist` folder should be added to the path in order for this to work.
+
+```
+kiexport <command> <arguments>
+```
+
+## Commands
+
+### `version`
+
+Run the following command to show the version of the tool.
+
+```
+kiexport --v
+```
+
+```
+kiexport --version
+```
+
+### `help`
+
+Show the help menu.
+
+```
+kiexport --h
+```
+
+```
+kiexport --help
+```
+
+### `gerbers` 
+
+Export Gerbers.
+
+```
+kiexport gerbers -if <input_file> -od <output_dir>
+```
+
+- `-if`: Path to the input `.kicad_pcb` file. Required.
+- `-od`: Path to the output directory. Required.
+
+### `positions`
+
+Export Position or Centroid files for PCB assembly (PCBA).
+
+```
+kiexport positions -if <input_file> -od <output_dir>
+```
+
+- `-if`: Path to the input `.kicad_pcb` file. Required.
+- `-od`: Path to the output directory. Required.
+
+Example:
+
+```
+kiexport positions -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb" -od "Mitayi-Pico-D1/Export"
+```
+
+### `pcb_pdf`
+
+Export the PCB layers as individual PDF.
+
+```
+kiexport pcb_pdf -if <input_file> -od <output_dir>
+```
+
+- `-if`: Path to the input `.kicad_pcb` file. Required.
+- `-od`: Path to the output directory. Required.
+
+Example:
+
+```
+kiexport pcb_pdf -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb" -od "Mitayi-Pico-D1/Export"
+```
+
+### `sch_pdf`
+
+Export the schematic as PDF.
+
+```
+kiexport sch_pdf -if <input_file> -od <output_dir>
+```
+
+- `-if`: Path to the input `.kicad_sch` file. Required.
+- `-od`: Path to the output directory. Required.
+
+Example:
+
+```
+kiexport sch_pdf -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_sch" -od "Mitayi-Pico-D1/Export"
+```
+
+### `ddd`
+
+Export the 3D files.
+
+```
+kiexport ddd -if <input_file> -od <output_dir> -t <type>
+```
+
+- `-if`: Path to the input `.kicad_pcb` file. Required.
+- `-od`: Path to the output directory. Required.
+- `-t`: The type of 3D file to export. Possible values are `STEP` and `VRML`. Required.
+
+Example:
+
+```
+kiexport ddd -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb" -od "Mitayi-Pico-D1/Export" -t STEP
+```
+
+### `bom`
+
+Export the bill of materials files.
+
+```
+kiexport bom -if <input_file> -od <output_dir> -t <type>
+```
+
+- `-if`: Path to the input `.kicad_sch` file. Required.
+- `-od`: Path to the output directory. Required.
+- `-t`: The type of bill of materials to export. Possible values are `CSV`. Optional.
+
+Example:
+
+```
+kiexport bom -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_sch" -od "Mitayi-Pico-D1/Export" -t CSV
+```
+
 ## License
 
 This project is licensed under the MIT license.
 
 ## References
+
+- [KiCad Command-Line Interface](https://docs.kicad.org/8.0/en/cli/cli.html)
+- [Getting Started with KiCad Version 6 : Beginner’s Tutorial to Schematic and PCB Design](https://www.circuitstate.com/tutorials/getting-started-with-kicad-version-6-beginners-tutorial-to-schematic-and-pcb-design/)
+- [How to Install KiCad Version 6 and Organize Part Libraries](https://www.circuitstate.com/tutorials/how-to-install-kicad-version-6-and-organize-part-libraries/)
+- [How to Get Your KiCad PCB Design Ready for Automated Assembly – KiCad 6 Tutorial](https://www.circuitstate.com/tutorials/how-to-get-your-kicad-pcb-design-ready-for-automated-assembly-kicad-6-tutorial/)
+- [How to Get Your KiCad PCB Design Ready for Fabrication – KiCad Version 6 Tutorial](https://www.circuitstate.com/tutorials/how-to-get-your-kicad-pcb-design-ready-for-fabrication-kicad-version-6-tutorial/)
 
