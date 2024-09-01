@@ -8,6 +8,8 @@ The **Mitayi Pico RP2040** project is added as a sample project to work on.
 - **Author:** [Vishnu Mohanan](https://github.com/vishnumaiea)
 - **Version:** `0.0.12`
 
+This tool was created with the help of [**ChatGPT**](https://chat.openai.com/chat). Thanks to humanity!
+
 ## Installation
 
 KiExport uses the [**KiCad-CLI**](https://docs.kicad.org/8.0/en/cli/cli.html) tool to generate the files. You should have a KiCad version installed in your system to use this tool. You can download and install the latest version of KiCad from [here](https://kicad.org/download/). After installation, browse to the installation folder and find the `bin` directory where the `kicad-cli.exe` file is located. Add the `bin` folder to your system path.
