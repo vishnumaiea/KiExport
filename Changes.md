@@ -1,6 +1,13 @@
 
 
 #
+### **+05:30 11:45:20 AM 01-09-2024, Sunday**
+
+  - Added `printInfo()` to print the app information.
+  - Added `-v` and `--version` command to print the app version.
+  - New Version `0.0.12`.
+
+#
 ### **+05:30 11:16:59 AM 01-09-2024, Sunday**
 
   - Added `bom` command to export BoM file. Only CSV is supported at the moment.

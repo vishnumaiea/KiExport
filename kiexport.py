@@ -5,7 +5,7 @@
 # Tool to export manufacturing files from KiCad PCB projects.
 # Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)
 # Version: 0.0.12
-# Last Modified: +05:30 11:16:54 AM 01-09-2024, Sunday
+# Last Modified: +05:30 11:45:00 AM 01-09-2024, Sunday
 # GitHub: https://github.com/vishnumaiea/KiExport
 # License: MIT
 
@@ -19,6 +19,9 @@ from datetime import datetime
 import zipfile
 
 #=============================================================================================#
+
+APP_NAME = "KiExport"
+APP_VERSION = "0.0.12"
 
 SAMPLE_PCB_FILE = "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb"
 
@@ -786,6 +789,9 @@ def test():
 
 def parseArguments():
   parser = argparse.ArgumentParser (description = "KiExport: Tool to export manufacturing files from KiCad PCB projects.")
+  
+  parser.add_argument('-v', '--version', action = 'version', version = f'{APP_VERSION}', help = "Show the version of the tool and exit.")
+
   subparsers = parser.add_subparsers (dest = "command", help = "Available commands.")
 
   # Subparser for the Gerber export command
@@ -810,7 +816,7 @@ def parseArguments():
   # Example: python .\kiexport.py sch_pdf -od "Mitayi-Pico-D1/Export" -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_sch"
   sch_pdf_parser = subparsers.add_parser ("sch_pdf", help = "Export schematic PDF files.")
   sch_pdf_parser.add_argument ("-if", "--input_filename", required = True, help = "Path to the .kicad_sch file.")
-  sch_pdf_parser.add_argument ("-od", "--output_dir", required = True, help = "Directory to save the schematic PDF files to.")
+  sch_pdf_parser.add_argument ("-od", "--output_dir", required = True, help = "Directory to save the Schematic PDF files to.")
 
   # Subparser for the 3D file export command
   # Example: python .\kiexport.py ddd -t "VRML" -od "Mitayi-Pico-D1/Export" -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb"
@@ -830,6 +836,12 @@ def parseArguments():
 
   # Parse arguments
   args = parser.parse_args()
+  
+  printInfo()
+
+  if args.command == "-v" or args.command == "--version":
+    print (f"KiExport v{APP_VERSION}")
+    return
 
   if args.command == "gerbers":
     generateGerbers (args.output_dir, args.input_filename)
@@ -854,6 +866,15 @@ def parseArguments():
     
   else:
     parser.print_help()
+
+#=============================================================================================#
+
+def printInfo():
+  print ("")
+  print (f"KiExport v{APP_VERSION}")
+  print ("CLI tool to export design and manufacturing files from KiCad projects.")
+  print ("Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)")
+  print ("")
 
 #=============================================================================================#
 
