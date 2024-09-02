@@ -1,5 +1,11 @@
 
 
+
+#
+### **+05:30 11:52:42 PM 02-09-2024, Monday**
+
+  * Added full support for reading `sch_pdf` command related arguments from the config file.
+
 #
 ### **+05:30 10:20:21 PM 02-09-2024, Monday**
 

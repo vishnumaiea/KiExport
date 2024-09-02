@@ -4,8 +4,8 @@
 # KiExport
 # Tool to export manufacturing files from KiCad PCB projects.
 # Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)
-# Version: 0.0.13
-# Last Modified: +05:30 22:20:12 PM 02-09-2024, Monday
+# Version: 0.0.14
+# Last Modified: +05:30 23:52:27 PM 02-09-2024, Monday
 # GitHub: https://github.com/vishnumaiea/KiExport
 # License: MIT
 
@@ -540,17 +540,22 @@ def generateSchPdf (output_dir, sch_filename, to_overwrite = True):
 
   #---------------------------------------------------------------------------------------------#
   
-  # Extract information from the input file
-  file_name = extract_pcb_file_name (sch_filename)
+  
+  file_name = extract_pcb_file_name (sch_filename) # Extract information from the input file
+  file_name = file_name.replace (" ", "-") # If there are whitespace characters in the project name, replace them with a hyphen
+
   project_name = extract_project_name (file_name)
-  info = extract_info_from_pcb (sch_filename)
+  info = extract_info_from_pcb (sch_filename) # Extract basic information from the input file
   print (f"generateSchPdf [INFO]: Project name is '{project_name}' and revision is R{info ['rev']}.")
 
   #---------------------------------------------------------------------------------------------#
 
   # Read the target directory name from the config file
   config_dir = current_config.get ("data", {}).get ("sch_pdf", {}).get ("--output", default_config ["data"]["sch_pdf"]["--output"])
-  command_dir = output_dir
+  command_dir = output_dir  # The directory specified by the command line argument
+
+  # This will be the root directory for the output files.
+  # Extra directories will be created based on the revision, date and sequence number.
   target_dir = None
 
   # The configured directory has precedence over the command line argument.
@@ -571,7 +576,7 @@ def generateSchPdf (output_dir, sch_filename, to_overwrite = True):
 
   #---------------------------------------------------------------------------------------------#
 
-  # We will create further directories in the target directory based on the revision number.
+  # Create one more directory based on the revision number.
   rev_directory = f"{target_dir}/R{info ['rev']}"
 
   # Check if the revision directory exists, and create if not.
@@ -584,7 +589,8 @@ def generateSchPdf (output_dir, sch_filename, to_overwrite = True):
   not_completed = True
   seq_number = 0
   
-  # Now we have to make the date-specific directory.
+  # Now we have to make the date-specific and output-specific directory.
+  # This will be the final directory for the output files.
   while not_completed:
     today_date = datetime.now()
     formatted_date = today_date.strftime ("%d-%m-%Y")
@@ -607,24 +613,62 @@ def generateSchPdf (output_dir, sch_filename, to_overwrite = True):
   
   #---------------------------------------------------------------------------------------------#
   
+  # Get the argument list from the config file.
+  arg_list = current_config.get ("data", {}).get ("sch_pdf", {})
+
   seq_number = 1
   not_completed = True
+  full_command = []
+  full_command.extend (sch_pdf_export_command) # Add the base command
   
+  # Create the output file name.
   while not_completed:
     file_name = f"{final_directory}/{project_name}-R{info ['rev']}-SCH-{filename_date}-{seq_number}.pdf"
 
     if os.path.exists (file_name):
-      seq_number += 1
+      seq_number += 1 # Increment the sequence number and try again
       not_completed = True
     else:
-      full_command = sch_pdf_export_command + \
-                    ["--output", f"{final_directory}/{project_name}-R{info ['rev']}-SCH-{filename_date}-{seq_number}.pdf"] + \
-                    ["--theme", "User"] + \
-                    [sch_filename]
-      not_completed = False
+      full_command.append ("--output")
+      full_command.append (f'"{file_name}"') # Add the output file name with double quotes around it
+      break
+
+  #---------------------------------------------------------------------------------------------#
+  
+  # Add the remaining arguments.
+  # Check if the argument list is not an empty dictionary.
+  if arg_list:
+    for key, value in arg_list.items():
+      if key.startswith ("--"): # Only fetch the arguments that start with "--"
+        if key == "--output": # Skip the --output argument, sice we already added it
+          continue
+        else:
+          # Check if the value is empty
+          if value == "": # Skip if the value is empty
+            continue
+          else:
+            # Check if the vlaue is a JSON boolean
+            if isinstance (value, bool):
+              if value == True: # If the value is true, then append the key as an argument
+                full_command.append (key)
+            else:
+              # Check if the value is a string and not a numeral
+              if isinstance (value, str) and not value.isdigit():
+                  full_command.append (key)
+                  full_command.append (f'"{value}"') # Add as a double-quoted string
+              elif isinstance (value, (int, float)):
+                  full_command.append (key)
+                  full_command.append (str (value))  # Append the numeric value as string
+  
+  # Finally add the input file
+  full_command.append (f'"{sch_filename}"')
+  print ("generateSchPdf [INFO]: Running command: ", full_command)
+
+  #---------------------------------------------------------------------------------------------#
   
   # Run the command
   try:
+    full_command = ' '.join (full_command) # Convert the list to a string
     subprocess.run (full_command, check = True)
   
   except subprocess.CalledProcessError as e:
