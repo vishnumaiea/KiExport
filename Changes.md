@@ -1,5 +1,10 @@
 
 
+#
+### **+05:30 12:10:32 AM 03-09-2024, Tuesday**
+
+  * Replaced the `--output` argument from the configuration list with `--output_dir`. Since we already uses revision/date/sequence based output directories, it doesn't make sense to get `--output` value for the KiCad-CLI.
+  * The new `--output_dir` will be used as the root directory for the output files.
 
 #
 ### **+05:30 11:52:42 PM 02-09-2024, Monday**

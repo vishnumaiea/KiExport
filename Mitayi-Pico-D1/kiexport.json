@@ -6,7 +6,7 @@
   "commands": ["gerbers", "drills", "sch_pdf", "bom", "pcb_pdf", "positions", "ddd"],
   "data": {
     "gerbers": {
-      "--output": "",
+      "--output_dir": "",
       "--layers": ["F.Cu","B.Cu","F.Paste","B.Paste","F.Silkscreen","B.Silkscreen","F.Mask","B.Mask","User.Drawings","User.Comments","Edge.Cuts","F.Courtyard","B.Courtyard","F.Fab","B.Fab"],
       "--drawing-sheet": false,
       "--exclude-refdes": false,
@@ -24,7 +24,7 @@
       "kie_include_drill": true
     },
     "drills": {
-      "--output": "",
+      "--output_dir": "",
       "--format": "excellon",
       "--drill-origin": "plot",
       "--excellon-zeros-format": "decimal",
@@ -39,7 +39,7 @@
     },
     "bom": {
       "CSV": {
-        "--output": "",
+        "--output_dir": "",
         "--preset": "Group by MPN-DNP",
         "--format-preset": "CSV",
         "--fields": "${ITEM_NUMBER},Reference,Value,Name,Footprint,${QUANTITY},${DNP},MPN,MFR,Alt MPN",
@@ -58,7 +58,7 @@
       }
     },
     "sch_pdf": {
-      "--output": "",
+      "--output_dir": "",
       "--drawing-sheet": false,
       "--theme": "User",
       "--black-and-white": false,
@@ -68,7 +68,7 @@
       "--pages": false
     },
     "pcb_pdf": {
-      "--output": "",
+      "--output_dir": "",
       "--layers": ["F.Cu","B.Cu","F.Paste","B.Paste","F.Silkscreen","B.Silkscreen","F.Mask","B.Mask","User.Drawings","User.Comments","Edge.Cuts","F.Courtyard","B.Courtyard","F.Fab","B.Fab"],
       "--drawing-sheet": false,
       "--mirror": false,
@@ -82,7 +82,7 @@
       "kie_single_file": false
     },
     "positions": {
-      "--output": "",
+      "--output_dir": "",
       "--side": "front,back,both",
       "--format": "csv",
       "--units": "mm",
@@ -95,7 +95,7 @@
     },
     "ddd": {
       "STEP": {
-        "--output": "",
+        "--output_dir": "",
         "--force": true,
         "--grid-origin": false,
         "--drill-origin": false,
@@ -110,7 +110,7 @@
         "--user-origin": false
       },
       "VRML": {
-        "--output": "",
+        "--output_dir": "",
         "--force": true,
         "--user-origin": false,
         "--units": "mm",

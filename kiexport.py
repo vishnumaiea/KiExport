@@ -5,7 +5,7 @@
 # Tool to export manufacturing files from KiCad PCB projects.
 # Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)
 # Version: 0.0.14
-# Last Modified: +05:30 23:52:27 PM 02-09-2024, Monday
+# Last Modified: +05:30 00:14:06 AM 03-09-2024, Tuesday
 # GitHub: https://github.com/vishnumaiea/KiExport
 # License: MIT
 
@@ -540,7 +540,6 @@ def generateSchPdf (output_dir, sch_filename, to_overwrite = True):
 
   #---------------------------------------------------------------------------------------------#
   
-  
   file_name = extract_pcb_file_name (sch_filename) # Extract information from the input file
   file_name = file_name.replace (" ", "-") # If there are whitespace characters in the project name, replace them with a hyphen
 
@@ -571,8 +570,7 @@ def generateSchPdf (output_dir, sch_filename, to_overwrite = True):
     print (f"generateSchPdf [INFO]: Output directory '{target_dir}' does not exist. Creating it now.")
     os.makedirs (target_dir)
   else:
-    if to_overwrite:
-      print (f"generateSchPdf [INFO]: Output directory '{target_dir}' already exists.")
+    print (f"generateSchPdf [INFO]: Output directory '{target_dir}' already exists.")
 
   #---------------------------------------------------------------------------------------------#
 
@@ -640,7 +638,7 @@ def generateSchPdf (output_dir, sch_filename, to_overwrite = True):
   if arg_list:
     for key, value in arg_list.items():
       if key.startswith ("--"): # Only fetch the arguments that start with "--"
-        if key == "--output": # Skip the --output argument, sice we already added it
+        if key == "--output_dir": # Skip the --output_dir argument, sice we already added it
           continue
         else:
           # Check if the value is empty
