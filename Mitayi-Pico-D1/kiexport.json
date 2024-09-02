@@ -1,0 +1,122 @@
+{
+  "name": "KiExport.JSON",
+  "description": "Configuration file for KiExport",
+  "filetype": "json",
+  "version": "1.0",
+  "commands": ["gerbers", "drills", "sch_pdf", "bom", "pcb_pdf", "positions", "ddd"],
+  "data": {
+    "gerbers": {
+      "--output": "",
+      "--layers": ["F.Cu","B.Cu","F.Paste","B.Paste","F.Silkscreen","B.Silkscreen","F.Mask","B.Mask","User.Drawings","User.Comments","Edge.Cuts","F.Courtyard","B.Courtyard","F.Fab","B.Fab"],
+      "--drawing-sheet": false,
+      "--exclude-refdes": false,
+      "--exclude-value": false,
+      "--include-border-title": false,
+      "--no-x2": false,
+      "--no-netlist": true,
+      "--subtract-soldermask": false,
+      "--disable-aperture-macros": false,
+      "--use-drill-file-origin": true,
+      "--precision": 6,
+      "--no-protel-ext": true,
+      "--common-layers": false,
+      "--board-plot-params": false,
+      "kie_include_drill": true
+    },
+    "drills": {
+      "--output": "",
+      "--format": "excellon",
+      "--drill-origin": "plot",
+      "--excellon-zeros-format": "decimal",
+      "--excellon-oval-format": "route",
+      "--excellon-units": "mm",
+      "--excellon-mirror-y": false,
+      "--excellon-min-header": false,
+      "--excellon-separate-th": true,
+      "--generate-map": true,
+      "--map-format": "pdf",
+      "--gerber-precision": false
+    },
+    "bom": {
+      "CSV": {
+        "--output": "",
+        "--preset": "Group by MPN-DNP",
+        "--format-preset": "CSV",
+        "--fields": "${ITEM_NUMBER},Reference,Value,Name,Footprint,${QUANTITY},${DNP},MPN,MFR,Alt MPN",
+        "--labels": "#,Reference,Value,Name,Footprint,Qty,DNP,MPN,MFR,Alt MPN",
+        "--group-by": "${DNP},MPN",
+        "--sort-field": false,
+        "--sort-asc": false,
+        "--filter": false,
+        "--exclude-dnp": false,
+        "--field-delimiter": false,
+        "--string-delimiter": false,
+        "--ref-delimiter": false,
+        "--ref-range-delimiter": false,
+        "--keep-tabs": false,
+        "--keep-line-breaks": false
+      }
+    },
+    "sch_pdf": {
+      "--output": "",
+      "--drawing-sheet": false,
+      "--theme": "User",
+      "--black-and-white": false,
+      "--exclude-drawing-sheet": false,
+      "--exclude-pdf-property-popups": false,
+      "--no-background-color": false,
+      "--pages": false
+    },
+    "pcb_pdf": {
+      "--output": "",
+      "--layers": ["F.Cu","B.Cu","F.Paste","B.Paste","F.Silkscreen","B.Silkscreen","F.Mask","B.Mask","User.Drawings","User.Comments","Edge.Cuts","F.Courtyard","B.Courtyard","F.Fab","B.Fab"],
+      "--drawing-sheet": false,
+      "--mirror": false,
+      "--exclude-refdes": false,
+      "--exclude-value": false,
+      "--include-border-title": true,
+      "--negative": false,
+      "--black-and-white": false,
+      "--theme": "User",
+      "--drill-shape-opt": 1,
+      "kie_single_file": false
+    },
+    "positions": {
+      "--output": "",
+      "--side": "front,back,both",
+      "--format": "csv",
+      "--units": "mm",
+      "--bottom-negate-x": false,
+      "--use-drill-file-origin": true,
+      "--smd-only": false,
+      "--exclude-fp-th": false,
+      "--exclude-dnp": false,
+      "--gerber-board-edge": false
+    },
+    "ddd": {
+      "STEP": {
+        "--output": "",
+        "--force": true,
+        "--grid-origin": false,
+        "--drill-origin": false,
+        "--no-unspecified": false,
+        "--no-dnp": false,
+        "--subst-models": true,
+        "--board-only": false,
+        "--include-tracks": true,
+        "--include-zones": true,
+        "--min-distance": false,
+        "--no-optimize-step": false,
+        "--user-origin": false
+      },
+      "VRML": {
+        "--output": "",
+        "--force": true,
+        "--user-origin": false,
+        "--units": "mm",
+        "--models-dir": false,
+        "--models-relative": false
+      }
+    }
+  }
+}

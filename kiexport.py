@@ -4,8 +4,8 @@
 # KiExport
 # Tool to export manufacturing files from KiCad PCB projects.
 # Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)
-# Version: 0.0.12
-# Last Modified: +05:30 11:50:59 AM 01-09-2024, Sunday
+# Version: 0.0.13
+# Last Modified: +05:30 22:20:12 PM 02-09-2024, Monday
 # GitHub: https://github.com/vishnumaiea/KiExport
 # License: MIT
 
@@ -17,13 +17,141 @@ import os
 import re
 from datetime import datetime
 import zipfile
+import json
 
 #=============================================================================================#
 
 APP_NAME = "KiExport"
-APP_VERSION = "0.0.12"
+APP_VERSION = "0.0.13"
 
 SAMPLE_PCB_FILE = "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb"
+
+current_config = None
+default_config = None
+DEFAULT_CONFIG_JSON = '''
+{
+  "name": "KiExport.JSON",
+  "description": "Configuration file for KiExport",
+  "filetype": "json",
+  "version": "1.0",
+  "commands": ["gerbers", "drills", "sch_pdf", "bom", "pcb_pdf", "positions", "ddd"],
+  "data": {
+    "gerbers": {
+      "--output": "",
+      "--layers": ["F.Cu","B.Cu","F.Paste","B.Paste","F.Silkscreen","B.Silkscreen","F.Mask","B.Mask","User.Drawings","User.Comments","Edge.Cuts","F.Courtyard","B.Courtyard","F.Fab","B.Fab"],
+      "--drawing-sheet": false,
+      "--exclude-refdes": false,
+      "--exclude-value": false,
+      "--include-border-title": false,
+      "--no-x2": false,
+      "--no-netlist": true,
+      "--subtract-soldermask": false,
+      "--disable-aperture-macros": false,
+      "--use-drill-file-origin": true,
+      "--precision": 6,
+      "--no-protel-ext": true,
+      "--common-layers": false,
+      "--board-plot-params": false,
+      "kie_include_drill": true
+    },
+    "drills": {
+      "--output": "",
+      "--format": "excellon",
+      "--drill-origin": "plot",
+      "--excellon-zeros-format": "decimal",
+      "--excellon-oval-format": "route",
+      "--excellon-units": "mm",
+      "--excellon-mirror-y": false,
+      "--excellon-min-header": false,
+      "--excellon-separate-th": true,
+      "--generate-map": true,
+      "--map-format": "pdf",
+      "--gerber-precision": false
+    },
+    "bom": {
+      "CSV": {
+        "--output": "",
+        "--preset": "Group by MPN-DNP",
+        "--format-preset": "CSV",
+        "--fields": "${ITEM_NUMBER},Reference,Value,Name,Footprint,${QUANTITY},${DNP},MPN,MFR,Alt MPN",
+        "--labels": "#,Reference,Value,Name,Footprint,Qty,DNP,MPN,MFR,Alt MPN",
+        "--group-by": "${DNP},MPN",
+        "--sort-field": false,
+        "--sort-asc": false,
+        "--filter": false,
+        "--exclude-dnp": false,
+        "--field-delimiter": false,
+        "--string-delimiter": false,
+        "--ref-delimiter": false,
+        "--ref-range-delimiter": false,
+        "--keep-tabs": false,
+        "--keep-line-breaks": false
+      }
+    },
+    "sch_pdf": {
+      "--output": "",
+      "--drawing-sheet": false,
+      "--theme": "User",
+      "--black-and-white": false,
+      "--exclude-drawing-sheet": false,
+      "--exclude-pdf-property-popups": false,
+      "--no-background-color": false,
+      "--pages": false
+    },
+    "pcb_pdf": {
+      "--output": "",
+      "--layers": ["F.Cu","B.Cu","F.Paste","B.Paste","F.Silkscreen","B.Silkscreen","F.Mask","B.Mask","User.Drawings","User.Comments","Edge.Cuts","F.Courtyard","B.Courtyard","F.Fab","B.Fab"],
+      "--drawing-sheet": false,
+      "--mirror": false,
+      "--exclude-refdes": false,
+      "--exclude-value": false,
+      "--include-border-title": true,
+      "--negative": false,
+      "--black-and-white": false,
+      "--theme": "User",
+      "--drill-shape-opt": 1,
+      "kie_single_file": false
+    },
+    "positions": {
+      "--output": "",
+      "--side": "front,back,both",
+      "--format": "csv",
+      "--units": "mm",
+      "--bottom-negate-x": false,
+      "--use-drill-file-origin": true,
+      "--smd-only": false,
+      "--exclude-fp-th": false,
+      "--exclude-dnp": false,
+      "--gerber-board-edge": false
+    },
+    "ddd": {
+      "STEP": {
+        "--output": "",
+        "--force": true,
+        "--grid-origin": false,
+        "--drill-origin": false,
+        "--no-unspecified": false,
+        "--no-dnp": false,
+        "--subst-models": true,
+        "--board-only": false,
+        "--include-tracks": true,
+        "--include-zones": true,
+        "--min-distance": false,
+        "--no-optimize-step": false,
+        "--user-origin": false
+      },
+      "VRML": {
+        "--output": "",
+        "--force": true,
+        "--user-origin": false,
+        "--units": "mm",
+        "--models-dir": false,
+        "--models-relative": false
+      }
+    }
+  }
+}
+'''
 
 #=============================================================================================#
 
@@ -399,69 +527,98 @@ def generatePcbPdf (output_dir, pcb_filename, to_overwrite = True):
 #=============================================================================================#
 
 def generateSchPdf (output_dir, sch_filename, to_overwrite = True):
+  global current_config  # Access the global config
+  global default_config  # Access the global config
+
   # Common base command
   sch_pdf_export_command = ["kicad-cli", "sch", "export", "pdf"]
 
+  # Check if the input file exists
   if not check_file_exists (sch_filename):
-    print (f"generateSchPdf [ERROR]: {sch_filename} does not exist.")
+    print (f"generateSchPdf [ERROR]: '{sch_filename}' does not exist.")
     return
 
+  #---------------------------------------------------------------------------------------------#
+  
+  # Extract information from the input file
   file_name = extract_pcb_file_name (sch_filename)
   project_name = extract_project_name (file_name)
   info = extract_info_from_pcb (sch_filename)
-  
-  print (f"generateSchPdf [INFO]: Project name is {project_name} and revision is {info ['rev']}.")
-  
-  # Check if the ouptut directory exists, and create if not.
-  if not os.path.exists (output_dir):
-    print (f"generateSchPdf [INFO]: Output directory {output_dir} does not exist. Creating it now.")
-    os.makedirs (output_dir)
+  print (f"generateSchPdf [INFO]: Project name is '{project_name}' and revision is R{info ['rev']}.")
 
-  rev_directory = f"{output_dir}/R{info ['rev']}"
+  #---------------------------------------------------------------------------------------------#
 
+  # Read the target directory name from the config file
+  config_dir = current_config.get ("data", {}).get ("sch_pdf", {}).get ("--output", default_config ["data"]["sch_pdf"]["--output"])
+  command_dir = output_dir
+  target_dir = None
+
+  # The configured directory has precedence over the command line argument.
+  # Check if the config directory is empty.
+  if config_dir == "":
+    print (f"generateSchPdf [INFO]: Config directory '{config_dir}' is empty. Using the command line argument.")
+    target_dir = command_dir # If it's empty, use the command line argument
+  else:
+    print (f"generateSchPdf [INFO]: Config directory '{config_dir}' is not empty. Using the config directory.")
+    target_dir = config_dir # Otherwise, use the config directory
+
+  if not os.path.exists (target_dir): # Check if the target directory exists
+    print (f"generateSchPdf [INFO]: Output directory '{target_dir}' does not exist. Creating it now.")
+    os.makedirs (target_dir)
+  else:
+    if to_overwrite:
+      print (f"generateSchPdf [INFO]: Output directory '{target_dir}' already exists.")
+
+  #---------------------------------------------------------------------------------------------#
+
+  # We will create further directories in the target directory based on the revision number.
+  rev_directory = f"{target_dir}/R{info ['rev']}"
+
+  # Check if the revision directory exists, and create if not.
   if not os.path.exists (rev_directory):
-    print (f"generateSchPdf [INFO]: Revision directory {rev_directory} does not exist. Creating it now.")
+    print (f"generateSchPdf [INFO]: Revision directory '{rev_directory}' does not exist. Creating it now.")
     os.makedirs (rev_directory)
+  
+  #---------------------------------------------------------------------------------------------#
   
   not_completed = True
   seq_number = 0
   
+  # Now we have to make the date-specific directory.
   while not_completed:
     today_date = datetime.now()
     formatted_date = today_date.strftime ("%d-%m-%Y")
     filename_date = today_date.strftime ("%d%m%Y")
     seq_number += 1
     date_directory = f"{rev_directory}/[{seq_number}] {formatted_date}"
-    target_directory = f"{date_directory}/SCH"
+    final_directory = f"{date_directory}/SCH"
 
-    if not os.path.exists (target_directory):
-      print (f"generateSchPdf [INFO]: Target directory {target_directory} does not exist. Creating it now.")
-      os.makedirs (target_directory)
+    if not os.path.exists (final_directory):
+      print (f"generateSchPdf [INFO]: Target directory '{final_directory}' does not exist. Creating it now.")
+      os.makedirs (final_directory)
       not_completed = False
     else:
       if to_overwrite:
-        print (f"generateSchPdf [INFO]: Target directory {target_directory} already exists.")
+        print (f"generateSchPdf [INFO]: Target directory '{final_directory}' already exists. Files may be overwritten.")
         not_completed = False
       else:
-        print (f"generateSchPdf [INFO]: Target directory {target_directory} already exists. Creating another one.")
+        print (f"generateSchPdf [INFO]: Target directory '{final_directory}' already exists. Creating another one.")
         not_completed = True
-
-  # # Check if the target directory ends with a slash, and add one if not
-  # if target_directory [-1] != '/':
-  #   target_directory += '/'
+  
+  #---------------------------------------------------------------------------------------------#
   
   seq_number = 1
   not_completed = True
   
   while not_completed:
-    file_name = f"{target_directory}/{project_name}-R{info ['rev']}-SCH-{filename_date}-{seq_number}.pdf"
+    file_name = f"{final_directory}/{project_name}-R{info ['rev']}-SCH-{filename_date}-{seq_number}.pdf"
 
     if os.path.exists (file_name):
       seq_number += 1
       not_completed = True
     else:
       full_command = sch_pdf_export_command + \
-                    ["--output", f"{target_directory}/{project_name}-R{info ['rev']}-SCH-{filename_date}-{seq_number}.pdf"] + \
+                    ["--output", f"{final_directory}/{project_name}-R{info ['rev']}-SCH-{filename_date}-{seq_number}.pdf"] + \
                     ["--theme", "User"] + \
                     [sch_filename]
       not_completed = False
@@ -780,6 +937,30 @@ def extract_info_from_pcb (pcb_file_path):
 
 #=============================================================================================#
 
+def load_config (config_file, project_file = None):
+  global current_config  # Declare the global variable here
+  global default_config  # Declare the global variable here
+
+  # Load the default configuration
+  print (f"load_config [INFO]: Loading default configuration.")
+  default_config = json.loads (DEFAULT_CONFIG_JSON)
+
+  # If a project file is specified, load the configuration from the location of the project file.
+  # Else, assume that the configuration file is in the same directory as the cwd.
+  if project_file is not None:
+    config_file = os.path.join (os.path.dirname (project_file), config_file)
+
+  # Load the configuration from the specified file
+  if os.path.exists (config_file):
+    print (f"load_config [INFO]: Loading configuration from {config_file}.")
+    with open (config_file, 'r') as f:
+        current_config = json.load (f)
+  else:
+    print (f"load_config [WARNING]: A configuration file does not exist. Default values will be used.")
+    current_config = default_config
+
+#=============================================================================================#
+
 def test():
   info = extract_info_from_pcb (SAMPLE_PCB_FILE)
   print (info)
@@ -838,6 +1019,12 @@ def parseArguments():
   args = parser.parse_args()
   
   printInfo()
+
+  # Check if we received an input file
+  if args.input_filename is not None:
+    load_config (config_file = "kiexport.json", project_file = args.input_filename)
+  else:
+    load_config (config_file = "kiexport.json")
 
   if args.command == "-v" or args.command == "--version":
     print (f"KiExport v{APP_VERSION}")

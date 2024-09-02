@@ -1,6 +1,14 @@
 
 
 #
+### **+05:30 10:20:21 PM 02-09-2024, Monday**
+
+  - Added support for local JSON configuration file.
+  - Updated `generateSchPdf()` to use output directory from the config file.
+  - Added `load_config()` to load the custom and default configurations.
+  - New Version `0.0.13`.
+
+#
 ### **+05:30 12:41:33 PM 01-09-2024, Sunday**
 
   - Added `export.bat` script.
