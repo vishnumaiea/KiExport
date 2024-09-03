@@ -5,7 +5,7 @@
 # Tool to export manufacturing files from KiCad PCB projects.
 # Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)
 # Version: 0.0.14
-# Last Modified: +05:30 00:14:06 AM 03-09-2024, Tuesday
+# Last Modified: +05:30 00:23:21 AM 04-09-2024, Wednesday
 # GitHub: https://github.com/vishnumaiea/KiExport
 # License: MIT
 
@@ -37,7 +37,7 @@ DEFAULT_CONFIG_JSON = '''
   "commands": ["gerbers", "drills", "sch_pdf", "bom", "pcb_pdf", "positions", "ddd"],
   "data": {
     "gerbers": {
-      "--output": "",
+      "--output_dir": "",
       "--layers": ["F.Cu","B.Cu","F.Paste","B.Paste","F.Silkscreen","B.Silkscreen","F.Mask","B.Mask","User.Drawings","User.Comments","Edge.Cuts","F.Courtyard","B.Courtyard","F.Fab","B.Fab"],
       "--drawing-sheet": false,
       "--exclude-refdes": false,
@@ -55,7 +55,7 @@ DEFAULT_CONFIG_JSON = '''
       "kie_include_drill": true
     },
     "drills": {
-      "--output": "",
+      "--output_dir": "",
       "--format": "excellon",
       "--drill-origin": "plot",
       "--excellon-zeros-format": "decimal",
@@ -70,7 +70,7 @@ DEFAULT_CONFIG_JSON = '''
     },
     "bom": {
       "CSV": {
-        "--output": "",
+        "--output_dir": "",
         "--preset": "Group by MPN-DNP",
         "--format-preset": "CSV",
         "--fields": "${ITEM_NUMBER},Reference,Value,Name,Footprint,${QUANTITY},${DNP},MPN,MFR,Alt MPN",
@@ -89,7 +89,7 @@ DEFAULT_CONFIG_JSON = '''
       }
     },
     "sch_pdf": {
-      "--output": "",
+      "--output_dir": "",
       "--drawing-sheet": false,
       "--theme": "User",
       "--black-and-white": false,
@@ -99,7 +99,7 @@ DEFAULT_CONFIG_JSON = '''
       "--pages": false
     },
     "pcb_pdf": {
-      "--output": "",
+      "--output_dir": "",
       "--layers": ["F.Cu","B.Cu","F.Paste","B.Paste","F.Silkscreen","B.Silkscreen","F.Mask","B.Mask","User.Drawings","User.Comments","Edge.Cuts","F.Courtyard","B.Courtyard","F.Fab","B.Fab"],
       "--drawing-sheet": false,
       "--mirror": false,
@@ -113,7 +113,7 @@ DEFAULT_CONFIG_JSON = '''
       "kie_single_file": false
     },
     "positions": {
-      "--output": "",
+      "--output_dir": "",
       "--side": "front,back,both",
       "--format": "csv",
       "--units": "mm",
@@ -126,7 +126,7 @@ DEFAULT_CONFIG_JSON = '''
     },
     "ddd": {
       "STEP": {
-        "--output": "",
+        "--output_dir": "",
         "--force": true,
         "--grid-origin": false,
         "--drill-origin": false,
@@ -141,7 +141,7 @@ DEFAULT_CONFIG_JSON = '''
         "--user-origin": false
       },
       "VRML": {
-        "--output": "",
+        "--output_dir": "",
         "--force": true,
         "--user-origin": false,
         "--units": "mm",
@@ -307,60 +307,39 @@ def generateDrills (target_dir, pcb_filename):
 #=============================================================================================#
 
 def generatePositions (output_dir, pcb_filename, to_overwrite = True):
+  global current_config  # Access the global config
+  global default_config  # Access the global config
+  
   # Common base command
   position_export_command = ["kicad-cli", "pcb", "export", "pos"]
 
+  # Check if the input file exists
   if not check_file_exists (pcb_filename):
     print (f"generatePositions [ERROR]: {pcb_filename} does not exist.")
     return
 
+  #---------------------------------------------------------------------------------------------#
+  
   file_name = extract_pcb_file_name (pcb_filename)
+  file_name = file_name.replace (" ", "-") # If there are whitespace characters in the project name, replace them with a hyphen
+  
   project_name = extract_project_name (file_name)
   info = extract_info_from_pcb (pcb_filename)
-  
   print (f"generatePositions [INFO]: Project name is {project_name} and revision is {info ['rev']}.")
   
-  # Check if the ouptut directory exists, and create if not.
-  if not os.path.exists (output_dir):
-    print (f"generatePositions [INFO]: Output directory {output_dir} does not exist. Creating it now.")
-    os.makedirs (output_dir)
+  #---------------------------------------------------------------------------------------------#
 
-  rev_directory = f"{output_dir}/R{info ['rev']}"
+  # Read the target directory name from the config file
+  config_dir = current_config.get ("data", {}).get ("positions", {}).get ("--output_dir", default_config ["data"]["positions"]["--output_dir"])
+  command_dir = output_dir  # The directory specified by the command line argument
 
-  if not os.path.exists (rev_directory):
-    print (f"generatePositions [INFO]: Revision directory {rev_directory} does not exist. Creating it now.")
-    os.makedirs (rev_directory)
+  # Get the final directory path
+  final_directory, filename_date = create_final_directory (config_dir, command_dir, "Assembly", info ["rev"], "generatePositions")
   
-  not_completed = True
-  seq_number = 0
+  #---------------------------------------------------------------------------------------------#
   
-  while not_completed:
-    today_date = datetime.now()
-    formatted_date = today_date.strftime ("%d-%m-%Y")
-    filename_date = today_date.strftime ("%d%m%Y")
-    seq_number += 1
-    date_directory = f"{rev_directory}/[{seq_number}] {formatted_date}"
-    target_directory = f"{date_directory}/Assembly"
-
-    if not os.path.exists (target_directory):
-      print (f"generatePositions [INFO]: Target directory {target_directory} does not exist. Creating it now.")
-      os.makedirs (target_directory)
-      not_completed = False
-    else:
-      if to_overwrite:
-        print (f"generatePositions [INFO]: Target directory {target_directory} already exists. Any files will be overwritten.")
-        delete_non_zip_files (target_directory)
-        not_completed = False
-      else:
-        print (f"generatePositions [INFO]: Target directory {target_directory} already exists. Creating another one.")
-        not_completed = True
-
-  # # Check if the target directory ends with a slash, and add one if not
-  # if target_directory [-1] != '/':
-  #   target_directory += '/'
-    
   full_command_1 = position_export_command + \
-                ["--output", f"{target_directory}/{project_name}-Pos-Front.csv"] + \
+                ["--output", f"{final_directory}/{project_name}-Pos-Front.csv"] + \
                 ["--side", "front"] + \
                 ["--format", "csv"] + \
                 ["--units", "mm"] + \
@@ -368,7 +347,7 @@ def generatePositions (output_dir, pcb_filename, to_overwrite = True):
                 [pcb_filename]
   
   full_command_2 = position_export_command + \
-                ["--output", f"{target_directory}/{project_name}-Pos-Back.csv"] + \
+                ["--output", f"{final_directory}/{project_name}-Pos-Back.csv"] + \
                 ["--side", "back"] + \
                 ["--format", "csv"] + \
                 ["--units", "mm"] + \
@@ -376,7 +355,7 @@ def generatePositions (output_dir, pcb_filename, to_overwrite = True):
                 [pcb_filename]
   
   full_command_3 = position_export_command + \
-                ["--output", f"{target_directory}/{project_name}-Pos-All.csv"] + \
+                ["--output", f"{final_directory}/{project_name}-Pos-All.csv"] + \
                 ["--side", "both"] + \
                 ["--format", "csv"] + \
                 ["--units", "mm"] + \
@@ -391,15 +370,15 @@ def generatePositions (output_dir, pcb_filename, to_overwrite = True):
     print ("generatePositions [OK]: Position files exported successfully.")
 
     # Rename the files by adding Revision after the project name
-    for filename in os.listdir (target_directory):
+    for filename in os.listdir (final_directory):
       if filename.startswith (project_name) and not filename.endswith ('.zip'):
         # Construct the new filename with the revision tag
         base_name = filename [len (project_name):]  # Remove the project name part
         new_filename = f"{project_name}-R{info ['rev']}{base_name}"
         
         # Full paths for renaming
-        old_file_path = os.path.join (target_directory, filename)
-        new_file_path = os.path.join (target_directory, new_filename)
+        old_file_path = os.path.join (final_directory, filename)
+        new_file_path = os.path.join (final_directory, new_filename)
         
         # Rename the file
         os.rename (old_file_path, new_file_path)
@@ -411,10 +390,10 @@ def generatePositions (output_dir, pcb_filename, to_overwrite = True):
     while not_completed:
       zip_file_name = f"{project_name}-R{info ['rev']}-Position-Files-{filename_date}-{seq_number}.zip"
 
-      if os.path.exists (f"{target_directory}/{zip_file_name}"):
+      if os.path.exists (f"{final_directory}/{zip_file_name}"):
         seq_number += 1
       else:
-        zip_all_files (target_directory, f"{target_directory}/{zip_file_name}")
+        zip_all_files (final_directory, f"{final_directory}/{zip_file_name}")
         print (f"generatePositions [OK]: ZIP file {zip_file_name} created successfully.")
         not_completed = False
 
@@ -550,64 +529,11 @@ def generateSchPdf (output_dir, sch_filename, to_overwrite = True):
   #---------------------------------------------------------------------------------------------#
 
   # Read the target directory name from the config file
-  config_dir = current_config.get ("data", {}).get ("sch_pdf", {}).get ("--output", default_config ["data"]["sch_pdf"]["--output"])
+  config_dir = current_config.get ("data", {}).get ("sch_pdf", {}).get ("--output_dir", default_config ["data"]["sch_pdf"]["--output_dir"])
   command_dir = output_dir  # The directory specified by the command line argument
 
-  # This will be the root directory for the output files.
-  # Extra directories will be created based on the revision, date and sequence number.
-  target_dir = None
-
-  # The configured directory has precedence over the command line argument.
-  # Check if the config directory is empty.
-  if config_dir == "":
-    print (f"generateSchPdf [INFO]: Config directory '{config_dir}' is empty. Using the command line argument.")
-    target_dir = command_dir # If it's empty, use the command line argument
-  else:
-    print (f"generateSchPdf [INFO]: Config directory '{config_dir}' is not empty. Using the config directory.")
-    target_dir = config_dir # Otherwise, use the config directory
-
-  if not os.path.exists (target_dir): # Check if the target directory exists
-    print (f"generateSchPdf [INFO]: Output directory '{target_dir}' does not exist. Creating it now.")
-    os.makedirs (target_dir)
-  else:
-    print (f"generateSchPdf [INFO]: Output directory '{target_dir}' already exists.")
-
-  #---------------------------------------------------------------------------------------------#
-
-  # Create one more directory based on the revision number.
-  rev_directory = f"{target_dir}/R{info ['rev']}"
-
-  # Check if the revision directory exists, and create if not.
-  if not os.path.exists (rev_directory):
-    print (f"generateSchPdf [INFO]: Revision directory '{rev_directory}' does not exist. Creating it now.")
-    os.makedirs (rev_directory)
-  
-  #---------------------------------------------------------------------------------------------#
-  
-  not_completed = True
-  seq_number = 0
-  
-  # Now we have to make the date-specific and output-specific directory.
-  # This will be the final directory for the output files.
-  while not_completed:
-    today_date = datetime.now()
-    formatted_date = today_date.strftime ("%d-%m-%Y")
-    filename_date = today_date.strftime ("%d%m%Y")
-    seq_number += 1
-    date_directory = f"{rev_directory}/[{seq_number}] {formatted_date}"
-    final_directory = f"{date_directory}/SCH"
-
-    if not os.path.exists (final_directory):
-      print (f"generateSchPdf [INFO]: Target directory '{final_directory}' does not exist. Creating it now.")
-      os.makedirs (final_directory)
-      not_completed = False
-    else:
-      if to_overwrite:
-        print (f"generateSchPdf [INFO]: Target directory '{final_directory}' already exists. Files may be overwritten.")
-        not_completed = False
-      else:
-        print (f"generateSchPdf [INFO]: Target directory '{final_directory}' already exists. Creating another one.")
-        not_completed = True
+  # Get the final directory path
+  final_directory, filename_date = create_final_directory (config_dir, command_dir, "SCH", info ["rev"], "generateSchPdf")
   
   #---------------------------------------------------------------------------------------------#
   
@@ -674,6 +600,67 @@ def generateSchPdf (output_dir, sch_filename, to_overwrite = True):
     return
 
   print ("generateSchPdf [OK]: Schematic PDF file exported successfully.")
+
+#============================================================================================= #
+
+def create_final_directory (config_dir, command_dir, target_dir_name, rev, func_name, to_overwrite = True):
+  # This will be the root directory for the output files.
+  # Extra directories will be created based on the revision, date and sequence number.
+  target_dir = None
+
+  # The configured directory has precedence over the command line argument.
+  # Check if the config directory is empty.
+  if config_dir == "":
+    print (f"{func_name} [INFO]: Config directory '{config_dir}' is empty. Using the command line argument.")
+    target_dir = command_dir # If it's empty, use the command line argument
+  else:
+    print (f"{func_name} [INFO]: Config directory '{config_dir}' is not empty. Using the config directory.")
+    target_dir = config_dir # Otherwise, use the config directory
+
+  if not os.path.exists (target_dir): # Check if the target directory exists
+    print (f"{func_name} [INFO]: Output directory '{target_dir}' does not exist. Creating it now.")
+    os.makedirs (target_dir)
+  else:
+    print (f"{func_name} [INFO]: Output directory '{target_dir}' already exists.")
+
+  #---------------------------------------------------------------------------------------------#
+
+  # Create one more directory based on the revision number.
+  rev_directory = f"{target_dir}/R{rev}"
+
+  # Check if the revision directory exists, and create if not.
+  if not os.path.exists (rev_directory):
+    print (f"{func_name} [INFO]: Revision directory '{rev_directory}' does not exist. Creating it now.")
+    os.makedirs (rev_directory)
+  
+  #---------------------------------------------------------------------------------------------#
+  
+  not_completed = True
+  seq_number = 0
+  
+  # Now we have to make the date-specific and output-specific directory.
+  # This will be the final directory for the output files.
+  while not_completed:
+    today_date = datetime.now()
+    formatted_date = today_date.strftime ("%d-%m-%Y")
+    filename_date = today_date.strftime ("%d%m%Y")
+    seq_number += 1
+    date_directory = f"{rev_directory}/[{seq_number}] {formatted_date}"
+    final_directory = f"{date_directory}/{target_dir_name}"
+
+    if not os.path.exists (final_directory):
+      print (f"{func_name} [INFO]: Target directory '{final_directory}' does not exist. Creating it now.")
+      os.makedirs (final_directory)
+      not_completed = False
+    else:
+      if to_overwrite:
+        print (f"{func_name} [INFO]: Target directory '{final_directory}' already exists. Files may be overwritten.")
+        not_completed = False
+      else:
+        print (f"{func_name} [INFO]: Target directory '{final_directory}' already exists. Creating another one.")
+        not_completed = True
+  
+  return final_directory, filename_date
 
 #=============================================================================================#
 

@@ -1,15 +1,21 @@
 
 
+
+#
+### **+05:30 12:23:41 AM 04-09-2024, Wednesday**
+
+  - Added `create_final_directory()` to create target directories.
+
 #
 ### **+05:30 12:10:32 AM 03-09-2024, Tuesday**
 
-  * Replaced the `--output` argument from the configuration list with `--output_dir`. Since we already uses revision/date/sequence based output directories, it doesn't make sense to get `--output` value for the KiCad-CLI.
-  * The new `--output_dir` will be used as the root directory for the output files.
+  - Replaced the `--output` argument from the configuration list with `--output_dir`. Since we already uses revision/date/sequence based output directories, it doesn't make sense to get `--output` value for the KiCad-CLI.
+  - The new `--output_dir` will be used as the root directory for the output files.
 
 #
 ### **+05:30 11:52:42 PM 02-09-2024, Monday**
 
-  * Added full support for reading `sch_pdf` command related arguments from the config file.
+  - Added full support for reading `sch_pdf` command related arguments from the config file.
 
 #
 ### **+05:30 10:20:21 PM 02-09-2024, Monday**
