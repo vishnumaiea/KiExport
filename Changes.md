@@ -2,6 +2,13 @@
 
 
 #
+### **+05:30 12:00:51 AM 05-09-2024, Thursday**
+
+  - Updated `generatePositions()` to use the JSON configuration file.
+  - File generation is successful.
+  - New Version `0.0.14`.
+
+#
 ### **+05:30 12:23:41 AM 04-09-2024, Wednesday**
 
   - Added `create_final_directory()` to create target directories.

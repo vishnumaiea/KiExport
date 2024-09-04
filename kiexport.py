@@ -5,7 +5,7 @@
 # Tool to export manufacturing files from KiCad PCB projects.
 # Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)
 # Version: 0.0.14
-# Last Modified: +05:30 00:23:21 AM 04-09-2024, Wednesday
+# Last Modified: +05:30 23:58:53 PM 04-09-2024, Wednesday
 # GitHub: https://github.com/vishnumaiea/KiExport
 # License: MIT
 
@@ -221,6 +221,7 @@ def generateGerbers (output_dir, pcb_filename, to_overwrite = True):
   
   # Run the command
   try:
+    print (f"generateGerbers [INFO]: Running command: {' '.join (full_command)}")
     subprocess.run (full_command, check = True)
     print ("generateGerbers [OK]: Gerber files exported successfully.")
 
@@ -338,67 +339,123 @@ def generatePositions (output_dir, pcb_filename, to_overwrite = True):
   
   #---------------------------------------------------------------------------------------------#
   
-  full_command_1 = position_export_command + \
-                ["--output", f"{final_directory}/{project_name}-Pos-Front.csv"] + \
-                ["--side", "front"] + \
-                ["--format", "csv"] + \
-                ["--units", "mm"] + \
-                ["--use-drill-file-origin"] + \
-                [pcb_filename]
-  
-  full_command_2 = position_export_command + \
-                ["--output", f"{final_directory}/{project_name}-Pos-Back.csv"] + \
-                ["--side", "back"] + \
-                ["--format", "csv"] + \
-                ["--units", "mm"] + \
-                ["--use-drill-file-origin"] + \
-                [pcb_filename]
-  
-  full_command_3 = position_export_command + \
-                ["--output", f"{final_directory}/{project_name}-Pos-All.csv"] + \
-                ["--side", "both"] + \
-                ["--format", "csv"] + \
-                ["--units", "mm"] + \
-                ["--use-drill-file-origin"] + \
-                [pcb_filename]
-  
-  # Run the command
-  try:
-    subprocess.run (full_command_1, check = True)
-    subprocess.run (full_command_2, check = True)
-    subprocess.run (full_command_3, check = True)
-    print ("generatePositions [OK]: Position files exported successfully.")
+  pos_front_filename = f"{final_directory}/{project_name}-Pos-Front.csv"
+  pos_back_filename = f"{final_directory}/{project_name}-Pos-Back.csv"
+  pos_all_filename = f"{final_directory}/{project_name}-Pos-All.csv"
 
-    # Rename the files by adding Revision after the project name
-    for filename in os.listdir (final_directory):
-      if filename.startswith (project_name) and not filename.endswith ('.zip'):
-        # Construct the new filename with the revision tag
-        base_name = filename [len (project_name):]  # Remove the project name part
-        new_filename = f"{project_name}-R{info ['rev']}{base_name}"
-        
-        # Full paths for renaming
-        old_file_path = os.path.join (final_directory, filename)
-        new_file_path = os.path.join (final_directory, new_filename)
-        
-        # Rename the file
-        os.rename (old_file_path, new_file_path)
-        # print(f"Renamed: {filename} -> {new_filename}")
-    
-    seq_number = 1
-    not_completed = True
-    
-    while not_completed:
-      zip_file_name = f"{project_name}-R{info ['rev']}-Position-Files-{filename_date}-{seq_number}.zip"
+  # Create a list of filenames for front, back, and both.
+  pos_filenames = [pos_front_filename, pos_back_filename, pos_all_filename]
 
-      if os.path.exists (f"{final_directory}/{zip_file_name}"):
-        seq_number += 1
-      else:
-        zip_all_files (final_directory, f"{final_directory}/{zip_file_name}")
-        print (f"generatePositions [OK]: ZIP file {zip_file_name} created successfully.")
-        not_completed = False
+  # Create a list of three command sets for front, back, and both.
+  full_command_list = []
+  for filename in pos_filenames:
+      full_command = position_export_command.copy()  # Copy the base command
+      full_command.append ("--output")
+      full_command.append (f'"{filename}"')
+      full_command_list.append (full_command)
+  
+  # Get the argument list from the config file.
+  arg_list = current_config.get ("data", {}).get ("positions", {})
+  sides = arg_list.get ("--side", None) # Get the sides from the config file as a string
 
-  except subprocess.CalledProcessError as e:
-    print (f"generatePositions [ERROR]: Error occurred: {e}")
+  # Check if the sides are valid and apply the default value if not
+  if sides == None or sides == "":
+    print (f"generatePositions [INFO]: No sides specified. Using both sides.")
+    sides = "both"
+  
+  # Add the remaining arguments.
+  # Check if the argument list is not an empty dictionary.
+  if arg_list:
+    for i, command_set in enumerate (full_command_list):
+      for key, value in arg_list.items():
+        if key.startswith ("--"): # Only fetch the arguments that start with "--"
+          if key == "--output_dir": # Skip the --output_dir argument, sice we already added it
+            continue
+          elif key == "--side":
+            if sides.__contains__ ("front") and i == 0:
+              command_set.append (key)
+              command_set.append ("front")
+            elif sides.__contains__ ("back") and i == 1:
+              command_set.append (key)
+              command_set.append ("back")
+            elif sides.__contains__ ("both") and i == 2:
+              command_set.append (key)
+              command_set.append ("both")
+          else:
+            # Check if the value is empty
+            if value == "": # Skip if the value is empty
+              continue
+            else:
+              # Check if the vlaue is a JSON boolean
+              if isinstance (value, bool):
+                if value == True: # If the value is true, then append the key as an argument
+                  command_set.append (key)
+              else:
+                # Check if the value is a string and not a numeral
+                if isinstance (value, str) and not value.isdigit():
+                    command_set.append (key)
+                    command_set.append (f'"{value}"') # Add as a double-quoted string
+                elif isinstance (value, (int, float)):
+                    command_set.append (key)
+                    command_set.append (str (value))  # Append the numeric value as string
+
+  # Finally append the filename to the commands
+  for command_set in full_command_list:
+    # board_file_path = os.path.abspath (pcb_filename)
+    command_set.append (f'"{pcb_filename}"')
+  
+  #---------------------------------------------------------------------------------------------#
+  
+  # Delete all non-zip files
+  delete_non_zip_files (final_directory)
+  
+  #---------------------------------------------------------------------------------------------#
+  
+  # Run the commands
+  for i, full_command in enumerate (full_command_list):
+    if (sides.__contains__ ("front") and i == 0) or (sides.__contains__ ("back") and i == 1) or (sides.__contains__ ("both") and i == 2):
+      try:
+        command_string = ' '.join (full_command)  # Convert the list to a string
+        print (f"generatePositions [INFO]: Running command: {command_string}")
+        subprocess.run (command_string, check = True)
+      except subprocess.CalledProcessError as e:
+        print (f"generatePositions [ERROR]: Error occurred while generating the files.")
+        return
+
+  print ("generatePositions [OK]: Position files exported successfully.")
+  
+  #---------------------------------------------------------------------------------------------#
+  
+  # Rename the files by adding Revision after the project name.
+  for filename in os.listdir (final_directory):
+    if filename.startswith (project_name) and not filename.endswith ('.zip'):
+      # Construct the new filename with the revision tag
+      base_name = filename [len (project_name):]  # Remove the project name part
+      new_filename = f"{project_name}-R{info ['rev']}{base_name}"
+      
+      # Full paths for renaming
+      old_file_path = os.path.join (final_directory, filename)
+      new_file_path = os.path.join (final_directory, new_filename)
+      
+      # Rename the file
+      os.rename (old_file_path, new_file_path)
+      # print(f"Renamed: {filename} -> {new_filename}")
+  
+  #---------------------------------------------------------------------------------------------#
+  
+  seq_number = 1
+  not_completed = True
+  
+  # Sequentially name and create the zip files.
+  while not_completed:
+    zip_file_name = f"{project_name}-R{info ['rev']}-Position-Files-{filename_date}-{seq_number}.zip"
+
+    if os.path.exists (f"{final_directory}/{zip_file_name}"):
+      seq_number += 1
+    else:
+      zip_all_files (final_directory, f"{final_directory}/{zip_file_name}")
+      print (f"generatePositions [OK]: ZIP file {zip_file_name} created successfully.")
+      not_completed = False
 
 #=============================================================================================#
 
