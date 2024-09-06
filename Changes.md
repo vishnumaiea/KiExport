@@ -1,6 +1,11 @@
 
 
 #
+### **+05:30 12:02:33 AM 07-09-2024, Saturday**
+
+  - Bumped up the version to `0.0.15`.
+
+#
 ### **+05:30 11:50:10 PM 06-09-2024, Friday**
 
   - So many changes.

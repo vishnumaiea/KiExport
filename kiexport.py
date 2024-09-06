@@ -4,8 +4,8 @@
 # KiExport
 # Tool to export manufacturing files from KiCad PCB projects.
 # Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)
-# Version: 0.0.14
-# Last Modified: +05:30 00:01:31 AM 07-09-2024, Saturday
+# Version: 0.0.15
+# Last Modified: +05:30 00:02:16 AM 07-09-2024, Saturday
 # GitHub: https://github.com/vishnumaiea/KiExport
 # License: MIT
 
@@ -22,7 +22,7 @@ import json
 #=============================================================================================#
 
 APP_NAME = "KiExport"
-APP_VERSION = "0.0.14"
+APP_VERSION = "0.0.15"
 
 SAMPLE_PCB_FILE = "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb"
 
