@@ -1,5 +1,21 @@
 
 
+#
+### **+05:30 11:50:10 PM 06-09-2024, Friday**
+
+  - So many changes.
+  - Added `Colorize` and `_color` classes and `color` object to colorize text in the terminal.
+  - Added text colors in multiple places for error messages, file names and commands.
+  - `generateGerbers()` can now completely read the configuration from the `kiexport.json` file.
+  - Added `delete_files()` function to delete files with the specified extensions, with inclusion and exclusion options.
+  - Added `rename_files()` to rename files in a folder. It accepts the file extensions as a list.
+  - Replaced `zip_all_files()` with `zip_all_files_2()`. The latter can now accept a list of file extensions to include in the zip file.
+  - Updated `generateDrills()` as a standalone generator.
+    - It saves the files to the same `Gerber` directory.
+    - It does not create a ZIP file.
+    - It can use the JSON configuration file.
+  - Added `drills` command to generate drill files.
+  - The app will now print help message when called without any arguments.
 
 #
 ### **+05:30 12:00:51 AM 05-09-2024, Thursday**

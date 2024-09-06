@@ -5,7 +5,7 @@
 # Tool to export manufacturing files from KiCad PCB projects.
 # Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)
 # Version: 0.0.14
-# Last Modified: +05:30 00:02:07 AM 05-09-2024, Thursday
+# Last Modified: +05:30 00:01:31 AM 07-09-2024, Saturday
 # GitHub: https://github.com/vishnumaiea/KiExport
 # License: MIT
 
@@ -155,155 +155,272 @@ DEFAULT_CONFIG_JSON = '''
 
 #=============================================================================================#
 
+class Colorize:
+    def __init__(self, text):
+        self.text = text
+        self.ansi_code = '\033[0m'  # Default to reset
+
+    def _color_text (self):
+        return f"{self.ansi_code}{self.text}\033[0m"
+
+    def red (self):
+        self.ansi_code = '\033[31m'
+        return self._color_text()
+
+    def green (self):
+        self.ansi_code = '\033[32m'
+        return self._color_text()
+
+    def yellow (self):
+        self.ansi_code = '\033[33m'
+        return self._color_text()
+
+    def blue (self):
+        self.ansi_code = '\033[34m'
+        return self._color_text()
+
+    def magenta (self):
+        self.ansi_code = '\033[35m'
+        return self._color_text()
+
+    def cyan (self):
+        self.ansi_code = '\033[36m'
+        return self._color_text()
+
+# Define ANSI escape codes for colors
+COLORS = {
+    'red': '\033[91m',
+    'green': '\033[92m',
+    'yellow': '\033[93m',
+    'blue': '\033[94m',
+    'magenta': '\033[95m',
+    'cyan': '\033[96m',
+    'reset': '\033[0m'
+}
+
+class _color:
+    def __call__(self, text, color):
+        return f"{COLORS[color]}{text}{COLORS['reset']}"
+    
+    def __getattr__(self, color):
+        if color in COLORS:
+            return lambda text: self(text, color)
+        raise AttributeError(f"Color '{color}' is not supported.")
+
+# Create an instance of the Colorize class
+color = _color()
+
+#=============================================================================================#
+
 def generateGerbers (output_dir, pcb_filename, to_overwrite = True):
   # Common base command
   gerber_export_command = ["kicad-cli", "pcb", "export", "gerbers"]
 
-  # Assemble the full command for Gerber export
-  # output_dir = "Mitayi-Pico-D1/Gerber"
-  layer_list = "F.Cu,B.Cu,F.Paste,B.Paste,F.Silkscreen,B.Silkscreen,F.Mask,B.Mask,User.Drawings,User.Comments,Edge.Cuts,F.Courtyard,B.Courtyard,F.Fab,B.Fab"
-  # pcb_filename = "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb"
-
+  # Check if the pcb file exists
   if not check_file_exists (pcb_filename):
-    print (f"generateGerbers [ERROR]: {pcb_filename} does not exist.")
+    print (color.red (f"generateGerbers [ERROR]: '{pcb_filename}' does not exist."))
     return
 
+  #---------------------------------------------------------------------------------------------#
+  
   file_name = extract_pcb_file_name (pcb_filename)
+  file_name = file_name.replace (" ", "-") # If there are whitespace characters in the project name, replace them with a hyphen
+  
   project_name = extract_project_name (file_name)
   info = extract_info_from_pcb (pcb_filename)
+  print (f"generateGerbers [INFO]: Project name is '{color.magenta (project_name)}' and revision is {info ['rev']}.")
   
-  print (f"generateGerbers [INFO]: Project name is {project_name} and revision is {info ['rev']}.")
+  #---------------------------------------------------------------------------------------------#
   
-  # Check if the ouptut directory exists, and create if not.
-  if not os.path.exists (output_dir):
-    print (f"generateGerbers [INFO]: Output directory {output_dir} does not exist. Creating it now.")
-    os.makedirs (output_dir)
+  # Read the target directory name from the config file
+  config_dir = current_config.get ("data", {}).get ("gerbers", {}).get ("--output_dir", default_config ["data"]["gerbers"]["--output_dir"])
+  command_dir = output_dir  # The directory specified by the command line argument
 
-  rev_directory = f"{output_dir}/R{info ['rev']}"
+  # Get the final directory path
+  final_directory, filename_date = create_final_directory (config_dir, command_dir, "Gerber", info ["rev"], "generateGerbers")
 
-  if not os.path.exists (rev_directory):
-    print (f"generateGerbers [INFO]: Revision directory {rev_directory} does not exist. Creating it now.")
-    os.makedirs (rev_directory)
+  #---------------------------------------------------------------------------------------------#
   
+  # Get the argument list from the config file.
+  arg_list = current_config.get ("data", {}).get ("gerbers", {})
+
+  seq_number = 1
   not_completed = True
-  seq_number = 0
+  full_command = []
+  full_command.extend (gerber_export_command) # Add the base command
+  full_command.append ("--output")
+  full_command.append (f'"{final_directory}"')
   
-  while not_completed:
-    today_date = datetime.now()
-    formatted_date = today_date.strftime ("%d-%m-%Y")
-    filename_date = today_date.strftime ("%d%m%Y")
-    seq_number += 1
-    date_directory = f"{rev_directory}/[{seq_number}] {formatted_date}"
-    target_directory = f"{date_directory}/Gerber"
-
-    if not os.path.exists (target_directory):
-      print (f"generateGerbers [INFO]: Target directory {target_directory} does not exist. Creating it now.")
-      os.makedirs (target_directory)
-      generateDrills (target_directory, pcb_filename)
-      not_completed = False
-    else:
-      if to_overwrite:
-        print (f"generateGerbers [INFO]: Target directory {target_directory} already exists. Any files will be overwritten.")
-        delete_non_zip_files (target_directory)
-        generateDrills (target_directory, pcb_filename)
-        not_completed = False
-      else:
-        print (f"generateGerbers [INFO]: Target directory {target_directory} already exists. Creating another one.")
-        not_completed = True
-
-  full_command = gerber_export_command + \
-                ["--output", target_directory] + \
-                ["--no-protel-ext"] + \
-                ["--layers", layer_list] + \
-                ["--no-netlist"] + \
-                ["--use-drill-file-origin"] + \
-                [pcb_filename]
+  # Add the remaining arguments.
+  # Check if the argument list is not an empty dictionary.
+  if arg_list:
+    for key, value in arg_list.items():
+      if key.startswith ("--"): # Only fetch the arguments that start with "--"
+        if key == "--output_dir": # Skip the --output_dir argument, sice we already added it
+          continue
+        elif key == "--layers":
+          full_command.append (key)
+          layers_csv = ",".join (value) # Convert the list to a comma-separated string
+          full_command.append (f'"{layers_csv}"')
+        else:
+          # Check if the value is empty
+          if value == "": # Skip if the value is empty
+            continue
+          else:
+            # Check if the vlaue is a JSON boolean
+            if isinstance (value, bool):
+              if value == True: # If the value is true, then append the key as an argument
+                full_command.append (key)
+            else:
+              # Check if the value is a string and not a numeral
+              if isinstance (value, str) and not value.isdigit():
+                  full_command.append (key)
+                  full_command.append (f'"{value}"') # Add as a double-quoted string
+              elif isinstance (value, (int, float)):
+                  full_command.append (key)
+                  full_command.append (str (value))  # Append the numeric value as string
+  
+  # Finally add the input file
+  full_command.append (f'"{pcb_filename}"')
+  print ("generateGerbers [INFO]: Running command: ", color.blue (' '.join (full_command)))
+  
+  #---------------------------------------------------------------------------------------------#
+  
+  # Delete the existing files in the output directory
+  delete_files (final_directory, include_extensions = [".gbr", ".gbrjob"])
+  
+  #---------------------------------------------------------------------------------------------#
   
   # Run the command
   try:
-    print (f"generateGerbers [INFO]: Running command: {' '.join (full_command)}")
+    full_command = ' '.join (full_command) # Convert the list to a string
     subprocess.run (full_command, check = True)
-    print ("generateGerbers [OK]: Gerber files exported successfully.")
-
-    # Rename the files by adding Revision after the project name
-    for filename in os.listdir (target_directory):
-      if filename.startswith (project_name) and not filename.endswith ('.zip'):
-        # Construct the new filename with the revision tag
-        base_name = filename [len (project_name):]  # Remove the project name part
-        new_filename = f"{project_name}-R{info ['rev']}{base_name}"
-        
-        # Full paths for renaming
-        old_file_path = os.path.join (target_directory, filename)
-        new_file_path = os.path.join (target_directory, new_filename)
-        
-        # Rename the file
-        os.rename (old_file_path, new_file_path)
-        # print(f"Renamed: {filename} -> {new_filename}")
-    
-    seq_number = 1
-    not_completed = True
-    
-    while not_completed:
-      zip_file_name = f"{project_name}-R{info ['rev']}-Gerber-{filename_date}-{seq_number}.zip"
-
-      if os.path.exists (f"{target_directory}/{zip_file_name}"):
-        seq_number += 1
-      else:
-        zip_all_files (target_directory, f"{target_directory}/{zip_file_name}")
-        print (f"generateGerbers [OK]: ZIP file {zip_file_name} created successfully.")
-        not_completed = False
-
+    print (color.green ("generateGerbers [OK]: Gerber files exported successfully."))
+  
   except subprocess.CalledProcessError as e:
-    print (f"generateGerbers [ERROR]: Error occurred: {e}")
+    print (color.red (f"generateGerbers [ERROR]: Error occurred: {e}"))
+    return
+  
+  #---------------------------------------------------------------------------------------------#
+  
+  # Rename the files by adding Revision after the project name.
+  rename_files (final_directory, project_name, info ['rev'], [".gbr", ".gbrjob"])
+  
+  #---------------------------------------------------------------------------------------------#
+  
+  seq_number = 1
+  not_completed = True
+  
+  # Sequentially name and create the zip files.
+  while not_completed:
+    zip_file_name = f"{project_name}-R{info ['rev']}-Gerber-{filename_date}-{seq_number}.zip"
+
+    if os.path.exists (f"{final_directory}/{zip_file_name}"):
+      seq_number += 1
+    else:
+      # zip_all_files (final_directory, f"{final_directory}/{zip_file_name}")
+      zip_all_files_2 (final_directory, [".gbr", ".gbrjob"], zip_file_name)
+      print (f"generateGerbers [OK]: ZIP file '{color.magenta (zip_file_name)}' created successfully.")
+      print()
+      not_completed = False
 
 #=============================================================================================#
 
-def generateDrills (target_dir, pcb_filename):
+def generateDrills (output_dir, pcb_filename):
   # Common base command
   drill_export_command = ["kicad-cli", "pcb", "export", "drill"]
 
+  # Check if the pcb file exists
+  if not check_file_exists (pcb_filename):
+    print (color.red (f"generateDrills [ERROR]: '{pcb_filename}' does not exist."))
+    return
+
+  #-------------------------------------------------------------------------------------------#
+  
   file_name = extract_pcb_file_name (pcb_filename)
+  file_name = file_name.replace (" ", "-") # If there are whitespace characters in the project name, replace them with a hyphen
+  
   project_name = extract_project_name (file_name)
   info = extract_info_from_pcb (pcb_filename)
-
-  # Check if the target directory ends with a slash, and add one if not
-  if target_dir[-1] != '/':
-    target_dir += '/'
+  print (f"generateDrills [INFO]: Project name is '{color.magenta (project_name)}' and revision is {info ['rev']}.")
   
-  full_command = drill_export_command + \
-                ["--output", target_dir] + \
-                ["--format", "excellon"] + \
-                ["--drill-origin", "plot"] + \
-                ["--excellon-zeros-format", "decimal"] + \
-                ["--excellon-oval-format", "route"] + \
-                ["--excellon-units", "mm"] + \
-                ["--excellon-separate-th"] + \
-                ["--generate-map"] + \
-                ["--map-format", "pdf"] + \
-                [pcb_filename]
+  #-------------------------------------------------------------------------------------------#
+
+  # Read the target directory name from the config file
+  config_dir = current_config.get ("data", {}).get ("drills", {}).get ("--output_dir", default_config ["data"]["drills"]["--output_dir"])
+  command_dir = output_dir  # The directory specified by the command line argument
+
+  # Get the final directory path
+  final_directory, filename_date = create_final_directory (config_dir, command_dir, "Gerber", info ["rev"], "generateDrills")
+
+  # Check if the final directory ends with a slash, and add one if not.
+  if final_directory[-1] != "/":
+    final_directory = f"{final_directory}/"
+    
+  #-------------------------------------------------------------------------------------------#
+  
+  # Get the argument list from the config file.
+  arg_list = current_config.get ("data", {}).get ("drills", {})
+
+  seq_number = 1
+  not_completed = True
+  full_command = []
+  full_command.extend (drill_export_command) # Add the base command
+  full_command.append ("--output")
+  full_command.append (f'"{final_directory}"')
+  
+  # Add the remaining arguments.
+  # Check if the argument list is not an empty dictionary.
+  if arg_list:
+    for key, value in arg_list.items():
+      if key.startswith ("--"): # Only fetch the arguments that start with "--"
+        if key == "--output_dir": # Skip the --output_dir argument, sice we already added it
+          continue
+        else:
+          # Check if the value is empty
+          if value == "": # Skip if the value is empty
+            continue
+          else:
+            # Check if the vlaue is a JSON boolean
+            if isinstance (value, bool):
+              if value == True: # If the value is true, then append the key as an argument
+                full_command.append (key)
+            else:
+              # Check if the value is a string and not a numeral
+              if isinstance (value, str) and not value.isdigit():
+                  full_command.append (key)
+                  full_command.append (f'"{value}"') # Add as a double-quoted string
+              elif isinstance (value, (int, float)):
+                  full_command.append (key)
+                  full_command.append (str (value))  # Append the numeric value as string
+  
+  # Finally add the input file
+  full_command.append (f'"{pcb_filename}"')
+  print ("generateDrills [INFO]: Running command: ", color.blue (' '.join (full_command)))
+  
+  #-------------------------------------------------------------------------------------------#
+
+  # Delete the existing files in the output directory
+  delete_files (final_directory, include_extensions = [".drl", ".ps", ".pdf"])
+
+  #-------------------------------------------------------------------------------------------#
   
   # Run the command
   try:
+    full_command = ' '.join (full_command) # Convert the list to a string
     subprocess.run (full_command, check = True)
-    print ("generateDrills [OK]: Drill files exported successfully.")
-
-    # Rename the files by adding Revision after the project name
-    for filename in os.listdir (target_dir):
-      if filename.startswith (project_name) and not filename.endswith ('.zip'):
-        # Construct the new filename with the revision tag
-        base_name = filename [len (project_name):]  # Remove the project name part
-        new_filename = f"{project_name}-R{info ['rev']}{base_name}"
-        
-        # Full paths for renaming
-        old_file_path = os.path.join (target_dir, filename)
-        new_file_path = os.path.join (target_dir, new_filename)
-        
-        # Rename the file
-        os.rename (old_file_path, new_file_path)
-        # print(f"Renamed: {filename} -> {new_filename}")
-        
+    print (color.green ("generateDrills [OK]: Drill files exported successfully."))
+    print()
+  
   except subprocess.CalledProcessError as e:
-    print (f"generateDrills [ERROR]: Error occurred: {e}")
+    print (color.red (f"generateDrills [ERROR]: Error occurred: {e}"))
+    print()
+    return
+  
+  #-------------------------------------------------------------------------------------------#
+
+  # Rename the files by adding Revision after the project name.
+  rename_files (final_directory, project_name, info ['rev'], [".drl", ".ps", ".pdf"])
 
 #=============================================================================================#
 
@@ -613,8 +730,6 @@ def generateSchPdf (output_dir, sch_filename, to_overwrite = True):
       full_command.append ("--output")
       full_command.append (f'"{file_name}"') # Add the output file name with double quotes around it
       break
-
-  #---------------------------------------------------------------------------------------------#
   
   # Add the remaining arguments.
   # Check if the argument list is not an empty dictionary.
@@ -921,6 +1036,37 @@ def zip_all_files (source_folder, zip_file_path):
     
     # print (f"ZIP file created: {os.path.basename (zip_file_path)}")
 
+# =============================================================================================#
+
+def zip_all_files_2 (source_folder, extensions = None, zip_file_name = None):
+    """
+    Compresses files from a folder into a ZIP file, including only files with specified extensions.
+
+    Args:
+        source_folder (str): Path to the folder containing files.
+        extensions (list of str, optional): List of file extensions to include (e.g., ['.txt', '.jpg']).
+        zip_file_name (str, optional): Name of the ZIP file. If None, will use 'archive.zip'.
+    """
+    if extensions is None:
+        extensions = []  # Include all files if no extensions are specified
+    
+    if zip_file_name is None:
+        zip_file_name = 'archive.zip'  # Default ZIP file name
+    
+    zip_file_path = os.path.join (source_folder, zip_file_name)
+    
+    with zipfile.ZipFile (zip_file_path, 'w') as zipf:
+        for foldername, subfolders, filenames in os.walk (source_folder):
+            for filename in filenames:
+                file_path = os.path.join (foldername, filename)
+                # Check if the file has one of the specified extensions
+                if not extensions or any (filename.endswith (ext) for ext in extensions):
+                    # Exclude the ZIP file itself from being added
+                    if os.path.abspath (file_path) != os.path.abspath (zip_file_path):
+                        zipf.write (file_path, arcname = os.path.relpath (file_path, source_folder))
+    
+    # print(f"ZIP file created: {zip_file_name}")
+
 #=============================================================================================#
 
 def delete_non_zip_files (directory):
@@ -935,6 +1081,86 @@ def delete_non_zip_files (directory):
     if os.path.isfile (file_path) and not filename.endswith ('.zip'):
       os.remove (file_path)
       # print(f"Deleted: {filename}")
+
+#=============================================================================================#
+
+def delete_files_with_extensions (directory, extensions = None):
+    """
+    Deletes files in the specified directory with the specified extensions.
+
+    Args:
+        directory (str): Path to the directory where the cleanup will occur.
+        extensions (str or list of str, optional): Comma-separated string or list of file extensions to delete.
+    """
+    if extensions is None:
+        # print ("No extensions provided. No files will be deleted.")
+        return
+    
+    if isinstance (extensions, str):
+        extensions = extensions.split (',')
+
+    # Ensure all extensions are in the form of '.ext'
+    extensions = [f".{ext.strip()}" for ext in extensions]
+
+    for filename in os.listdir (directory):
+        file_path = os.path.join (directory, filename)
+        if os.path.isfile (file_path):
+            # Check if file extension matches one of the provided extensions
+            if any (filename.endswith (ext) for ext in extensions):
+                os.remove (file_path)
+                # print(f"Deleted: {filename}")
+
+#=============================================================================================#
+
+def delete_files (directory, include_extensions = None, exclude_extensions = None):
+    """
+    Deletes files in the specified directory based on the inclusion and exclusion lists of file extensions.
+
+    Args:
+        directory (str): Path to the directory where the cleanup will occur.
+        include_extensions (list of str, optional): List of file extensions to include for deletion, e.g., ['.txt', '.jpg'].
+        exclude_extensions (list of str, optional): List of file extensions to exclude from deletion, e.g., ['.zip'].
+    """
+    # Ensure inclusion and exclusion lists are properly formatted
+    if include_extensions is None:
+        include_extensions = []
+    # Ensure that include_extensions have leading dots and are unique
+    include_extensions = [ext.strip().lower() for ext in include_extensions if ext.startswith('.')]
+    
+    if exclude_extensions is None:
+        exclude_extensions = []
+    # Ensure that exclude_extensions have leading dots and are unique
+    exclude_extensions = [ext.strip().lower() for ext in exclude_extensions if ext.startswith('.')]
+
+    for filename in os.listdir (directory):
+        file_path = os.path.join (directory, filename)
+        if os.path.isfile (file_path):
+            # Get the file extension
+            file_ext = os.path.splitext (filename) [1].lower()
+            # Check if file extension is in the inclusion list and not in the exclusion list
+            if (not include_extensions or file_ext in include_extensions) and (file_ext not in exclude_extensions):
+                os.remove(file_path)
+                # print(f"Deleted: {filename}")
+
+#=============================================================================================#
+
+def rename_files (directory, prefix, revision = "", extensions = None):
+  if extensions is None:
+    extensions = []
+
+  for filename in os.listdir (directory):
+    if filename.startswith (prefix) and any (filename.endswith (ext) for ext in extensions):
+      # Construct the new filename with the revision tag
+      base_name = filename [len (prefix):]  # Remove the prefix part
+      new_filename = f"{prefix}-R{revision}{base_name}"
+      
+      # Full paths for renaming
+      old_file_path = os.path.join (directory, filename)
+      new_file_path = os.path.join (directory, new_filename)
+      
+      # Rename the file
+      os.rename (old_file_path, new_file_path)
+      # print(f"Renamed: {filename} -> {new_filename}")
 
 #=============================================================================================#
 
@@ -1063,15 +1289,21 @@ def parseArguments():
 
   # Subparser for the Gerber export command
   # Example: python .\kiexport.py gerbers -od "Mitayi-Pico-D1/Export" -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb"
-  gerber_parser = subparsers.add_parser ("gerbers", help = "Export Gerber files.")
-  gerber_parser.add_argument ("-if", "--input_filename", required = True, help = "Path to the .kicad_pcb file.")
-  gerber_parser.add_argument ("-od", "--output_dir", required = True, help = "Directory to save the Gerber files to.")
+  gerbers_parser = subparsers.add_parser ("gerbers", help = "Export Gerber files.")
+  gerbers_parser.add_argument ("-if", "--input_filename", required = True, help = "Path to the .kicad_pcb file.")
+  gerbers_parser.add_argument ("-od", "--output_dir", required = True, help = "Directory to save the Gerber files to.")
+
+  # Subparser for the Drills export command
+  # Example: python .\kiexport.py drills -od "Mitayi-Pico-D1/Export" -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb"
+  drills_parser = subparsers.add_parser ("drills", help = "Export Drill files.")
+  drills_parser.add_argument ("-if", "--input_filename", required = True, help = "Path to the .kicad_pcb file.")
+  drills_parser.add_argument ("-od", "--output_dir", required = True, help = "Directory to save the Drill files to.")
 
   # Subparser for the Position file export command
   # Example: python .\kiexport.py positions -od "Mitayi-Pico-D1/Export" -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb"
-  position_parser = subparsers.add_parser ("positions", help = "Export Position files.")
-  position_parser.add_argument ("-if", "--input_filename", required = True, help = "Path to the .kicad_pcb file.")
-  position_parser.add_argument ("-od", "--output_dir", required = True, help = "Directory to save the Position files to.")
+  positions_parser = subparsers.add_parser ("positions", help = "Export Position files.")
+  positions_parser.add_argument ("-if", "--input_filename", required = True, help = "Path to the .kicad_pcb file.")
+  positions_parser.add_argument ("-od", "--output_dir", required = True, help = "Directory to save the Position files to.")
 
   # Subparser for the PCB PDF export command
   # Example: python .\kiexport.py pcb_pdf -od "Mitayi-Pico-D1/Export" -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb"
@@ -1099,12 +1331,18 @@ def parseArguments():
   bom_parser.add_argument ("-od", "--output_dir", required = True, help = "Directory to save the BoM files to.")
   bom_parser.add_argument ("-t", "--type", help = "The type of file to generate. Default is CSV.")
   
-  test_parser = subparsers.add_parser ("test", help = "Test.")
+  test_parser = subparsers.add_parser ("test", help = "Internal test function.")
 
   # Parse arguments
   args = parser.parse_args()
   
   printInfo()
+
+  if args.command is None:
+    print (color.red ("Looks like you forgot to specify any inputs. Time to RTFM."))
+    print()
+    parser.print_help()
+    return
 
   # Check if we received an input file
   if args.input_filename is not None:
@@ -1118,6 +1356,9 @@ def parseArguments():
 
   if args.command == "gerbers":
     generateGerbers (args.output_dir, args.input_filename)
+
+  elif args.command == "drills":
+    generateDrills (args.output_dir, args.input_filename)
   
   elif args.command == "positions":
     generatePositions (args.output_dir, args.input_filename)
