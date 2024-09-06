@@ -4,8 +4,8 @@
 # KiExport
 # Tool to export manufacturing files from KiCad PCB projects.
 # Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)
-# Version: 0.0.15
-# Last Modified: +05:30 00:02:16 AM 07-09-2024, Saturday
+# Version: 0.0.16
+# Last Modified: +05:30 00:29:30 AM 07-09-2024, Saturday
 # GitHub: https://github.com/vishnumaiea/KiExport
 # License: MIT
 
@@ -22,7 +22,7 @@ import json
 #=============================================================================================#
 
 APP_NAME = "KiExport"
-APP_VERSION = "0.0.15"
+APP_VERSION = "0.0.16"
 
 SAMPLE_PCB_FILE = "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb"
 
@@ -213,6 +213,23 @@ color = _color()
 #=============================================================================================#
 
 def generateGerbers (output_dir, pcb_filename, to_overwrite = True):
+  # Generate the drill files first if specified
+  kie_include_drill = current_config.get ("data", {}).get ("gerbers", {}).get ("kie_include_drill", default_config ["data"]["gerbers"]["kie_include_drill"])
+
+  # Check if the value is boolean and then true or false
+  if isinstance (kie_include_drill, bool):
+    kie_include_drill = str (kie_include_drill).lower()
+
+  if kie_include_drill == "true":
+    kie_include_drill = True
+  elif kie_include_drill == "false":
+    kie_include_drill = False
+
+  if kie_include_drill == True:
+    generateDrills (output_dir, pcb_filename)
+  
+  #---------------------------------------------------------------------------------------------#
+  
   # Common base command
   gerber_export_command = ["kicad-cli", "pcb", "export", "gerbers"]
 
@@ -310,6 +327,11 @@ def generateGerbers (output_dir, pcb_filename, to_overwrite = True):
   
   seq_number = 1
   not_completed = True
+
+  files_to_include = [".gbr", ".gbrjob"]
+
+  if kie_include_drill:
+    files_to_include.extend ([".drl", ".ps", ".pdf"])
   
   # Sequentially name and create the zip files.
   while not_completed:
@@ -319,7 +341,7 @@ def generateGerbers (output_dir, pcb_filename, to_overwrite = True):
       seq_number += 1
     else:
       # zip_all_files (final_directory, f"{final_directory}/{zip_file_name}")
-      zip_all_files_2 (final_directory, [".gbr", ".gbrjob"], zip_file_name)
+      zip_all_files_2 (final_directory, files_to_include, zip_file_name)
       print (f"generateGerbers [OK]: ZIP file '{color.magenta (zip_file_name)}' created successfully.")
       print()
       not_completed = False
