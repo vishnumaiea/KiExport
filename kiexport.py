@@ -4,8 +4,8 @@
 # KiExport
 # Tool to export manufacturing files from KiCad PCB projects.
 # Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)
-# Version: 0.0.16
-# Last Modified: +05:30 00:29:30 AM 07-09-2024, Saturday
+# Version: 0.0.17
+# Last Modified: +05:30 01:39:01 AM 06-10-2024, Sunday
 # GitHub: https://github.com/vishnumaiea/KiExport
 # License: MIT
 
@@ -22,7 +22,7 @@ import json
 #=============================================================================================#
 
 APP_NAME = "KiExport"
-APP_VERSION = "0.0.16"
+APP_VERSION = "0.0.17"
 
 SAMPLE_PCB_FILE = "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb"
 
@@ -101,6 +101,7 @@ DEFAULT_CONFIG_JSON = '''
     "pcb_pdf": {
       "--output_dir": "",
       "--layers": ["F.Cu","B.Cu","F.Paste","B.Paste","F.Silkscreen","B.Silkscreen","F.Mask","B.Mask","User.Drawings","User.Comments","Edge.Cuts","F.Courtyard","B.Courtyard","F.Fab","B.Fab"],
+      "kie_common_layers": ["Edge.Cuts"],
       "--drawing-sheet": false,
       "--mirror": false,
       "--exclude-refdes": false,
@@ -109,7 +110,7 @@ DEFAULT_CONFIG_JSON = '''
       "--negative": false,
       "--black-and-white": false,
       "--theme": "User",
-      "--drill-shape-opt": 1,
+      "--drill-shape-opt": 2,
       "kie_single_file": false
     },
     "positions": {
@@ -199,13 +200,13 @@ COLORS = {
 }
 
 class _color:
-    def __call__(self, text, color):
+    def __call__ (self, text, color):
         return f"{COLORS[color]}{text}{COLORS['reset']}"
     
-    def __getattr__(self, color):
+    def __getattr__ (self, color):
         if color in COLORS:
             return lambda text: self(text, color)
-        raise AttributeError(f"Color '{color}' is not supported.")
+        raise AttributeError (f"Color '{color}' is not supported.")
 
 # Create an instance of the Colorize class
 color = _color()
@@ -602,102 +603,128 @@ def generatePcbPdf (output_dir, pcb_filename, to_overwrite = True):
   # Common base command
   pcb_pdf_export_command = ["kicad-cli", "pcb", "export", "pdf"]
 
-  layer_list = "F.Cu,B.Cu,F.Paste,B.Paste,F.Silkscreen,B.Silkscreen,F.Mask,B.Mask,User.Drawings,User.Comments,Edge.Cuts,F.Courtyard,B.Courtyard,F.Fab,B.Fab"
-
+  # Check if the pcb file exists
   if not check_file_exists (pcb_filename):
-    print (f"generatePcbPdf [ERROR]: {pcb_filename} does not exist.")
+    print (color.red (f"generatePcbPdf [ERROR]: '{pcb_filename}' does not exist."))
     return
 
+  #---------------------------------------------------------------------------------------------#
+
   file_name = extract_pcb_file_name (pcb_filename)
+  file_name = file_name.replace (" ", "-") # If there are whitespace characters in the project name, replace them with a hyphen
+  
   project_name = extract_project_name (file_name)
   info = extract_info_from_pcb (pcb_filename)
+  print (f"generatePcbPdf [INFO]: Project name is '{color.magenta (project_name)}' and revision is {info ['rev']}.")
   
-  print (f"generatePcbPdf [INFO]: Project name is {project_name} and revision is {info ['rev']}.")
-  
-  # Check if the ouptut directory exists, and create if not.
-  if not os.path.exists (output_dir):
-    print (f"generatePcbPdf [INFO]: Output directory {output_dir} does not exist. Creating it now.")
-    os.makedirs (output_dir)
+  #---------------------------------------------------------------------------------------------#
 
-  rev_directory = f"{output_dir}/R{info ['rev']}"
+  # Read the target directory name from the config file
+  config_dir = current_config.get ("data", {}).get ("pcb_pdf", {}).get ("--output_dir", default_config ["data"]["pcb_pdf"]["--output_dir"])
+  command_dir = output_dir  # The directory specified by the command line argument
 
-  if not os.path.exists (rev_directory):
-    print (f"generatePcbPdf [INFO]: Revision directory {rev_directory} does not exist. Creating it now.")
-    os.makedirs (rev_directory)
+  # Get the final directory path
+  final_directory, filename_date = create_final_directory (config_dir, command_dir, "PCB", info ["rev"], "generatePcbPdf")
+
+  #---------------------------------------------------------------------------------------------#
   
+  # Delete the existing files in the output directory
+  delete_files (final_directory, include_extensions = [".pdf", ".ps"])
+
+  #---------------------------------------------------------------------------------------------#
+  
+  # Get the argument list from the config file.
+  arg_list = current_config.get ("data", {}).get ("pcb_pdf", {})
+
+  # Check the number of technical layers to export. This is not the number of copper layers.
+  layer_count = len (arg_list.get ("--layers", []))
+
+  if layer_count <= 0:
+    print (color.red (f"generatePcbPdf [ERROR]: No layers specified for export."))
+    return
+
+  # Get the number of common layers to include in each of the PDF.
+  # common_layer_count = len (arg_list.get ("kie_common_layers", []))
+
+  seq_number = 1
   not_completed = True
-  seq_number = 0
+  base_command = []
+  base_command.extend (pcb_pdf_export_command) # Add the base command
   
-  while not_completed:
-    today_date = datetime.now()
-    formatted_date = today_date.strftime ("%d-%m-%Y")
-    filename_date = today_date.strftime ("%d%m%Y")
-    seq_number += 1
-    date_directory = f"{rev_directory}/[{seq_number}] {formatted_date}"
-    target_directory = f"{date_directory}/PCB"
+  for i in range (layer_count):
+    full_command = base_command [:]
+    # Get the arguments.
+    if arg_list: # Check if the argument list is not an empty dictionary.
+      for key, value in arg_list.items():
+        if key.startswith ("--"): # Only fetch the arguments that start with "--"
+          if key == "--output_dir": # Skip the --output_dir argument, sice we already added it
+            continue
+          elif key == "--layers":
+            layer_name = arg_list ["--layers"][i] # Get a layer name from the layer list
+            layer_name = layer_name.replace (".", "_") # Replace dots with underscores
+            layer_name = layer_name.replace (" ", "_") # Replace spaces with underscores
 
-    if not os.path.exists (target_directory):
-      print (f"generatePcbPdf [INFO]: Target directory {target_directory} does not exist. Creating it now.")
-      os.makedirs (target_directory)
-      not_completed = False
-    else:
-      if to_overwrite:
-        print (f"generatePcbPdf [INFO]: Target directory {target_directory} already exists. Any files will be overwritten.")
-        delete_non_zip_files (target_directory)
-        not_completed = False
-      else:
-        print (f"generatePcbPdf [INFO]: Target directory {target_directory} already exists. Creating another one.")
-        not_completed = True
+            full_command.append ("--output")
+            full_command.append (f'"{final_directory}/{project_name}-R{info ["rev"]}-{layer_name}.pdf"') # This is the ouput file name, and not a directory name
 
-  # # Check if the target directory ends with a slash, and add one if not
-  # if target_directory [-1] != '/':
-  #   target_directory += '/'
-  
-  for layer_name in layer_list.split (","):
-    full_command_1 = pcb_pdf_export_command + \
-                  ["--output", f"{target_directory}/{project_name}-{layer_name}.pdf"] + \
-                  ["--layers", f"{layer_name},Edge.Cuts"] + \
-                  ["--include-border-title"] + \
-                  ["--theme", "User"] + \
-                  ["--drill-shape-opt", "1"] + \
-                  [pcb_filename]
-    # Run the command
+            layer_name = arg_list ["--layers"][i] # Get a layer name from the layer list
+            layer_list = [f"{layer_name}"]  # Now create a list with the first item as the layer name
+            common_layer_list = arg_list ["kie_common_layers"]  # Add the common layers
+            layer_list.extend (common_layer_list) # Now combine the two lists
+            layers_csv = ",".join (layer_list) # Convert the list to a comma-separated string
+            full_command.append (key)
+            full_command.append (f'"{layers_csv}"')
+          else:
+            # Check if the value is empty
+            if value == "": # Skip if the value is empty
+              continue
+            else:
+              # Check if the vlaue is a JSON boolean
+              if isinstance (value, bool):
+                if value == True: # If the value is true, then append the key as an argument
+                  full_command.append (key)
+              else:
+                # Check if the value is a string and not a numeral
+                if isinstance (value, str) and not value.isdigit():
+                    full_command.append (key)
+                    full_command.append (f'"{value}"') # Add as a double-quoted string
+                elif isinstance (value, (int, float)):
+                    full_command.append (key)
+                    full_command.append (str (value))  # Append the numeric value as string
+
+    full_command.append (f'"{pcb_filename}"')
+    print ("generatePcbPdf [INFO]: Running command: ", color.blue (' '.join (full_command)))
+
+      # Run the command
     try:
-      subprocess.run (full_command_1, check = True)
+      full_command = ' '.join (full_command) # Convert the list to a string
+      subprocess.run (full_command, check = True)
+      # print (color.green ("generatePcbPdf [OK]: PCB PDF files exported successfully."))
     
     except subprocess.CalledProcessError as e:
-      print (f"generatePcbPdf [ERROR]: Error occurred: {e}")
+      print (color.red (f"generatePcbPdf [ERROR]: Error occurred: {e}"))
       return
+  
+  #---------------------------------------------------------------------------------------------#
+  
+  # # Generate a single file if specified
+  # kie_single_file = current_config.get ("data", {}).get ("pcb_pdf", {}).get ("kie_single_file", default_config ["data"]["pcb_pdf"]["kie_single_file"])
 
-  print ("generatePcbPdf [OK]: PCB PDF files exported successfully.")
-    
-  # Rename the files by adding Revision after the project name
-  for filename in os.listdir (target_directory):
-    if filename.startswith (project_name) and not filename.endswith ('.zip'):
-      # Construct the new filename with the revision tag
-      base_name = filename [len (project_name):]  # Remove the project name part
-      new_filename = f"{project_name}-R{info ['rev']}{base_name}"
-      
-      # Full paths for renaming
-      old_file_path = os.path.join (target_directory, filename)
-      new_file_path = os.path.join (target_directory, new_filename)
-      
-      # Rename the file
-      os.rename (old_file_path, new_file_path)
-      # print(f"Renamed: {filename} -> {new_filename}")
-    
-    # seq_number = 1
-    # not_completed = True
-    
-    # while not_completed:
-    #   zip_file_name = f"{project_name}-R{info ['rev']}-PCB-PDF-{filename_date}-{seq_number}.zip"
+  # # Check if the value is boolean and then true or false
+  # if isinstance (kie_single_file, bool):
+  #   kie_single_file = str (kie_single_file).lower()
 
-    #   if os.path.exists (f"{target_directory}/{zip_file_name}"):
-    #     seq_number += 1
-    #   else:
-    #     zip_all_files (target_directory, f"{target_directory}/{zip_file_name}")
-    #     print (f"generatePcbPdf [OK]: ZIP file {zip_file_name} created successfully.")
-    #     not_completed = False
+  # if kie_single_file == "true":
+  #   kie_single_file = True
+  # elif kie_single_file == "false":
+  #   kie_single_file = False
+
+  # if kie_single_file == True:
+  #   full_command.append (f'"{pcb_filename}"')
+  
+  #---------------------------------------------------------------------------------------------#
+
+  print (color.green ("generatePcbPdf [OK]: PCB PDF files exported successfully."))
 
 #=============================================================================================#
 
@@ -1407,9 +1434,9 @@ def parseArguments():
 
 def printInfo():
   print ("")
-  print (f"KiExport v{APP_VERSION}")
-  print ("CLI tool to export design and manufacturing files from KiCad projects.")
-  print ("Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)")
+  print (color.cyan (f"KiExport v{APP_VERSION}"))
+  print (color.cyan ("CLI tool to export design and manufacturing files from KiCad projects."))
+  print (color.cyan ("Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)"))
   print ("")
 
 #=============================================================================================#

@@ -2,10 +2,17 @@
 
 
 #
+### **+05:30 01:39:08 AM 06-10-2024, Sunday**
+
+  - Added support JSON configuration for `generatePcbPdf()`.
+  - Added color to the printed app info.
+  - New Version `0.0.17`.
+
+#
 ### **+05:30 12:26:25 AM 07-09-2024, Saturday**
 
   - `generateGerbers()` now reads the configuration `kie_include_drill` and generated the drill files first based on the value. Default value is `true`.
-  - New Version: `0.0.16`.
+  - New Version `0.0.16`.
 
 #
 ### **+05:30 12:02:33 AM 07-09-2024, Saturday**

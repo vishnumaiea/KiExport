@@ -3,6 +3,7 @@
   "description": "Configuration file for KiExport",
   "filetype": "json",
   "version": "1.0",
+  "project_name": "Mitayi-Pico-D1",
   "commands": ["gerbers", "drills", "sch_pdf", "bom", "pcb_pdf", "positions", "ddd"],
   "data": {
     "gerbers": {
@@ -70,6 +71,7 @@
     "pcb_pdf": {
       "--output_dir": "",
       "--layers": ["F.Cu","B.Cu","F.Paste","B.Paste","F.Silkscreen","B.Silkscreen","F.Mask","B.Mask","User.Drawings","User.Comments","Edge.Cuts","F.Courtyard","B.Courtyard","F.Fab","B.Fab"],
+      "kie_common_layers": ["Edge.Cuts"],
       "--drawing-sheet": false,
       "--mirror": false,
       "--exclude-refdes": false,
@@ -78,7 +80,7 @@
       "--negative": false,
       "--black-and-white": false,
       "--theme": "User",
-      "--drill-shape-opt": 1,
+      "--drill-shape-opt": 2,
       "kie_single_file": false
     },
     "positions": {
