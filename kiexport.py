@@ -4,8 +4,8 @@
 # KiExport
 # Tool to export manufacturing files from KiCad PCB projects.
 # Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)
-# Version: 0.0.17
-# Last Modified: +05:30 01:39:01 AM 06-10-2024, Sunday
+# Version: 0.0.18
+# Last Modified: +05:30 15:34:21 PM 06-10-2024, Sunday
 # GitHub: https://github.com/vishnumaiea/KiExport
 # License: MIT
 
@@ -456,7 +456,7 @@ def generatePositions (output_dir, pcb_filename, to_overwrite = True):
 
   # Check if the input file exists
   if not check_file_exists (pcb_filename):
-    print (f"generatePositions [ERROR]: {pcb_filename} does not exist.")
+    print (color.red (f"generatePositions [ERROR]: '{pcb_filename}' does not exist."))
     return
 
   #---------------------------------------------------------------------------------------------#
@@ -466,7 +466,7 @@ def generatePositions (output_dir, pcb_filename, to_overwrite = True):
   
   project_name = extract_project_name (file_name)
   info = extract_info_from_pcb (pcb_filename)
-  print (f"generatePositions [INFO]: Project name is {project_name} and revision is {info ['rev']}.")
+  print (f"generatePositions [INFO]: Project name is '{color.magenta (project_name)}' and revision is {color.magenta ("R")}{color.magenta (info ['rev'])}.")
   
   #---------------------------------------------------------------------------------------------#
 
@@ -500,7 +500,7 @@ def generatePositions (output_dir, pcb_filename, to_overwrite = True):
 
   # Check if the sides are valid and apply the default value if not
   if sides == None or sides == "":
-    print (f"generatePositions [INFO]: No sides specified. Using both sides.")
+    print (color.yellow (f"generatePositions [INFO]: No sides specified. Using both sides."))
     sides = "both"
   
   # Add the remaining arguments.
@@ -556,35 +556,25 @@ def generatePositions (output_dir, pcb_filename, to_overwrite = True):
     if (sides.__contains__ ("front") and i == 0) or (sides.__contains__ ("back") and i == 1) or (sides.__contains__ ("both") and i == 2):
       try:
         command_string = ' '.join (full_command)  # Convert the list to a string
-        print (f"generatePositions [INFO]: Running command: {command_string}")
+        print (f"generatePositions [INFO]: Running command: {color.blue (command_string)}")
         subprocess.run (command_string, check = True)
       except subprocess.CalledProcessError as e:
-        print (f"generatePositions [ERROR]: Error occurred while generating the files.")
+        print (color.red (f"generatePositions [ERROR]: Error occurred while generating the files."))
         return
 
-  print ("generatePositions [OK]: Position files exported successfully.")
+  print (color.green ("generatePositions [OK]: Position files exported successfully."))
   
   #---------------------------------------------------------------------------------------------#
   
   # Rename the files by adding Revision after the project name.
-  for filename in os.listdir (final_directory):
-    if filename.startswith (project_name) and not filename.endswith ('.zip'):
-      # Construct the new filename with the revision tag
-      base_name = filename [len (project_name):]  # Remove the project name part
-      new_filename = f"{project_name}-R{info ['rev']}{base_name}"
-      
-      # Full paths for renaming
-      old_file_path = os.path.join (final_directory, filename)
-      new_file_path = os.path.join (final_directory, new_filename)
-      
-      # Rename the file
-      os.rename (old_file_path, new_file_path)
-      # print(f"Renamed: {filename} -> {new_filename}")
+  rename_files (final_directory, project_name, info ['rev'], [".csv"])
   
   #---------------------------------------------------------------------------------------------#
   
   seq_number = 1
   not_completed = True
+
+  files_to_include = [".csv"]
   
   # Sequentially name and create the zip files.
   while not_completed:
@@ -593,8 +583,9 @@ def generatePositions (output_dir, pcb_filename, to_overwrite = True):
     if os.path.exists (f"{final_directory}/{zip_file_name}"):
       seq_number += 1
     else:
-      zip_all_files (final_directory, f"{final_directory}/{zip_file_name}")
-      print (f"generatePositions [OK]: ZIP file {zip_file_name} created successfully.")
+      # zip_all_files (final_directory, f"{final_directory}/{zip_file_name}")
+      zip_all_files_2 (final_directory, files_to_include, zip_file_name)
+      print (f"generatePositions [OK]: ZIP file '{color.magenta (zip_file_name)}' created successfully.")
       not_completed = False
 
 #=============================================================================================#
@@ -703,7 +694,7 @@ def generatePcbPdf (output_dir, pcb_filename, to_overwrite = True):
     
     except subprocess.CalledProcessError as e:
       print (color.red (f"generatePcbPdf [ERROR]: Error occurred: {e}"))
-      return
+      continue
   
   #---------------------------------------------------------------------------------------------#
   
