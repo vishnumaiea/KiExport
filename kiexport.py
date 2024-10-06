@@ -4,8 +4,8 @@
 # KiExport
 # Tool to export manufacturing files from KiCad PCB projects.
 # Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)
-# Version: 0.0.18
-# Last Modified: +05:30 16:46:38 PM 06-10-2024, Sunday
+# Version: 0.0.20
+# Last Modified: +05:30 17:08:41 PM 06-10-2024, Sunday
 # GitHub: https://github.com/vishnumaiea/KiExport
 # License: MIT
 
@@ -22,7 +22,7 @@ import json
 #=============================================================================================#
 
 APP_NAME = "KiExport"
-APP_VERSION = "0.0.19"
+APP_VERSION = "0.0.20"
 
 SAMPLE_PCB_FILE = "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb"
 
@@ -755,10 +755,11 @@ def generateSchPdf (output_dir, sch_filename, to_overwrite = True):
   # Get the argument list from the config file.
   arg_list = current_config.get ("data", {}).get ("sch_pdf", {})
 
-  seq_number = 1
-  not_completed = True
   full_command = []
   full_command.extend (sch_pdf_export_command) # Add the base command
+
+  seq_number = 1
+  not_completed = True
   
   # Create the output file name.
   while not_completed:
@@ -813,67 +814,6 @@ def generateSchPdf (output_dir, sch_filename, to_overwrite = True):
     return
 
   print (color.green ("generateSchPdf [OK]: Schematic PDF file exported successfully."))
-
-#============================================================================================= #
-
-def create_final_directory (config_dir, command_dir, target_dir_name, rev, func_name, to_overwrite = True):
-  # This will be the root directory for the output files.
-  # Extra directories will be created based on the revision, date and sequence number.
-  target_dir = None
-
-  # The configured directory has precedence over the command line argument.
-  # Check if the config directory is empty.
-  if config_dir == "":
-    print (f"{func_name} [INFO]: Config directory '{config_dir}' is empty. Using the command line argument.")
-    target_dir = command_dir # If it's empty, use the command line argument
-  else:
-    print (f"{func_name} [INFO]: Config directory '{config_dir}' is not empty. Using the config directory.")
-    target_dir = config_dir # Otherwise, use the config directory
-
-  if not os.path.exists (target_dir): # Check if the target directory exists
-    print (f"{func_name} [INFO]: Output directory '{target_dir}' does not exist. Creating it now.")
-    os.makedirs (target_dir)
-  else:
-    print (f"{func_name} [INFO]: Output directory '{target_dir}' already exists.")
-
-  #---------------------------------------------------------------------------------------------#
-
-  # Create one more directory based on the revision number.
-  rev_directory = f"{target_dir}/R{rev}"
-
-  # Check if the revision directory exists, and create if not.
-  if not os.path.exists (rev_directory):
-    print (f"{func_name} [INFO]: Revision directory '{rev_directory}' does not exist. Creating it now.")
-    os.makedirs (rev_directory)
-  
-  #---------------------------------------------------------------------------------------------#
-  
-  not_completed = True
-  seq_number = 0
-  
-  # Now we have to make the date-specific and output-specific directory.
-  # This will be the final directory for the output files.
-  while not_completed:
-    today_date = datetime.now()
-    formatted_date = today_date.strftime ("%d-%m-%Y")
-    filename_date = today_date.strftime ("%d%m%Y")
-    seq_number += 1
-    date_directory = f"{rev_directory}/[{seq_number}] {formatted_date}"
-    final_directory = f"{date_directory}/{target_dir_name}"
-
-    if not os.path.exists (final_directory):
-      print (f"{func_name} [INFO]: Target directory '{final_directory}' does not exist. Creating it now.")
-      os.makedirs (final_directory)
-      not_completed = False
-    else:
-      if to_overwrite:
-        print (f"{func_name} [INFO]: Target directory '{final_directory}' already exists. Files may be overwritten.")
-        not_completed = False
-      else:
-        print (f"{func_name} [INFO]: Target directory '{final_directory}' already exists. Creating another one.")
-        not_completed = True
-  
-  return final_directory, filename_date
 
 #=============================================================================================#
 
@@ -984,83 +924,157 @@ def generateBom (output_dir, sch_filename, type, to_overwrite = True):
   # Common base command
   bom_export_command = ["kicad-cli", "sch", "export", "bom"]
 
+  # Check if the input file exists
   if not check_file_exists (sch_filename):
-    print (f"generateBom [ERROR]: {sch_filename} does not exist.")
+    print (color.red (f"generateBom [ERROR]: '{sch_filename}' does not exist."))
     return
 
+  #---------------------------------------------------------------------------------------------#
+  
   file_name = extract_pcb_file_name (sch_filename)
+  file_name = file_name.replace (" ", "-") # If there are whitespace characters in the project name, replace them with a hyphen
+  
   project_name = extract_project_name (file_name)
   info = extract_info_from_pcb (sch_filename)
   
-  print (f"generateBom [INFO]: Project name is {project_name} and revision is {info ['rev']}.")
+  print (f"generateBom [INFO]: Project name is '{color.magenta (project_name)}' and revision is {color.magenta ("R")}{color.magenta (info ['rev'])}.")
+
+  #---------------------------------------------------------------------------------------------#
   
-  # Check if the ouptut directory exists, and create if not.
-  if not os.path.exists (output_dir):
-    print (f"generateBom [INFO]: Output directory {output_dir} does not exist. Creating it now.")
-    os.makedirs (output_dir)
+  # Read the target directory name from the config file
+  config_dir = current_config.get ("data", {}).get ("bom", {}).get ("CSV").get ("--output_dir", default_config ["data"]["bom"]["CSV"]["--output_dir"])
+  command_dir = output_dir  # The directory specified by the command line argument
 
-  rev_directory = f"{output_dir}/R{info ['rev']}"
+  # Get the final directory path
+  final_directory, filename_date = create_final_directory (config_dir, command_dir, "BoM", info ["rev"], "generateBom")
+  
+  #---------------------------------------------------------------------------------------------#
+  
+  full_command = []
+  full_command.extend (bom_export_command) # Add the base command
+  
+  seq_number = 1
+  not_completed = True
+  
+  # Create the output file name.
+  while not_completed:
+    file_name = f"{final_directory}/{project_name}-R{info ['rev']}-BoM-CSV-{filename_date}-{seq_number}.csv"
 
+    if os.path.exists (file_name):
+      seq_number += 1
+      not_completed = True
+    else:
+      full_command.append ("--output")
+      full_command.append (f'"{file_name}"') # Add the output file name with double quotes around it
+      break
+
+  #---------------------------------------------------------------------------------------------#
+
+  # Get the argument list from the config file.
+  arg_list = current_config.get ("data", {}).get ("bom", {}).get ("CSV")
+
+  # Add the remaining arguments.
+  # Check if the argument list is not an empty dictionary.
+  if arg_list:
+    for key, value in arg_list.items():
+      if key.startswith ("--"): # Only fetch the arguments that start with "--"
+        if key == "--output_dir": # Skip the --output_dir argument, sice we already added it
+          continue
+        else:
+          # Check if the value is empty
+          if value == "": # Skip if the value is empty
+            continue
+          else:
+            # Check if the vlaue is a JSON boolean
+            if isinstance (value, bool):
+              if value == True: # If the value is true, then append the key as an argument
+                full_command.append (key)
+            else:
+              # Check if the value is a string and not a numeral
+              if isinstance (value, str) and not value.isdigit():
+                  full_command.append (key)
+                  full_command.append (f'"{value}"') # Add as a double-quoted string
+              elif isinstance (value, (int, float)):
+                  full_command.append (key)
+                  full_command.append (str (value))  # Append the numeric value as string
+  
+  # Finally add the input file
+  full_command.append (f'"{sch_filename}"')
+  print ("generateBom [INFO]: Running command: ", color.blue (' '.join (full_command)))
+
+  #---------------------------------------------------------------------------------------------#
+  
+  # Run the command
+  try:
+    full_command = ' '.join (full_command) # Convert the list to a string
+    subprocess.run (full_command, check = True)
+  
+  except subprocess.CalledProcessError as e:
+    print (color.red (f"generateBom [ERROR]: Error occurred: {e}"))
+    return
+
+  print (color.green ("generateBom [OK]: BoM file exported successfully."))
+
+#============================================================================================= #
+
+def create_final_directory (config_dir, command_dir, target_dir_name, rev, func_name, to_overwrite = True):
+  # This will be the root directory for the output files.
+  # Extra directories will be created based on the revision, date and sequence number.
+  target_dir = None
+
+  # The configured directory has precedence over the command line argument.
+  # Check if the config directory is empty.
+  if config_dir == "":
+    print (f"{func_name} [INFO]: Config directory '{config_dir}' is empty. Using the command line argument.")
+    target_dir = command_dir # If it's empty, use the command line argument
+  else:
+    print (f"{func_name} [INFO]: Config directory '{config_dir}' is not empty. Using the config directory.")
+    target_dir = config_dir # Otherwise, use the config directory
+
+  if not os.path.exists (target_dir): # Check if the target directory exists
+    print (f"{func_name} [INFO]: Output directory '{target_dir}' does not exist. Creating it now.")
+    os.makedirs (target_dir)
+  else:
+    print (f"{func_name} [INFO]: Output directory '{target_dir}' already exists.")
+
+  #---------------------------------------------------------------------------------------------#
+
+  # Create one more directory based on the revision number.
+  rev_directory = f"{target_dir}/R{rev}"
+
+  # Check if the revision directory exists, and create if not.
   if not os.path.exists (rev_directory):
-    print (f"generateBom [INFO]: Revision directory {rev_directory} does not exist. Creating it now.")
+    print (f"{func_name} [INFO]: Revision directory '{rev_directory}' does not exist. Creating it now.")
     os.makedirs (rev_directory)
+  
+  #---------------------------------------------------------------------------------------------#
   
   not_completed = True
   seq_number = 0
   
+  # Now we have to make the date-specific and output-specific directory.
+  # This will be the final directory for the output files.
   while not_completed:
     today_date = datetime.now()
     formatted_date = today_date.strftime ("%d-%m-%Y")
     filename_date = today_date.strftime ("%d%m%Y")
     seq_number += 1
     date_directory = f"{rev_directory}/[{seq_number}] {formatted_date}"
-    target_directory = f"{date_directory}/BoM"
+    final_directory = f"{date_directory}/{target_dir_name}"
 
-    if not os.path.exists (target_directory):
-      print (f"generateBom [INFO]: Target directory {target_directory} does not exist. Creating it now.")
-      os.makedirs (target_directory)
+    if not os.path.exists (final_directory):
+      print (f"{func_name} [INFO]: Target directory '{final_directory}' does not exist. Creating it now.")
+      os.makedirs (final_directory)
       not_completed = False
     else:
       if to_overwrite:
-        print (f"generateBom [INFO]: Target directory {target_directory} already exists.")
+        print (f"{func_name} [INFO]: Target directory '{final_directory}' already exists. Files may be overwritten.")
         not_completed = False
       else:
-        print (f"generateBom [INFO]: Target directory {target_directory} already exists. Creating another one.")
+        print (f"{func_name} [INFO]: Target directory '{final_directory}' already exists. Creating another one.")
         not_completed = True
-
-  # # Check if the target directory ends with a slash, and add one if not
-  # if target_directory [-1] != '/':
-  #   target_directory += '/'
   
-  seq_number = 1
-  not_completed = True
-  
-  while not_completed:
-    file_name = f"{target_directory}/{project_name}-R{info ['rev']}-BoM-CSV-{filename_date}-{seq_number}.csv"
-
-    if os.path.exists (file_name):
-      seq_number += 1
-      not_completed = True
-    else:
-      full_command = bom_export_command + \
-                    ["--output", f"{target_directory}/{project_name}-R{info ['rev']}-BoM-CSV-{filename_date}-{seq_number}.csv"] + \
-                    ["--preset", "Group by MPN-DNP"] + \
-                    ["--format-preset", "CSV"] + \
-                    ["--fields", "${{ITEM_NUMBER}},Reference,Value,Name,Footprint,${{QUANTITY}},${{DNP}},MPN,MFR,Alt MPN"] + \
-                    ["--labels", "#,Reference,Value,Name,Footprint,Qty,DNP,MPN,MFR,Alt MPN"] + \
-                    ["--group-by", "${{DNP}},MPN"] + \
-                    [sch_filename]
-      not_completed = False
-
-  # Run the command
-  try:
-    subprocess.run (full_command, check = True)
-  
-  except subprocess.CalledProcessError as e:
-    print (f"generateBom [ERROR]: Error occurred: {e}")
-    return
-
-  print ("generateBom [OK]: BoM file exported successfully.")
+  return final_directory, filename_date
 
 #=============================================================================================#
 

@@ -1,6 +1,12 @@
 
 
 #
+### **+05:30 05:08:48 PM 06-10-2024, Sunday**
+
+  - Added JSON configuration support for `generateBom()`.
+  - New Version `0.0.20`.
+
+#
 ### **+05:30 04:46:12 PM 06-10-2024, Sunday**
 
   - Added JSON configuration support for `generate3D()`.
