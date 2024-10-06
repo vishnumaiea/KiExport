@@ -5,7 +5,7 @@
 # Tool to export manufacturing files from KiCad PCB projects.
 # Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)
 # Version: 0.0.18
-# Last Modified: +05:30 15:34:21 PM 06-10-2024, Sunday
+# Last Modified: +05:30 16:46:38 PM 06-10-2024, Sunday
 # GitHub: https://github.com/vishnumaiea/KiExport
 # License: MIT
 
@@ -22,7 +22,7 @@ import json
 #=============================================================================================#
 
 APP_NAME = "KiExport"
-APP_VERSION = "0.0.17"
+APP_VERSION = "0.0.19"
 
 SAMPLE_PCB_FILE = "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb"
 
@@ -246,7 +246,7 @@ def generateGerbers (output_dir, pcb_filename, to_overwrite = True):
   
   project_name = extract_project_name (file_name)
   info = extract_info_from_pcb (pcb_filename)
-  print (f"generateGerbers [INFO]: Project name is '{color.magenta (project_name)}' and revision is {info ['rev']}.")
+  print (f"generateGerbers [INFO]: Project name is '{color.magenta (project_name)}' and revision is {color.magenta ("R")}{color.magenta (info ['rev'])}.")
   
   #---------------------------------------------------------------------------------------------#
   
@@ -365,7 +365,7 @@ def generateDrills (output_dir, pcb_filename):
   
   project_name = extract_project_name (file_name)
   info = extract_info_from_pcb (pcb_filename)
-  print (f"generateDrills [INFO]: Project name is '{color.magenta (project_name)}' and revision is {info ['rev']}.")
+  print (f"generateDrills [INFO]: Project name is '{color.magenta (project_name)}' and revision is {color.magenta ("R")}{color.magenta (info ['rev'])}.")
   
   #-------------------------------------------------------------------------------------------#
 
@@ -606,7 +606,7 @@ def generatePcbPdf (output_dir, pcb_filename, to_overwrite = True):
   
   project_name = extract_project_name (file_name)
   info = extract_info_from_pcb (pcb_filename)
-  print (f"generatePcbPdf [INFO]: Project name is '{color.magenta (project_name)}' and revision is {info ['rev']}.")
+  print (f"generatePcbPdf [INFO]: Project name is '{color.magenta (project_name)}' and revision is {color.magenta ("R")}{color.magenta (info ['rev'])}.")
   
   #---------------------------------------------------------------------------------------------#
 
@@ -728,7 +728,7 @@ def generateSchPdf (output_dir, sch_filename, to_overwrite = True):
 
   # Check if the input file exists
   if not check_file_exists (sch_filename):
-    print (f"generateSchPdf [ERROR]: '{sch_filename}' does not exist.")
+    print (color.red (f"generateSchPdf [ERROR]: '{sch_filename}' does not exist."))
     return
 
   #---------------------------------------------------------------------------------------------#
@@ -738,7 +738,8 @@ def generateSchPdf (output_dir, sch_filename, to_overwrite = True):
 
   project_name = extract_project_name (file_name)
   info = extract_info_from_pcb (sch_filename) # Extract basic information from the input file
-  print (f"generateSchPdf [INFO]: Project name is '{project_name}' and revision is R{info ['rev']}.")
+
+  print (f"generateSchPdf [INFO]: Project name is '{color.magenta (project_name)}' and revision is {color.magenta ("R")}{color.magenta (info ['rev'])}.")
 
   #---------------------------------------------------------------------------------------------#
 
@@ -798,7 +799,7 @@ def generateSchPdf (output_dir, sch_filename, to_overwrite = True):
   
   # Finally add the input file
   full_command.append (f'"{sch_filename}"')
-  print ("generateSchPdf [INFO]: Running command: ", full_command)
+  print ("generateSchPdf [INFO]: Running command: ", color.blue (' '.join (full_command)))
 
   #---------------------------------------------------------------------------------------------#
   
@@ -808,10 +809,10 @@ def generateSchPdf (output_dir, sch_filename, to_overwrite = True):
     subprocess.run (full_command, check = True)
   
   except subprocess.CalledProcessError as e:
-    print (f"generateSchPdf [ERROR]: Error occurred: {e}")
+    print (color.red (f"generateSchPdf [ERROR]: Error occurred: {e}"))
     return
 
-  print ("generateSchPdf [OK]: Schematic PDF file exported successfully.")
+  print (color.green ("generateSchPdf [OK]: Schematic PDF file exported successfully."))
 
 #============================================================================================= #
 
@@ -888,89 +889,94 @@ def generate3D (output_dir, pcb_filename, type, to_overwrite = True):
     extension = "wrl"
 
   if not check_file_exists (pcb_filename):
-    print (f"generate3D [ERROR]: {pcb_filename} does not exist.")
+    print (color.red (f"generate3D [ERROR]: '{pcb_filename}' does not exist."))
     return
 
-  file_name = extract_pcb_file_name (pcb_filename)
+  #---------------------------------------------------------------------------------------------#
+  
+  file_name = extract_pcb_file_name (pcb_filename) # Extract information from the input file
+  file_name = file_name.replace (" ", "-") # If there are whitespace characters in the project name, replace them with a hyphen
+
   project_name = extract_project_name (file_name)
   info = extract_info_from_pcb (pcb_filename)
   
-  print (f"generate3D [INFO]: Project name is {project_name} and revision is {info ['rev']}.")
+  print (f"generate3D [INFO]: Project name is '{color.magenta (project_name)}' and revision is {color.magenta ("R")}{color.magenta (info ['rev'])}.")
+
+  #---------------------------------------------------------------------------------------------#
+
+  # Read the target directory name from the config file
+  config_dir = current_config.get ("data", {}).get ("ddd", {}).get ("--output_dir", default_config ["data"]["ddd"][type]["--output_dir"])
+  command_dir = output_dir  # The directory specified by the command line argument
+
+  # Get the final directory path
+  final_directory, filename_date = create_final_directory (config_dir, command_dir, "3D", info ["rev"], "generate3D")
+
+  #---------------------------------------------------------------------------------------------#
   
-  # Check if the ouptut directory exists, and create if not.
-  if not os.path.exists (output_dir):
-    print (f"generate3D [INFO]: Output directory {output_dir} does not exist. Creating it now.")
-    os.makedirs (output_dir)
-
-  rev_directory = f"{output_dir}/R{info ['rev']}"
-
-  if not os.path.exists (rev_directory):
-    print (f"generate3D [INFO]: Revision directory {rev_directory} does not exist. Creating it now.")
-    os.makedirs (rev_directory)
-  
-  not_completed = True
-  seq_number = 0
-  
-  while not_completed:
-    today_date = datetime.now()
-    formatted_date = today_date.strftime ("%d-%m-%Y")
-    filename_date = today_date.strftime ("%d%m%Y")
-    seq_number += 1
-    date_directory = f"{rev_directory}/[{seq_number}] {formatted_date}"
-    target_directory = f"{date_directory}/3D"
-
-    if not os.path.exists (target_directory):
-      print (f"generate3D [INFO]: Target directory {target_directory} does not exist. Creating it now.")
-      os.makedirs (target_directory)
-      not_completed = False
-    else:
-      if to_overwrite:
-        print (f"generate3D [INFO]: Target directory {target_directory} already exists.")
-        not_completed = False
-      else:
-        print (f"generate3D [INFO]: Target directory {target_directory} already exists. Creating another one.")
-        not_completed = True
-
-  # # Check if the target directory ends with a slash, and add one if not
-  # if target_directory [-1] != '/':
-  #   target_directory += '/'
+  full_command = []
+  full_command.extend (ddd_export_command) # Add the base command
   
   seq_number = 1
   not_completed = True
   
+  # Generate the file name.
   while not_completed:
-    file_name = f"{target_directory}/{project_name}-R{info ['rev']}-{type}-{filename_date}-{seq_number}.{extension}"
+    file_name = f"{final_directory}/{project_name}-R{info ['rev']}-{type}-{filename_date}-{seq_number}.{extension}"
 
     if os.path.exists (file_name):
       seq_number += 1
       not_completed = True
     else:
-      if type == "STEP":
-        full_command = ddd_export_command + \
-                      ["--output", f"{target_directory}/{project_name}-R{info ['rev']}-{type}-{filename_date}-{seq_number}.{extension}"] + \
-                      ["--force"] + \
-                      ["--subst-models"] + \
-                      ["--include-tracks"] + \
-                      ["--include-zones"] + \
-                      [pcb_filename]
-        
-      elif type == "VRML":
-        full_command = ddd_export_command + \
-                      ["--output", f"{target_directory}/{project_name}-R{info ['rev']}-{type}-{filename_date}-{seq_number}.{extension}"] + \
-                      ["--force"] + \
-                      ["--units", "mm"] + \
-                      [pcb_filename]
-      not_completed = False
+      full_command.append ("--output")
+      full_command.append (f'"{file_name}"') # Add the output file name with double quotes around it
+      break
+  
+  #---------------------------------------------------------------------------------------------#
+  
+  # Get the argument list from the config file.
+  arg_list = current_config.get ("data", {}).get ("ddd", {}).get (type)
 
+  # Add the remaining arguments.
+  # Check if the argument list is not an empty dictionary.
+  if arg_list:
+    for key, value in arg_list.items():
+      if key.startswith ("--"): # Only fetch the arguments that start with "--"
+        if key == "--output_dir": # Skip the --output_dir argument, sice we already added it
+          continue
+        else:
+          # Check if the value is empty
+          if value == "": # Skip if the value is empty
+            continue
+          else:
+            # Check if the vlaue is a JSON boolean
+            if isinstance (value, bool):
+              if value == True: # If the value is true, then append the key as an argument
+                full_command.append (key)
+            else:
+              # Check if the value is a string and not a numeral
+              if isinstance (value, str) and not value.isdigit():
+                  full_command.append (key)
+                  full_command.append (f'"{value}"') # Add as a double-quoted string
+              elif isinstance (value, (int, float)):
+                  full_command.append (key)
+                  full_command.append (str (value))  # Append the numeric value as string
+  
+  # Finally add the input file
+  full_command.append (f'"{pcb_filename}"')
+  print ("generate3D [INFO]: Running command: ", color.blue (' '.join (full_command)))
+
+  #---------------------------------------------------------------------------------------------#
+  
   # Run the command
   try:
+    full_command = ' '.join (full_command) # Convert the list to a string
     subprocess.run (full_command, check = True)
   
   except subprocess.CalledProcessError as e:
-    print (f"generate3D [ERROR]: Error occurred: {e}")
+    print (color.red (f"generate3D [ERROR]: Error occurred: {e}"))
     return
 
-  print ("generate3D [OK]: STEP file exported successfully.")
+  print (color.green (f"generate3D [OK]: {type} file exported successfully."))
 
 #=============================================================================================#
 

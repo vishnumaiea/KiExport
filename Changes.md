@@ -1,6 +1,12 @@
 
 
 #
+### **+05:30 04:46:12 PM 06-10-2024, Sunday**
+
+  - Added JSON configuration support for `generate3D()`.
+  - New Version `0.0.19`.
+
+#
 ### **+05:30 03:33:44 PM 06-10-2024, Sunday**
 
   - Optimized the `generatePositions()` function.
