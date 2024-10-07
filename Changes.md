@@ -1,6 +1,12 @@
 
 
 #
+### **+05:30 08:23:25 PM 07-10-2024, Monday**
+
+  - Fixed string quotes conflicts.
+  - New Version `0.0.21`.
+
+#
 ### **+05:30 05:08:48 PM 06-10-2024, Sunday**
 
   - Added JSON configuration support for `generateBom()`.

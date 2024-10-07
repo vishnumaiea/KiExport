@@ -4,8 +4,8 @@
 # KiExport
 # Tool to export manufacturing files from KiCad PCB projects.
 # Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)
-# Version: 0.0.20
-# Last Modified: +05:30 17:08:41 PM 06-10-2024, Sunday
+# Version: 0.0.21
+# Last Modified: +05:30 20:23:47 PM 07-10-2024, Monday
 # GitHub: https://github.com/vishnumaiea/KiExport
 # License: MIT
 
@@ -22,7 +22,7 @@ import json
 #=============================================================================================#
 
 APP_NAME = "KiExport"
-APP_VERSION = "0.0.20"
+APP_VERSION = "0.0.21"
 
 SAMPLE_PCB_FILE = "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb"
 
@@ -246,7 +246,7 @@ def generateGerbers (output_dir, pcb_filename, to_overwrite = True):
   
   project_name = extract_project_name (file_name)
   info = extract_info_from_pcb (pcb_filename)
-  print (f"generateGerbers [INFO]: Project name is '{color.magenta (project_name)}' and revision is {color.magenta ("R")}{color.magenta (info ['rev'])}.")
+  print (f"generateGerbers [INFO]: Project name is '{color.magenta (project_name)}' and revision is {color.magenta ('R')}{color.magenta (info ['rev'])}.")
   
   #---------------------------------------------------------------------------------------------#
   
@@ -365,7 +365,7 @@ def generateDrills (output_dir, pcb_filename):
   
   project_name = extract_project_name (file_name)
   info = extract_info_from_pcb (pcb_filename)
-  print (f"generateDrills [INFO]: Project name is '{color.magenta (project_name)}' and revision is {color.magenta ("R")}{color.magenta (info ['rev'])}.")
+  print (f"generateDrills [INFO]: Project name is '{color.magenta (project_name)}' and revision is {color.magenta ('R')}{color.magenta (info ['rev'])}.")
   
   #-------------------------------------------------------------------------------------------#
 
@@ -466,7 +466,7 @@ def generatePositions (output_dir, pcb_filename, to_overwrite = True):
   
   project_name = extract_project_name (file_name)
   info = extract_info_from_pcb (pcb_filename)
-  print (f"generatePositions [INFO]: Project name is '{color.magenta (project_name)}' and revision is {color.magenta ("R")}{color.magenta (info ['rev'])}.")
+  print (f"generatePositions [INFO]: Project name is '{color.magenta (project_name)}' and revision is {color.magenta ('R')}{color.magenta (info ['rev'])}.")
   
   #---------------------------------------------------------------------------------------------#
 
@@ -606,7 +606,7 @@ def generatePcbPdf (output_dir, pcb_filename, to_overwrite = True):
   
   project_name = extract_project_name (file_name)
   info = extract_info_from_pcb (pcb_filename)
-  print (f"generatePcbPdf [INFO]: Project name is '{color.magenta (project_name)}' and revision is {color.magenta ("R")}{color.magenta (info ['rev'])}.")
+  print (f"generatePcbPdf [INFO]: Project name is '{color.magenta (project_name)}' and revision is {color.magenta ('R')}{color.magenta (info ['rev'])}.")
   
   #---------------------------------------------------------------------------------------------#
 
@@ -739,7 +739,7 @@ def generateSchPdf (output_dir, sch_filename, to_overwrite = True):
   project_name = extract_project_name (file_name)
   info = extract_info_from_pcb (sch_filename) # Extract basic information from the input file
 
-  print (f"generateSchPdf [INFO]: Project name is '{color.magenta (project_name)}' and revision is {color.magenta ("R")}{color.magenta (info ['rev'])}.")
+  print (f"generateSchPdf [INFO]: Project name is '{color.magenta (project_name)}' and revision is {color.magenta ('R')}{color.magenta (info ['rev'])}.")
 
   #---------------------------------------------------------------------------------------------#
 
@@ -840,7 +840,7 @@ def generate3D (output_dir, pcb_filename, type, to_overwrite = True):
   project_name = extract_project_name (file_name)
   info = extract_info_from_pcb (pcb_filename)
   
-  print (f"generate3D [INFO]: Project name is '{color.magenta (project_name)}' and revision is {color.magenta ("R")}{color.magenta (info ['rev'])}.")
+  print (f"generate3D [INFO]: Project name is '{color.magenta (project_name)}' and revision is {color.magenta ('R')}{color.magenta (info ['rev'])}.")
 
   #---------------------------------------------------------------------------------------------#
 
@@ -937,7 +937,7 @@ def generateBom (output_dir, sch_filename, type, to_overwrite = True):
   project_name = extract_project_name (file_name)
   info = extract_info_from_pcb (sch_filename)
   
-  print (f"generateBom [INFO]: Project name is '{color.magenta (project_name)}' and revision is {color.magenta ("R")}{color.magenta (info ['rev'])}.")
+  print (f"generateBom [INFO]: Project name is '{color.magenta (project_name)}' and revision is {color.magenta ('R')}{color.magenta (info ['rev'])}.")
 
   #---------------------------------------------------------------------------------------------#
   
