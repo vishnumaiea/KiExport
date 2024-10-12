@@ -1,24 +1,28 @@
 
 # KiExport
 
-**KiExport** is a Python script for exporting manufacturing files from KiCad PCB design projects. This is a CLI (Command Line Interface) utility. Commands and arguments can be passed to the script while running. You should be familiar working with CLI tools and how to execute commands from the terminal.
+**KiExport** is a Python application for exporting manufacturing files from KiCad PCB design projects. This is a CLI (Command Line Interface) utility. Commands and arguments can be passed to the script while running or from a JSON configuration file named `kiexport.json`. You should be familiar working with CLI tools and how to execute commands from a terminal.
 
-The **Mitayi Pico RP2040** project is added as a sample project to work on.
+The [**Mitayi Pico RP2040**](https://github.com/CIRCUITSTATE/Mitayi-Pico-RP2040) project is added as a sample project to test the script.
 
 - **Author:** [Vishnu Mohanan](https://github.com/vishnumaiea)
-- **Version:** `0.0.12`
+- **Version:** `0.0.22`
 
 This tool was created with the help of [**ChatGPT**](https://chat.openai.com/chat). Thanks to humanity!
 
 ## Installation
 
-KiExport uses the [**KiCad-CLI**](https://docs.kicad.org/8.0/en/cli/cli.html) tool to generate the files. You should have a KiCad version installed in your system to use this tool. You can download and install the latest version of KiCad from [here](https://kicad.org/download/). After installation, browse to the installation folder and find the `bin` directory where the `kicad-cli.exe` file is located. Add the `bin` folder to your system path.
+KiExport relies on the [**KiCad-CLI**](https://docs.kicad.org/8.0/en/cli/cli.html) tool to generate the files and therefore supports all the features of KiCad-CLI. You should have a KiCad version installed in your system to use this tool. You can download and install the latest version of KiCad from [here](https://kicad.org/download/). After installation, browse to the installation folder and find the `bin` directory where the `kicad-cli.exe` file is located. Add the `bin` folder to your System Path. If you do not know how to add a new path to the System Path variable, check out any tutorials on the internet.
 
 You can clone/fork the project to obtain a copy of the repository in your system using the following command. Git should be installed and available on the path.
 
 ```
 git clone https://github.com/vishnumaiea/KiExport.git
 ```
+
+Additionally, you can download the project as a ZIP file and extract it in your system. After getting the files, you can add the project folder to the System Path. If your system opens Python script files with the Python interpreter by default, you can run any python script directly from the terminal even without using the `.py` extension as shown in the image below.
+
+![Windows Terminal](/resources/2024-10-12_10-05-04-PM-.png)
 
 ## Usage
 
@@ -183,6 +187,12 @@ Example:
 ```
 kiexport bom -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_sch" -od "Mitayi-Pico-D1/Export" -t CSV
 ```
+
+## Configuration File
+
+KiExport supports a JSON configuration file called `kiexport.json`. The name of the file should be exact. The configuration file should be placed in the root folder of your KiCad project where the main `.kicad_sch` and `.kicad_pcb` files are located. Check the `Mitayi-Pico-D1` folder for an example. A copy of the default configuration file is integrated into the script to use as the default one.
+
+To create a configuration file for your own project, add the `project_name`, the required commands under `commands` and the data for those commands under `data`. All keys that starts with `--` are directly passed to the KiCad-CLI and anything that starts with `kie_` is a data for the KiExport application.
 
 ## License
 
