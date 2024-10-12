@@ -1,6 +1,17 @@
 
 
 #
+### **+05:30 09:49:11 PM 12-10-2024, Saturday**
+
+  - Changed the final directory date format to `"YYYY-MM-DD"` from `"DD-MM-YYYY"`. This will help the directories to be sorted easily by name by default.
+  - New Version `0.0.22`.
+
+#
+### **+05:30 11:47:28 PM 07-10-2024, Monday**
+
+  - Added colors to the directory name strings in the `create_final_directory()` function.
+
+#
 ### **+05:30 08:23:25 PM 07-10-2024, Monday**
 
   - Fixed string quotes conflicts.

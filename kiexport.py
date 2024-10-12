@@ -4,8 +4,8 @@
 # KiExport
 # Tool to export manufacturing files from KiCad PCB projects.
 # Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)
-# Version: 0.0.21
-# Last Modified: +05:30 20:23:47 PM 07-10-2024, Monday
+# Version: 0.0.22
+# Last Modified: +05:30 21:49:54 PM 12-10-2024, Saturday
 # GitHub: https://github.com/vishnumaiea/KiExport
 # License: MIT
 
@@ -22,7 +22,7 @@ import json
 #=============================================================================================#
 
 APP_NAME = "KiExport"
-APP_VERSION = "0.0.21"
+APP_VERSION = "0.0.22"
 
 SAMPLE_PCB_FILE = "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb"
 
@@ -1025,17 +1025,17 @@ def create_final_directory (config_dir, command_dir, target_dir_name, rev, func_
   # The configured directory has precedence over the command line argument.
   # Check if the config directory is empty.
   if config_dir == "":
-    print (f"{func_name} [INFO]: Config directory '{config_dir}' is empty. Using the command line argument.")
+    print (f"{func_name} [INFO]: Config directory '{color.magenta (config_dir)}' is empty. Using the command line argument.")
     target_dir = command_dir # If it's empty, use the command line argument
   else:
-    print (f"{func_name} [INFO]: Config directory '{config_dir}' is not empty. Using the config directory.")
+    print (f"{func_name} [INFO]: Config directory '{color.magenta (config_dir)}' is not empty. Using the config directory.")
     target_dir = config_dir # Otherwise, use the config directory
 
   if not os.path.exists (target_dir): # Check if the target directory exists
-    print (f"{func_name} [INFO]: Output directory '{target_dir}' does not exist. Creating it now.")
+    print (f"{func_name} [INFO]: Output directory '{color.magenta (target_dir)}' does not exist. Creating it now.")
     os.makedirs (target_dir)
   else:
-    print (f"{func_name} [INFO]: Output directory '{target_dir}' already exists.")
+    print (f"{func_name} [INFO]: Output directory '{color.magenta (target_dir)}' already exists.")
 
   #---------------------------------------------------------------------------------------------#
 
@@ -1044,7 +1044,7 @@ def create_final_directory (config_dir, command_dir, target_dir_name, rev, func_
 
   # Check if the revision directory exists, and create if not.
   if not os.path.exists (rev_directory):
-    print (f"{func_name} [INFO]: Revision directory '{rev_directory}' does not exist. Creating it now.")
+    print (f"{func_name} [INFO]: Revision directory '{color.magenta (rev_directory)}' does not exist. Creating it now.")
     os.makedirs (rev_directory)
   
   #---------------------------------------------------------------------------------------------#
@@ -1056,22 +1056,24 @@ def create_final_directory (config_dir, command_dir, target_dir_name, rev, func_
   # This will be the final directory for the output files.
   while not_completed:
     today_date = datetime.now()
-    formatted_date = today_date.strftime ("%d-%m-%Y")
+    # formatted_date = today_date.strftime ("%d-%m-%Y")
+    formatted_date = today_date.strftime ("%Y-%m-%d")
     filename_date = today_date.strftime ("%d%m%Y")
     seq_number += 1
-    date_directory = f"{rev_directory}/[{seq_number}] {formatted_date}"
+    # date_directory = f"{rev_directory}/[{seq_number}] {formatted_date}"
+    date_directory = f"{rev_directory}/{formatted_date}"
     final_directory = f"{date_directory}/{target_dir_name}"
 
     if not os.path.exists (final_directory):
-      print (f"{func_name} [INFO]: Target directory '{final_directory}' does not exist. Creating it now.")
+      print (f"{func_name} [INFO]: Target directory '{color.magenta (final_directory)}' does not exist. Creating it now.")
       os.makedirs (final_directory)
       not_completed = False
     else:
       if to_overwrite:
-        print (f"{func_name} [INFO]: Target directory '{final_directory}' already exists. Files may be overwritten.")
+        print (f"{func_name} [INFO]: Target directory '{color.magenta (final_directory)}' already exists. Files may be overwritten.")
         not_completed = False
       else:
-        print (f"{func_name} [INFO]: Target directory '{final_directory}' already exists. Creating another one.")
+        print (f"{func_name} [INFO]: Target directory '{color.magenta (final_directory)}' already exists. Creating another one.")
         not_completed = True
   
   return final_directory, filename_date
