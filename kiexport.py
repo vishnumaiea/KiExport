@@ -4,8 +4,8 @@
 # KiExport
 # Tool to export manufacturing files from KiCad PCB projects.
 # Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)
-# Version: 0.0.22
-# Last Modified: +05:30 21:49:54 PM 12-10-2024, Saturday
+# Version: 0.0.23
+# Last Modified: +05:30 22:13:15 PM 15-10-2024, Tuesday
 # GitHub: https://github.com/vishnumaiea/KiExport
 # License: MIT
 
@@ -22,7 +22,7 @@ import json
 #=============================================================================================#
 
 APP_NAME = "KiExport"
-APP_VERSION = "0.0.22"
+APP_VERSION = "0.0.23"
 
 SAMPLE_PCB_FILE = "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb"
 
@@ -716,6 +716,26 @@ def generatePcbPdf (output_dir, pcb_filename, to_overwrite = True):
   #---------------------------------------------------------------------------------------------#
 
   print (color.green ("generatePcbPdf [OK]: PCB PDF files exported successfully."))
+
+  #---------------------------------------------------------------------------------------------#
+
+  seq_number = 1
+  not_completed = True
+
+  files_to_include = [".pdf"]
+  
+  # Sequentially name and create the zip files.
+  while not_completed:
+    zip_file_name = f"{project_name}-R{info ['rev']}-PCB-PDF-{filename_date}-{seq_number}.zip"
+
+    if os.path.exists (f"{final_directory}/{zip_file_name}"):
+      seq_number += 1
+    else:
+      # zip_all_files (final_directory, f"{final_directory}/{zip_file_name}")
+      zip_all_files_2 (final_directory, files_to_include, zip_file_name)
+      print (f"generatePcbPdf [OK]: ZIP file '{color.magenta (zip_file_name)}' created successfully.")
+      print()
+      not_completed = False
 
 #=============================================================================================#
 

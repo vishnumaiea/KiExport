@@ -1,6 +1,12 @@
 
 
 #
+### **+05:30 10:12:46 PM 15-10-2024, Tuesday**
+
+  - PCB PDF files are now saved as ZIP file also.
+  - New Version `0.0.23`.
+
+#
 ### **+05:30 09:49:11 PM 12-10-2024, Saturday**
 
   - Changed the final directory date format to `"YYYY-MM-DD"` from `"DD-MM-YYYY"`. This will help the directories to be sorted easily by name by default.
