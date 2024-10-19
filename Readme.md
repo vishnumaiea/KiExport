@@ -47,7 +47,7 @@ In addition, you can also run the Windows executable `kiexport.exe` with the fol
 kiexport <command> <arguments>
 ```
 
-You can automate running multiple commands with a batch script. Refer to the [`export.bat`](/Mitayi-Pico-D1/export.bat) file for an example.
+You can automate running multiple commands with a batch script. Refer to the [`export.bat`](/Mitayi-Pico-D1/export.bat) file for an example. Run the script to see KiExport in action.
 
 ```bat
 @REM @echo off
