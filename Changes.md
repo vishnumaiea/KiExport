@@ -1,6 +1,12 @@
 
 
 #
+### **+05:30 08:27:56 PM 19-10-2024, Saturday**
+
+  - Created executable for version `0.0.23`.
+  - Updated Readme.
+
+#
 ### **+05:30 10:12:46 PM 15-10-2024, Tuesday**
 
   - PCB PDF files are now saved as ZIP file also.

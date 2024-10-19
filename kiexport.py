@@ -5,7 +5,7 @@
 # Tool to export manufacturing files from KiCad PCB projects.
 # Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)
 # Version: 0.0.23
-# Last Modified: +05:30 22:13:15 PM 15-10-2024, Tuesday
+# Last Modified: +05:30 20:27:50 PM 19-10-2024, Saturday
 # GitHub: https://github.com/vishnumaiea/KiExport
 # License: MIT
 
@@ -34,6 +34,7 @@ DEFAULT_CONFIG_JSON = '''
   "description": "Configuration file for KiExport",
   "filetype": "json",
   "version": "1.0",
+  "project_name": "Mitayi-Pico-D1",
   "commands": ["gerbers", "drills", "sch_pdf", "bom", "pcb_pdf", "positions", "ddd"],
   "data": {
     "gerbers": {

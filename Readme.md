@@ -10,6 +10,15 @@ The [**Mitayi Pico RP2040**](https://github.com/CIRCUITSTATE/Mitayi-Pico-RP2040)
 
 This tool was created with the help of [**ChatGPT**](https://chat.openai.com/chat). Thanks to humanity!
 
+## Requirements
+
+- Python 3.x
+- KiCad 8.x
+- Git
+- Recommended:
+  - VS Code
+  - Windows Terminal
+
 ## Installation
 
 KiExport relies on the [**KiCad-CLI**](https://docs.kicad.org/8.0/en/cli/cli.html) tool to generate the files and therefore supports all the features of KiCad-CLI. You should have a KiCad version installed in your system to use this tool. You can download and install the latest version of KiCad from [here](https://kicad.org/download/). After installation, browse to the installation folder and find the `bin` directory where the `kicad-cli.exe` file is located. Add the `bin` folder to your System Path. If you do not know how to add a new path to the System Path variable, check out any tutorials on the internet.
@@ -32,7 +41,7 @@ You can run the Python script directly from the source folder with the following
 python kiexport.py <command> <arguments>
 ```
 
-In addition, you can also run the executable with the following command. The `dist` folder should be added to the path in order for this to work.
+In addition, you can also run the Windows executable `kiexport.exe` with the following command. The `dist` folder should be added to the path in order for this to work.
 
 ```
 kiexport <command> <arguments>
