@@ -18,11 +18,13 @@ import re
 from datetime import datetime
 import zipfile
 import json
+from PyPDF2 import PdfReader,PdfWriter,PdfMerger
+import fitz
 
 #=============================================================================================#
 
 APP_NAME = "KiExport"
-APP_VERSION = "0.0.23"
+APP_VERSION = "0.0.24"
 
 SAMPLE_PCB_FILE = "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb"
 
@@ -211,6 +213,58 @@ class _color:
 
 # Create an instance of the Colorize class
 color = _color()
+
+#=============================================================================================#
+
+def merge_pdfs(folder_path, output_file):
+    """Merges PDF files in a folder and creates a TOC based on file names.
+
+    Args:
+        folder_path (str): Path to the folder containing PDF files.
+        output_file (str): Name of the output PDF file.
+    """
+    try:
+        # List all PDF files in the specified folder
+        pdf_files = [f for f in os.listdir(folder_path) if f.endswith('.pdf')]
+        if not pdf_files:
+            print("No PDF files found in the specified folder.")
+            return
+
+        # pdf_files.sort()  # Optional: sort the files alphabetically
+        doc = fitz.open()  # Create a new PDF document
+        toc = []  # List to hold the Table of Contents entries
+
+        # Add each PDF to the document and create TOC entries
+        for pdf in pdf_files:
+            pdf_path = os.path.join(folder_path, pdf)
+            try:
+                with fitz.open(pdf_path) as pdf_doc:
+                    start_page = doc.page_count  # Get the starting page number
+                    doc.insert_pdf(pdf_doc)  # Merge the PDF
+                    toc.append((1, pdf[:-4], start_page + 1))  # Add TOC entry
+
+            except Exception as e:
+                print(color.red (f"merge_pdfs [ERROR] processing file {pdf}: {e}"))
+
+        # Set the Table of Contents
+        doc.set_toc(toc)
+
+        # Save the merged document
+        output_path = os.path.join(folder_path, output_file)
+        doc.save(output_path)
+        doc.close()
+
+        # Delete original PDF files
+        for pdf in pdf_files:
+            os.remove(os.path.join(folder_path, pdf))
+
+        # print(f"Merged PDF created: {output_path}")
+        # print("Original PDF files have been deleted.")
+
+    except PermissionError:
+        print(color.red ("merge_pdfs [ERROR]: Unable to access the specified folder or files."))
+    except Exception as e:
+        print(color.red (f"merge_pdfs [ERROR]: {e}"))
 
 #=============================================================================================#
 
@@ -716,27 +770,33 @@ def generatePcbPdf (output_dir, pcb_filename, to_overwrite = True):
   
   #---------------------------------------------------------------------------------------------#
 
+  #Merge all the PDFs into one file
+  merged_pdf_filename = f"{project_name}-R{info ['rev']}-PCB-PDF-{filename_date}-{seq_number}.pdf"
+  merge_pdfs(final_directory, merged_pdf_filename)
+
+  #---------------------------------------------------------------------------------------------#
+
   print (color.green ("generatePcbPdf [OK]: PCB PDF files exported successfully."))
 
   #---------------------------------------------------------------------------------------------#
 
-  seq_number = 1
-  not_completed = True
+  # seq_number = 1
+  # not_completed = True
 
-  files_to_include = [".pdf"]
+  # files_to_include = [".pdf"]
   
-  # Sequentially name and create the zip files.
-  while not_completed:
-    zip_file_name = f"{project_name}-R{info ['rev']}-PCB-PDF-{filename_date}-{seq_number}.zip"
+  # # Sequentially name and create the zip files.
+  # while not_completed:
+  #   zip_file_name = f"{project_name}-R{info ['rev']}-PCB-PDF-{filename_date}-{seq_number}.zip"
 
-    if os.path.exists (f"{final_directory}/{zip_file_name}"):
-      seq_number += 1
-    else:
-      # zip_all_files (final_directory, f"{final_directory}/{zip_file_name}")
-      zip_all_files_2 (final_directory, files_to_include, zip_file_name)
-      print (f"generatePcbPdf [OK]: ZIP file '{color.magenta (zip_file_name)}' created successfully.")
-      print()
-      not_completed = False
+  #   if os.path.exists (f"{final_directory}/{zip_file_name}"):
+  #     seq_number += 1
+  #   else:
+  #     # zip_all_files (final_directory, f"{final_directory}/{zip_file_name}")
+  #     zip_all_files_2 (final_directory, files_to_include, zip_file_name)
+  #     print (f"generatePcbPdf [OK]: ZIP file '{color.magenta (zip_file_name)}' created successfully.")
+  #     print()
+  #     not_completed = False
 
 #=============================================================================================#
 
