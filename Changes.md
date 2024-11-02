@@ -1,6 +1,15 @@
 
 
 #
+### **+05:30 07:33:18 PM 02-11-2024, Saturday**
+
+  - Updated `generateiBoM()`
+    - `kicad_python_path` and `ibom_path` variables are now loaded from the `kiexport.json` file.
+    - Bothe paths are now checked for existence.
+  - Bumped up the `kiexport.json` JSON version to `1.1`.
+  - Updated the default configuration.
+
+#
 ### **+05:30 06:58:52 PM 02-11-2024, Saturday**
 
   - Updated `generateiBoM()`

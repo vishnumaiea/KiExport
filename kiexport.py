@@ -5,7 +5,7 @@
 # Tool to export manufacturing files from KiCad PCB projects.
 # Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)
 # Version: 0.0.25
-# Last Modified: +05:30 19:06:48 PM 02-11-2024, Saturday
+# Last Modified: +05:30 19:38:25 PM 02-11-2024, Saturday
 # GitHub: https://github.com/vishnumaiea/KiExport
 # License: MIT
 
@@ -38,6 +38,8 @@ DEFAULT_CONFIG_JSON = '''
   "version": "1.0",
   "project_name": "Mitayi-Pico-D1",
   "commands": ["gerbers", "drills", "sch_pdf", "bom", "pcb_pdf", "positions", "ddd"],
+  "kicad_python_path": "C:\\\\Program Files\\\\KiCad\\\\8.0\\\\bin\\\\python.exe",
+  "ibom_path": "C:\\\\Users\\\\vishn\\\\Documents\\\\KiCad\\\\8.0\\\\3rdparty\\\\plugins\\\\org_openscopeproject_InteractiveHtmlBom\\\\generate_interactive_bom.py",
   "data": {
     "gerbers": {
       "--output_dir": "",
@@ -253,7 +255,7 @@ def generateiBoM (output_dir = None, pcb_filename = None, extra_args = None):
   Runs the KiCad iBOM Python script on a specified PCB file.
 
   Args:
-    pcb_file_path (str): Path to the KiCad PCB file (.kicad_pcb).
+    pcb_filename (str): Path to the KiCad PCB file (.kicad_pcb).
     output_dir (str): Directory to save the output files. Defaults to the PCB file's directory.
     extra_args (list): Additional command-line arguments for customization (optional).
 
@@ -261,10 +263,26 @@ def generateiBoM (output_dir = None, pcb_filename = None, extra_args = None):
     str: Path to the generated iBOM HTML file.
   """
 
+  # Read the paths.
+  kicad_python_path = f"{current_config.get ("kicad_python_path", default_config ["kicad_python_path"])}"
+  ibom_path = f"{current_config.get ("ibom_path", default_config ["ibom_path"])}"
+
+  # Check if the KiCad Python path exists.
+  if not os.path.isfile (kicad_python_path):
+    raise FileNotFoundError (f"generateiBoM() [ERROR]: The KiCad Python path '{kicad_python_path}' does not exist.")
+  else:
+    kicad_python_path = f'"{current_config.get ("kicad_python_path", default_config ["kicad_python_path"])}"'
+
+  # Check if the iBOM script path exists.
+  if not os.path.isfile (ibom_path):
+    raise FileNotFoundError (f"generateiBoM() [ERROR]: The iBOM path '{ibom_path}' does not exist.")
+  else:
+    ibom_path = f'"{current_config.get ("ibom_path", default_config ["ibom_path"])}"'
+  
   # Construct the iBOM command.
-  kicad_python_path = '"C:\\Program Files\\KiCad\\8.0\\bin\\python.exe"'
-  ibom_path = '"C:\\Users\\vishn\\Documents\\KiCad\\8.0\\3rdparty\\plugins\\org_openscopeproject_InteractiveHtmlBom\\generate_interactive_bom.py"'
   ibom_export_command = [kicad_python_path, ibom_path]
+
+  #---------------------------------------------------------------------------------------------#
   
   # Ensure PCB file exists.
   if not os.path.isfile (pcb_filename):
@@ -1697,7 +1715,7 @@ def printInfo():
   print (color.cyan (f"KiExport v{APP_VERSION}"))
   print (color.cyan ("CLI tool to export design and manufacturing files from KiCad projects."))
   print (color.cyan ("Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)"))
-  print (color.cyan ("Contribution: Dominic Le Blanc"))
+  print (color.cyan ("Contributors: Dominic Le Blanc (@domleblanc94)"))
   print ("")
 
 #=============================================================================================#
