@@ -1,6 +1,22 @@
 
 
 #
+### **+05:30 01:23:57 PM 02-11-2024, Saturday**
+
+  - Updated `merge_pdfs()`
+    - Fixed indentation issues.
+    - Fixed styling.
+    - Updated debug message formats.
+    - Disabled (commented out) deleting of original PDF files after merging.
+    - Tested and working correctly.
+  - Updated `generatePcbPdf()`
+    - Now creates a merged PDF file along with the individual PDF files.
+    - Updated the merged PDF file's name format.
+    - Enabled generating ZIP file with the merged PDF files.
+    - Tested and working correctly.
+  - New Version `0.0.24`.
+
+#
 ### **+05:30 08:27:56 PM 19-10-2024, Saturday**
 
   - Created executable for version `0.0.23`.

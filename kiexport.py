@@ -4,8 +4,8 @@
 # KiExport
 # Tool to export manufacturing files from KiCad PCB projects.
 # Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)
-# Version: 0.0.23
-# Last Modified: +05:30 13:04:08 PM 02-11-2024, Saturday
+# Version: 0.0.24
+# Last Modified: +05:30 16:08:32 PM 02-11-2024, Saturday
 # GitHub: https://github.com/vishnumaiea/KiExport
 # License: MIT
 
@@ -19,6 +19,7 @@ from datetime import datetime
 import zipfile
 import json
 import fitz
+import pymupdf
 
 #=============================================================================================#
 
@@ -299,55 +300,57 @@ def run_kicad_ibom(output_dir=None, pcb_file_path=None, extra_args=None):
 
 #=============================================================================================#
 
-def merge_pdfs(folder_path, output_file):
-    """Merges PDF files in a folder and creates a TOC based on file names.
+def merge_pdfs (folder_path, output_file):
+  """
+  Merges PDF files in a folder and creates a TOC based on file names.
 
-    Args:
-        folder_path (str): Path to the folder containing PDF files.
-        output_file (str): Name of the output PDF file.
-    """
-    try:
-        # List all PDF files in the specified folder
-        pdf_files = [f for f in os.listdir(folder_path) if f.endswith('.pdf')]
-        if not pdf_files:
-            print("No PDF files found in the specified folder.")
-            return
+  Args:
+    folder_path (str): Path to the folder containing PDF files.
+    output_file (str): Name of the output PDF file.
+  """
+  try:
+    # List all PDF files in the specified folder.
+    pdf_files = [f for f in os.listdir (folder_path) if f.endswith ('.pdf')]
+    
+    if not pdf_files:
+      print (f"merge_pdfs() [WARNING]: No PDF files found in the specified folder.")
+      return
 
-        # pdf_files.sort()  # Optional: sort the files alphabetically
-        doc = pymupdf.open()  # Create a new PDF document
-        toc = []  # List to hold the Table of Contents entries
+    # pdf_files.sort()  # Optional: sort the files alphabetically
+    doc = pymupdf.open()  # Create a new PDF document
+    toc = []  # List to hold the Table of Contents entries
 
-        # Add each PDF to the document and create TOC entries
-        for pdf in pdf_files:
-            pdf_path = os.path.join(folder_path, pdf)
-            try:
-                with pymupdf.open(pdf_path) as pdf_doc:
-                    start_page = doc.page_count  # Get the starting page number
-                    doc.insert_pdf(pdf_doc)  # Merge the PDF
-                    toc.append((1, pdf[:-4], start_page + 1))  # Add TOC entry
+    # Add each PDF to the document and create TOC entries
+    for pdf in pdf_files:
+      pdf_path = os.path.join (folder_path, pdf)
+      try:
+        with pymupdf.open (pdf_path) as pdf_doc:
+          start_page = doc.page_count  # Get the starting page number
+          doc.insert_pdf (pdf_doc)  # Merge the PDF
+          toc.append ((1, pdf [:-4], start_page + 1))  # Add TOC entry
 
-            except Exception as e:
-                print(color.red (f"merge_pdfs [ERROR] processing file {pdf}: {e}"))
+      except Exception as e:
+        print (color.red (f"merge_pdfs() [ERROR]: Error processing file {pdf}: {e}"))
 
-        # Set the Table of Contents
-        doc.set_toc(toc)
+    # Set the Table of Contents
+    doc.set_toc (toc)
 
-        # Save the merged document
-        output_path = os.path.join(folder_path, output_file)
-        doc.save(output_path)
-        doc.close()
+    # Save the merged document
+    output_path = os.path.join (folder_path, output_file)
+    doc.save (output_path)
+    doc.close()
 
-        # Delete original PDF files
-        for pdf in pdf_files:
-            os.remove(os.path.join(folder_path, pdf))
+    # # Delete original PDF files.
+    # for pdf in pdf_files:
+    #   os.remove (os.path.join (folder_path, pdf))
 
-        # print(f"Merged PDF created: {output_path}")
-        # print("Original PDF files have been deleted.")
+    # print (f"Merged PDF created: {output_path}")
+    # print ("Original PDF files have been deleted.")
 
-    except PermissionError:
-        print(color.red ("merge_pdfs [ERROR]: Unable to access the specified folder or files."))
-    except Exception as e:
-        print(color.red (f"merge_pdfs [ERROR]: {e}"))
+  except PermissionError:
+    print (color.red ("merge_pdfs() [ERROR]: Unable to access the specified folder or files."))
+  except Exception as e:
+    print (color.red (f"merge_pdfs() [ERROR]: {e}"))
 
 #=============================================================================================#
 
@@ -853,9 +856,9 @@ def generatePcbPdf (output_dir, pcb_filename, to_overwrite = True):
   
   #---------------------------------------------------------------------------------------------#
 
-  #Merge all the PDFs into one file
-  merged_pdf_filename = f"{project_name}-R{info ['rev']}-PCB-PDF-{filename_date}-{seq_number}.pdf"
-  merge_pdfs(final_directory, merged_pdf_filename)
+  # Merge all the PDFs into one file
+  merged_pdf_filename = f"{project_name}-R{info ['rev']}-PCB-PDF-All-{filename_date}-{seq_number}.pdf"
+  merge_pdfs (final_directory, merged_pdf_filename)
 
   #---------------------------------------------------------------------------------------------#
 
@@ -863,23 +866,23 @@ def generatePcbPdf (output_dir, pcb_filename, to_overwrite = True):
 
   #---------------------------------------------------------------------------------------------#
 
-  # seq_number = 1
-  # not_completed = True
+  seq_number = 1
+  not_completed = True
 
-  # files_to_include = [".pdf"]
+  files_to_include = [".pdf"]
   
-  # # Sequentially name and create the zip files.
-  # while not_completed:
-  #   zip_file_name = f"{project_name}-R{info ['rev']}-PCB-PDF-{filename_date}-{seq_number}.zip"
+  # Sequentially name and create the zip files.
+  while not_completed:
+    zip_file_name = f"{project_name}-R{info ['rev']}-PCB-PDF-{filename_date}-{seq_number}.zip"
 
-  #   if os.path.exists (f"{final_directory}/{zip_file_name}"):
-  #     seq_number += 1
-  #   else:
-  #     # zip_all_files (final_directory, f"{final_directory}/{zip_file_name}")
-  #     zip_all_files_2 (final_directory, files_to_include, zip_file_name)
-  #     print (f"generatePcbPdf [OK]: ZIP file '{color.magenta (zip_file_name)}' created successfully.")
-  #     print()
-  #     not_completed = False
+    if os.path.exists (f"{final_directory}/{zip_file_name}"):
+      seq_number += 1
+    else:
+      # zip_all_files (final_directory, f"{final_directory}/{zip_file_name}")
+      zip_all_files_2 (final_directory, files_to_include, zip_file_name)
+      print (f"generatePcbPdf [OK]: ZIP file '{color.magenta (zip_file_name)}' created successfully.")
+      print()
+      not_completed = False
 
 #=============================================================================================#
 
