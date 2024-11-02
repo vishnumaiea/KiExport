@@ -1,6 +1,13 @@
 
 
 #
+### **+05:30 08:16:16 PM 02-11-2024, Saturday**
+
+  - Updated Readme
+    - Updated documentation.
+    - Updated contributors list.
+
+#
 ### **+05:30 07:33:18 PM 02-11-2024, Saturday**
 
   - Updated `generateiBoM()`

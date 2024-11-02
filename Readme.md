@@ -7,7 +7,8 @@ KiExport generates the manufacturing files based on the options available in the
 The [**Mitayi Pico RP2040**](https://github.com/CIRCUITSTATE/Mitayi-Pico-RP2040) project is added as a sample project to test the script. 
 
 - **Author:** [Vishnu Mohanan](https://github.com/vishnumaiea)
-- **Version:** `0.0.22`
+- **Version:** `0.0.25`
+- **Contributors:** Dominic Le Blanc ([@domleblanc94](https://github.com/domleblanc94))
 
 This tool was created with the help of [**ChatGPT**](https://chat.openai.com/chat). Thanks to humanity!
 
@@ -28,6 +29,7 @@ This tool was created with the help of [**ChatGPT**](https://chat.openai.com/cha
     - [`sch_pdf`](#sch_pdf)
     - [`ddd`](#ddd)
     - [`bom`](#bom)
+    - [`ibom`](#ibom)
   - [Configuration File](#configuration-file)
   - [Limitations](#limitations)
   - [License](#license)
@@ -49,6 +51,7 @@ This tool was created with the help of [**ChatGPT**](https://chat.openai.com/cha
 - Python 3.x
 - KiCad 8.x
 - Git
+- Interactive HTML BoM Plugin (if you want to generate HTML BoM)
 - Recommended:
   - VS Code
   - Windows Terminal
@@ -88,6 +91,7 @@ If you generate the files multiple times a day, older files will be overwritten 
         |
         +---BoM
         |       Mitayi-Pico-RP2040-R0.6-BoM-CSV-26102024-1.csv
+        |       Mitayi-Pico-RP2040-R0.6-BoM-HTML-26102024-1.html
         |
         +---Gerber
         |       Mitayi-Pico-RP2040-R0.6-B_Courtyard.gbr
@@ -127,6 +131,7 @@ If you generate the files multiple times a day, older files will be overwritten 
         |       Mitayi-Pico-RP2040-R0.6-F_Paste.pdf
         |       Mitayi-Pico-RP2040-R0.6-F_Silkscreen.pdf
         |       Mitayi-Pico-RP2040-R0.6-PCB-PDF-26102024-1.zip
+        |       Mitayi-Pico-RP2040-R0.6-PCB-PDF-All-26102024-1.pdf
         |       Mitayi-Pico-RP2040-R0.6-User_Comments.pdf
         |       Mitayi-Pico-RP2040-R0.6-User_Drawings.pdf
         |
@@ -161,9 +166,12 @@ set PCB_FILE=Mitayi-Pico-RP2040.kicad_pcb
 :: Execute commands
 kiexport sch_pdf -od "%OUTPUT_DIR%" -if "%SCH_FILE%"
 kiexport bom -od "%OUTPUT_DIR%" -if "%SCH_FILE%"
+kiexport ibom -od "%OUTPUT_DIR%" -if "%PCB_FILE%"
 kiexport pcb_pdf -od "%OUTPUT_DIR%" -if "%PCB_FILE%"
 kiexport gerbers -od "%OUTPUT_DIR%" -if "%PCB_FILE%"
 kiexport positions -od "%OUTPUT_DIR%" -if "%PCB_FILE%"
+kiexport ddd -od "%OUTPUT_DIR%" -if "%PCB_FILE%" -t "STEP"
+kiexport ddd -od "%OUTPUT_DIR%" -if "%PCB_FILE%" -t "VRML"
 
 pause
 ```
@@ -298,6 +306,23 @@ Example:
 kiexport bom -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_sch" -od "Mitayi-Pico-D1/Export" -t CSV
 ```
 
+### `ibom`
+
+Export an HTML BoM with the help of the [Interactive HTML BoM](https://github.com/openscopeproject/InteractiveHtmlBom) plugin for KiCad. The plugin should be available in your PC. You need to add the paths to `generate_interactive_bom.py` script and the KiCad Python path (`"C:\Program Files\KiCad\8.0\bin\python.exe"` for example) to the JSON configuration file. Check the configuration file available in the `Mitayi-Pico-D1` folder for an example.
+
+```
+kiexport ibom -od <output_dir> -if <input_file>
+```
+
+- `-od`: Path to the output directory. Required.
+- `-if`: Path to the input `.kicad_pcb` file. Required.
+
+Example:
+
+```
+kiexport ibom -od "Mitayi-Pico-D1/Export" -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb"
+```
+
 ## Configuration File
 
 KiExport supports a JSON configuration file called `kiexport.json`. The name of the file should be exact. The configuration file should be placed in the root folder of your KiCad project where the main `.kicad_sch` and `.kicad_pcb` files are located. Check the `Mitayi-Pico-D1` folder for an example. A copy of the default configuration file is integrated into the script to use as the default one.
@@ -320,4 +345,5 @@ This project is licensed under the MIT license.
 - [How to Install KiCad Version 6 and Organize Part Libraries](https://www.circuitstate.com/tutorials/how-to-install-kicad-version-6-and-organize-part-libraries/)
 - [How to Get Your KiCad PCB Design Ready for Automated Assembly – KiCad 6 Tutorial](https://www.circuitstate.com/tutorials/how-to-get-your-kicad-pcb-design-ready-for-automated-assembly-kicad-6-tutorial/)
 - [How to Get Your KiCad PCB Design Ready for Fabrication – KiCad Version 6 Tutorial](https://www.circuitstate.com/tutorials/how-to-get-your-kicad-pcb-design-ready-for-fabrication-kicad-version-6-tutorial/)
+- [Interactive HTML BoM for KiCad](https://github.com/openscopeproject/InteractiveHtmlBom)
 
