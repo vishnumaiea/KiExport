@@ -5,7 +5,7 @@
 # Tool to export manufacturing files from KiCad PCB projects.
 # Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)
 # Version: 0.0.23
-# Last Modified: +05:30 20:27:50 PM 19-10-2024, Saturday
+# Last Modified: +05:30 13:04:08 PM 02-11-2024, Saturday
 # GitHub: https://github.com/vishnumaiea/KiExport
 # License: MIT
 
@@ -18,7 +18,6 @@ import re
 from datetime import datetime
 import zipfile
 import json
-from PyPDF2 import PdfReader,PdfWriter,PdfMerger
 import fitz
 
 #=============================================================================================#
@@ -216,6 +215,90 @@ color = _color()
 
 #=============================================================================================#
 
+def run_kicad_ibom(output_dir=None, pcb_file_path=None, extra_args=None):
+    """
+    Runs the KiCad iBOM Python script on a specified PCB file.
+
+    Args:
+        pcb_file_path (str): Path to the KiCad PCB file (.kicad_pcb).
+        output_dir (str): Directory to save the output files. Defaults to the PCB file's directory.
+        extra_args (list): Additional command-line arguments for customization (optional).
+
+    Returns:
+        str: Path to the generated iBOM HTML file.
+    """
+    # Ensure PCB file exists
+    if not os.path.isfile(pcb_file_path):
+        raise FileNotFoundError(f"The PCB file '{pcb_file_path}' does not exist.")
+    
+    #---------------------------------------------------------------------------------------------#
+
+    file_name = extract_pcb_file_name (pcb_file_path)
+    file_name = file_name.replace (" ", "-") # If there are whitespace characters in the project name, replace them with a hyphen
+
+    project_name = extract_project_name (file_name)
+    info = extract_info_from_pcb (pcb_file_path)
+    filename_date = datetime.now().strftime ("%Y-%m-%d")
+    
+    print (f"generateiBoM [INFO]: Project name is '{color.magenta (project_name)}' and revision is {color.magenta ('R')}{color.magenta (info ['rev'])}.")
+    iBom_filename = f"{project_name}-R{info ['rev']}-PCB-PDF-{filename_date}--ibom_output.html"
+    #---------------------------------------------------------------------------------------------#
+  
+    # Default output directory to the PCB file's directory if none is provided
+    if output_dir is None:
+        output_dir = os.path.dirname(pcb_file_path)
+    else:
+       output_dir = f"{output_dir}\\R{info['rev']}\\{str(filename_date)}\\BoM"#os.path.join(output_dir, "\\R", info['rev'], "\\", str(filename_date), "\\BoM")
+    
+    #---------------------------------------------------------------------------------------------#
+    #Find location of generate_interactive_bom.py and kicad python.exe
+    #Improvement may be to also allow user to manually input loaction as this is windows specific.
+    for root, dirs, files in os.walk("C:\\Users\\"):
+       if "generate_interactive_bom.py" in files:
+           file_found = True
+           ibom_path = os.path.join(root, "generate_interactive_bom.py")
+           print(color.green(f"generate_interactive_bom.py found! location: {ibom_path}"))
+           break
+       else:
+          file_found = False
+    if file_found == False:  
+     print(color.red("run_kicad_ibom [ERROR]: The generate_interactive_bom.py script could not be found."))
+    
+    for root, dirs, files in os.walk("C:\\Program Files\\KiCad\\"):
+        if "python.exe" in files:
+            file_found = True
+            Kicad_python = os.path.join(root, "python.exe")
+            print(color.green(f"kicad python.exe found! location: {Kicad_python}"))
+            break
+        else:
+           file_found = False
+    if file_found == False:  
+      print(color.red("run_kicad_ibom [ERROR]: The generate_interactive_bom.py script could not be found."))
+    #---------------------------------------------------------------------------------------------#
+
+    # Construct the iBOM command
+    command = [
+        Kicad_python, ibom_path,
+        pcb_file_path,
+        "--dest-dir", output_dir
+    ]
+
+    # Add extra arguments if provided
+    if extra_args:
+        command.extend(extra_args)
+
+    # Run the iBOM script with error handling
+    try:
+        subprocess.run(command, check=True)
+        output_file = os.path.join(output_dir, iBom_filename)
+        print(color.green(f"iBOM generated: {output_file}"))
+    except subprocess.CalledProcessError as e:
+        print(color.red(f"Error during iBOM generation: {e}"))
+    except Exception as e:
+        print(color.red(f"An unexpected error occurred: {e}"))
+
+#=============================================================================================#
+
 def merge_pdfs(folder_path, output_file):
     """Merges PDF files in a folder and creates a TOC based on file names.
 
@@ -231,14 +314,14 @@ def merge_pdfs(folder_path, output_file):
             return
 
         # pdf_files.sort()  # Optional: sort the files alphabetically
-        doc = fitz.open()  # Create a new PDF document
+        doc = pymupdf.open()  # Create a new PDF document
         toc = []  # List to hold the Table of Contents entries
 
         # Add each PDF to the document and create TOC entries
         for pdf in pdf_files:
             pdf_path = os.path.join(folder_path, pdf)
             try:
-                with fitz.open(pdf_path) as pdf_doc:
+                with pymupdf.open(pdf_path) as pdf_doc:
                     start_page = doc.page_count  # Get the starting page number
                     doc.insert_pdf(pdf_doc)  # Merge the PDF
                     toc.append((1, pdf[:-4], start_page + 1))  # Add TOC entry
@@ -1473,6 +1556,13 @@ def parseArguments():
   bom_parser.add_argument ("-if", "--input_filename", required = True, help = "Path to the .kicad_sch file.")
   bom_parser.add_argument ("-od", "--output_dir", required = True, help = "Directory to save the BoM files to.")
   bom_parser.add_argument ("-t", "--type", help = "The type of file to generate. Default is CSV.")
+
+  # Subparser for the HTML iBoM file export command
+  # Example: python .\kiexport.py ibom -od "Mitayi-Pico-D1/Export" -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb"
+  ibom_parser = subparsers.add_parser ("ibom", help = "Export HMTL iBoM files. The Kicad iBOM plugin is required")
+  ibom_parser.add_argument ("-if", "--input_filename", required = True, help = "Path to the .kicad_pcb file.")
+  ibom_parser.add_argument ("-od", "--output_dir", required = True, help = "Directory to save the BoM files to.")
+
   
   test_parser = subparsers.add_parser ("test", help = "Internal test function.")
 
@@ -1518,6 +1608,9 @@ def parseArguments():
   elif args.command == "ddd":
     generate3D (args.output_dir, args.input_filename, args.type)
 
+  elif args.command == "ibom":
+    run_kicad_ibom (args.output_dir, args.input_filename)
+
   elif args.command == "test":
     test()
     
@@ -1531,6 +1624,7 @@ def printInfo():
   print (color.cyan (f"KiExport v{APP_VERSION}"))
   print (color.cyan ("CLI tool to export design and manufacturing files from KiCad projects."))
   print (color.cyan ("Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)"))
+  print (color.cyan ("Contribution: Dominic Le Blanc"))
   print ("")
 
 #=============================================================================================#
