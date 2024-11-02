@@ -4,8 +4,8 @@
 # KiExport
 # Tool to export manufacturing files from KiCad PCB projects.
 # Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)
-# Version: 0.0.24
-# Last Modified: +05:30 16:08:32 PM 02-11-2024, Saturday
+# Version: 0.0.25
+# Last Modified: +05:30 19:06:48 PM 02-11-2024, Saturday
 # GitHub: https://github.com/vishnumaiea/KiExport
 # License: MIT
 
@@ -24,7 +24,7 @@ import pymupdf
 #=============================================================================================#
 
 APP_NAME = "KiExport"
-APP_VERSION = "0.0.24"
+APP_VERSION = "0.0.25"
 
 SAMPLE_PCB_FILE = "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb"
 
@@ -89,6 +89,38 @@ DEFAULT_CONFIG_JSON = '''
         "--ref-range-delimiter": false,
         "--keep-tabs": false,
         "--keep-line-breaks": false
+      },
+      "iBoM": {
+        "--output_dir": "",
+        "--show-dialog": false,
+        "--dark-mode": true,
+        "--hide-pads": false,
+        "--show-fabrication": false,
+        "--hide-silkscreen": false,
+        "--highlight-pin1": "all",
+        "--no-redraw-on-drag": false,
+        "--board-rotation": "0",
+        "--offset-back-rotation": "0",
+        "--checkboxes": "Source,Placed",
+        "--bom-view": "left-right",
+        "--layer-view": "FB",
+        "--no-compression": false,
+        "--no-browser": false,
+        "--include-tracks": true,
+        "--include-nets": true,
+        "--sort-order": "C,R,L,D,U,Y,X,F,SW,A,~,HS,CNN,J,P,NT,MH",
+        "--blacklist": false,
+        "--no-blacklist-virtual": false,
+        "--blacklist-empty-value": false,
+        "--netlist-file": false,
+        "--extra-data-file": false,
+        "--extra-fields": false,
+        "--show-fields": "Value,Footprint",
+        "--group-fields": "Value,Footprint",
+        "--normalize-field-case": false,
+        "--variant-fields": false,
+        "--variants-whitelist": false,
+        "--dnp-field": false
       }
     },
     "sch_pdf": {
@@ -216,87 +248,125 @@ color = _color()
 
 #=============================================================================================#
 
-def run_kicad_ibom(output_dir=None, pcb_file_path=None, extra_args=None):
-    """
-    Runs the KiCad iBOM Python script on a specified PCB file.
+def generateiBoM (output_dir = None, pcb_filename = None, extra_args = None):
+  """
+  Runs the KiCad iBOM Python script on a specified PCB file.
 
-    Args:
-        pcb_file_path (str): Path to the KiCad PCB file (.kicad_pcb).
-        output_dir (str): Directory to save the output files. Defaults to the PCB file's directory.
-        extra_args (list): Additional command-line arguments for customization (optional).
+  Args:
+    pcb_file_path (str): Path to the KiCad PCB file (.kicad_pcb).
+    output_dir (str): Directory to save the output files. Defaults to the PCB file's directory.
+    extra_args (list): Additional command-line arguments for customization (optional).
 
-    Returns:
-        str: Path to the generated iBOM HTML file.
-    """
-    # Ensure PCB file exists
-    if not os.path.isfile(pcb_file_path):
-        raise FileNotFoundError(f"The PCB file '{pcb_file_path}' does not exist.")
-    
-    #---------------------------------------------------------------------------------------------#
+  Returns:
+    str: Path to the generated iBOM HTML file.
+  """
 
-    file_name = extract_pcb_file_name (pcb_file_path)
-    file_name = file_name.replace (" ", "-") # If there are whitespace characters in the project name, replace them with a hyphen
-
-    project_name = extract_project_name (file_name)
-    info = extract_info_from_pcb (pcb_file_path)
-    filename_date = datetime.now().strftime ("%Y-%m-%d")
-    
-    print (f"generateiBoM [INFO]: Project name is '{color.magenta (project_name)}' and revision is {color.magenta ('R')}{color.magenta (info ['rev'])}.")
-    iBom_filename = f"{project_name}-R{info ['rev']}-PCB-PDF-{filename_date}--ibom_output.html"
-    #---------------------------------------------------------------------------------------------#
+  # Construct the iBOM command.
+  kicad_python_path = '"C:\\Program Files\\KiCad\\8.0\\bin\\python.exe"'
+  ibom_path = '"C:\\Users\\vishn\\Documents\\KiCad\\8.0\\3rdparty\\plugins\\org_openscopeproject_InteractiveHtmlBom\\generate_interactive_bom.py"'
+  ibom_export_command = [kicad_python_path, ibom_path]
   
-    # Default output directory to the PCB file's directory if none is provided
-    if output_dir is None:
-        output_dir = os.path.dirname(pcb_file_path)
+  # Ensure PCB file exists.
+  if not os.path.isfile (pcb_filename):
+    raise FileNotFoundError (f"generateiBoM() [ERROR]: The PCB file '{pcb_filename}' does not exist.")
+  
+  #---------------------------------------------------------------------------------------------#
+
+  file_name = extract_pcb_file_name (pcb_filename)
+  file_name = file_name.replace (" ", "-") # If there are whitespace characters in the project name, replace them with a hyphen
+
+  project_name = extract_project_name (file_name)
+  info = extract_info_from_pcb (pcb_filename)
+  
+  print (f"generateiBoM() [INFO]: Project name is '{color.magenta (project_name)}' and revision is {color.magenta ('R')}{color.magenta (info ['rev'])}.")
+  # ibom_filename = f"{project_name}-R{info ['rev']}-HTML-BoM-{filename_date}.html"
+
+  #---------------------------------------------------------------------------------------------#
+
+  # Read the target directory name from the config file
+  config_dir = current_config.get ("data", {}).get ("bom", {}).get ("iBoM").get ("--output_dir", default_config ["data"]["bom"]["iBoM"]["--output_dir"])
+  command_dir = output_dir  # The directory specified by the command line argument
+
+  # Get the final directory path
+  final_directory, filename_date = create_final_directory (config_dir, command_dir, "BoM", info ["rev"], "generateiBoM")
+
+  #---------------------------------------------------------------------------------------------#
+
+  # Form the initial part of the command
+  
+  full_command = []
+  full_command.extend (ibom_export_command) # Add the base command
+  
+  seq_number = 1
+  not_completed = True
+  
+  # Create the output file name.
+  while not_completed:
+    file_name = f"{final_directory}/{project_name}-R{info ['rev']}-BoM-HTML-{filename_date}-{seq_number}.html" # Extension needed here
+
+    if os.path.exists (file_name):
+      seq_number += 1
+      not_completed = True
     else:
-       output_dir = f"{output_dir}\\R{info['rev']}\\{str(filename_date)}\\BoM"#os.path.join(output_dir, "\\R", info['rev'], "\\", str(filename_date), "\\BoM")
-    
-    #---------------------------------------------------------------------------------------------#
-    #Find location of generate_interactive_bom.py and kicad python.exe
-    #Improvement may be to also allow user to manually input loaction as this is windows specific.
-    for root, dirs, files in os.walk("C:\\Users\\"):
-       if "generate_interactive_bom.py" in files:
-           file_found = True
-           ibom_path = os.path.join(root, "generate_interactive_bom.py")
-           print(color.green(f"generate_interactive_bom.py found! location: {ibom_path}"))
-           break
-       else:
-          file_found = False
-    if file_found == False:  
-     print(color.red("run_kicad_ibom [ERROR]: The generate_interactive_bom.py script could not be found."))
-    
-    for root, dirs, files in os.walk("C:\\Program Files\\KiCad\\"):
-        if "python.exe" in files:
-            file_found = True
-            Kicad_python = os.path.join(root, "python.exe")
-            print(color.green(f"kicad python.exe found! location: {Kicad_python}"))
-            break
+      full_command.append ("--dest-dir")
+      full_command.append (f'"{final_directory}"') # Add the output file name with double quotes around it
+      full_command.append ("--name-format")
+      file_name = f"{project_name}-R{info ['rev']}-BoM-HTML-{filename_date}-{seq_number}" # No extension needed
+      full_command.append (f'"{file_name}"')
+      break
+  
+  #---------------------------------------------------------------------------------------------#
+
+  # Get the argument list from the config file.
+  arg_list = current_config.get ("data", {}).get ("bom", {}).get ("iBoM")
+
+  # Add the remaining arguments.
+  # Check if the argument list is not an empty dictionary.
+  if arg_list:
+    for key, value in arg_list.items():
+      if key.startswith ("--"): # Only fetch the arguments that start with "--"
+        if key == "--output_dir": # Skip the --output_dir argument, sice we already added it
+          continue
+
+        elif key == "--name-format": # Skip the --name-format argument
+          continue
+        
         else:
-           file_found = False
-    if file_found == False:  
-      print(color.red("run_kicad_ibom [ERROR]: The generate_interactive_bom.py script could not be found."))
-    #---------------------------------------------------------------------------------------------#
+          # Check if the value is empty
+          if value == "": # Skip if the value is empty
+            continue
+          else:
+            # Check if the vlaue is a JSON boolean
+            if isinstance (value, bool):
+              if value == True: # If the value is true, then append the key as an argument
+                full_command.append (key)
+            else:
+              # Check if the value is a string and not a numeral
+              if isinstance (value, str) and not value.isdigit():
+                  full_command.append (key)
+                  full_command.append (f'"{value}"') # Add as a double-quoted string
+              elif isinstance (value, (int, float)):
+                  full_command.append (key)
+                  full_command.append (str (value))  # Append the numeric value as string
 
-    # Construct the iBOM command
-    command = [
-        Kicad_python, ibom_path,
-        pcb_file_path,
-        "--dest-dir", output_dir
-    ]
+  # Finally add the input file
+  full_command.append (f'"{pcb_filename}"')
+  print ("generateBom [INFO]: Running command: ", color.blue (' '.join (full_command)))
 
-    # Add extra arguments if provided
-    if extra_args:
-        command.extend(extra_args)
+  #---------------------------------------------------------------------------------------------#
 
-    # Run the iBOM script with error handling
-    try:
-        subprocess.run(command, check=True)
-        output_file = os.path.join(output_dir, iBom_filename)
-        print(color.green(f"iBOM generated: {output_file}"))
-    except subprocess.CalledProcessError as e:
-        print(color.red(f"Error during iBOM generation: {e}"))
-    except Exception as e:
-        print(color.red(f"An unexpected error occurred: {e}"))
+  # Run the iBOM script with error handling
+  try:
+    full_command = ' '.join (full_command) # Convert the list to a string
+    subprocess.run (full_command, check = True)
+    print (color.green (f"generateiBoM() [INFO]: Interactive HTML BoM generated successfully."))
+
+  except subprocess.CalledProcessError as e:
+    print (color.red (f"generateiBoM() [ERROR]: Error during HTML BoM generation: {e}"))
+    print (color.red (f"generateiBoM() [INFO]: Make sure the 'Interactive HTML BoM' application is installed and available on the PATH."))
+
+  except Exception as e:
+    print (color.red (f" generateiBoM() [ERROR]: An unexpected error occurred: {e}"))
 
 #=============================================================================================#
 
@@ -1566,7 +1636,6 @@ def parseArguments():
   ibom_parser.add_argument ("-if", "--input_filename", required = True, help = "Path to the .kicad_pcb file.")
   ibom_parser.add_argument ("-od", "--output_dir", required = True, help = "Directory to save the BoM files to.")
 
-  
   test_parser = subparsers.add_parser ("test", help = "Internal test function.")
 
   # Parse arguments
@@ -1586,6 +1655,7 @@ def parseArguments():
   else:
     load_config (config_file = "kiexport.json")
 
+  # Check the command and run it.
   if args.command == "-v" or args.command == "--version":
     print (f"KiExport v{APP_VERSION}")
     return
@@ -1612,7 +1682,7 @@ def parseArguments():
     generate3D (args.output_dir, args.input_filename, args.type)
 
   elif args.command == "ibom":
-    run_kicad_ibom (args.output_dir, args.input_filename)
+    generateiBoM (args.output_dir, args.input_filename)
 
   elif args.command == "test":
     test()

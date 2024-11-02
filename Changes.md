@@ -1,6 +1,25 @@
 
 
 #
+### **+05:30 06:58:52 PM 02-11-2024, Saturday**
+
+  - Updated `generateiBoM()`
+    - The function now follows the same procedure as all other functions.
+    - Output directory is now created if it does not exist.
+    - The `kicad_python_path` and the `ibom_path` variables are now hardcoded. These need to be made configurable in the future.
+    - Custom file name is created based on the sequence number.
+    - Added complete set of Interactive HTML BoM plugin command list to the `kiexport.json` file, with most of the default options.
+    - Arguments are now fetched and passed automatically to the `generate_interactive_bom.py` script.
+    - The `--output-dir` command will be used instead of native `--dest-dir` command.
+    - Tested and working correctly.
+  - New Version `0.0.25`.
+
+#
+### **+05:30 04:10:26 PM 02-11-2024, Saturday**
+
+  - Renamed `run_kicad_ibom()` to `generateiBoM()`.
+
+#
 ### **+05:30 01:23:57 PM 02-11-2024, Saturday**
 
   - Updated `merge_pdfs()`
