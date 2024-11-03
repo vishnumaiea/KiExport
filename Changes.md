@@ -1,6 +1,12 @@
 
 
 #
+### **+05:30 02:49:52 PM 03-11-2024, Sunday**
+
+  - Added documentation to `load_config()`.
+  - Added **# TODO:** Check the JSON configuration file version and warn about consequences.
+
+#
 ### **+05:30 02:38:19 PM 03-11-2024, Sunday**
 
   - Simplified `load_config()`.
