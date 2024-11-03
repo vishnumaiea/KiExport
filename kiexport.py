@@ -5,7 +5,7 @@
 # Tool to export manufacturing files from KiCad PCB projects.
 # Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)
 # Version: 0.0.26
-# Last Modified: +05:30 14:49:41 PM 03-11-2024, Sunday
+# Last Modified: +05:30 23:23:23 PM 03-11-2024, Sunday
 # GitHub: https://github.com/vishnumaiea/KiExport
 # License: MIT
 
@@ -35,14 +35,14 @@ DEFAULT_CONFIG_JSON = '''
   "name": "KiExport.JSON",
   "description": "Configuration file for KiExport",
   "filetype": "json",
-  "version": "1.0",
-  "project_name": "Mitayi-Pico-D1",
-  "commands": ["gerbers", "drills", "sch_pdf", "bom", "pcb_pdf", "positions", "ddd"],
+  "version": "1.2",
+  "project_name": "Mitayi-Pico-RP2040",
+  "commands": ["gerbers", "drills", "sch_pdf", "bom", "ibom", "pcb_pdf", "positions", ["ddd", "STEP"], ["ddd", "VRML"]],
   "kicad_python_path": "C:\\\\Program Files\\\\KiCad\\\\8.0\\\\bin\\\\python.exe",
   "ibom_path": "C:\\\\Users\\\\vishn\\\\Documents\\\\KiCad\\\\8.0\\\\3rdparty\\\\plugins\\\\org_openscopeproject_InteractiveHtmlBom\\\\generate_interactive_bom.py",
   "data": {
     "gerbers": {
-      "--output_dir": "",
+      "--output_dir": "Export",
       "--layers": ["F.Cu","B.Cu","F.Paste","B.Paste","F.Silkscreen","B.Silkscreen","F.Mask","B.Mask","User.Drawings","User.Comments","Edge.Cuts","F.Courtyard","B.Courtyard","F.Fab","B.Fab"],
       "--drawing-sheet": false,
       "--exclude-refdes": false,
@@ -60,7 +60,7 @@ DEFAULT_CONFIG_JSON = '''
       "kie_include_drill": true
     },
     "drills": {
-      "--output_dir": "",
+      "--output_dir": "Export",
       "--format": "excellon",
       "--drill-origin": "plot",
       "--excellon-zeros-format": "decimal",
@@ -75,7 +75,7 @@ DEFAULT_CONFIG_JSON = '''
     },
     "bom": {
       "CSV": {
-        "--output_dir": "",
+        "--output_dir": "Export",
         "--preset": "Group by MPN-DNP",
         "--format-preset": "CSV",
         "--fields": "${ITEM_NUMBER},Reference,Value,Name,Footprint,${QUANTITY},${DNP},MPN,MFR,Alt MPN",
@@ -93,7 +93,7 @@ DEFAULT_CONFIG_JSON = '''
         "--keep-line-breaks": false
       },
       "iBoM": {
-        "--output_dir": "",
+        "--output_dir": "Export",
         "--show-dialog": false,
         "--dark-mode": true,
         "--hide-pads": false,
@@ -107,7 +107,7 @@ DEFAULT_CONFIG_JSON = '''
         "--bom-view": "left-right",
         "--layer-view": "FB",
         "--no-compression": false,
-        "--no-browser": false,
+        "--no-browser": true,
         "--include-tracks": true,
         "--include-nets": true,
         "--sort-order": "C,R,L,D,U,Y,X,F,SW,A,~,HS,CNN,J,P,NT,MH",
@@ -126,7 +126,7 @@ DEFAULT_CONFIG_JSON = '''
       }
     },
     "sch_pdf": {
-      "--output_dir": "",
+      "--output_dir": "Export",
       "--drawing-sheet": false,
       "--theme": "User",
       "--black-and-white": false,
@@ -136,7 +136,7 @@ DEFAULT_CONFIG_JSON = '''
       "--pages": false
     },
     "pcb_pdf": {
-      "--output_dir": "",
+      "--output_dir": "Export",
       "--layers": ["F.Cu","B.Cu","F.Paste","B.Paste","F.Silkscreen","B.Silkscreen","F.Mask","B.Mask","User.Drawings","User.Comments","Edge.Cuts","F.Courtyard","B.Courtyard","F.Fab","B.Fab"],
       "kie_common_layers": ["Edge.Cuts"],
       "--drawing-sheet": false,
@@ -151,7 +151,7 @@ DEFAULT_CONFIG_JSON = '''
       "kie_single_file": false
     },
     "positions": {
-      "--output_dir": "",
+      "--output_dir": "Export",
       "--side": "front,back,both",
       "--format": "csv",
       "--units": "mm",
@@ -164,7 +164,7 @@ DEFAULT_CONFIG_JSON = '''
     },
     "ddd": {
       "STEP": {
-        "--output_dir": "",
+        "--output_dir": "Export",
         "--force": true,
         "--grid-origin": false,
         "--drill-origin": false,
@@ -179,7 +179,7 @@ DEFAULT_CONFIG_JSON = '''
         "--user-origin": false
       },
       "VRML": {
-        "--output_dir": "",
+        "--output_dir": "Export",
         "--force": true,
         "--user-origin": false,
         "--units": "mm",
@@ -301,12 +301,18 @@ def generateiBoM (output_dir = None, pcb_filename = None, extra_args = None):
 
   #---------------------------------------------------------------------------------------------#
 
-  # Read the target directory name from the config file
-  config_dir = current_config.get ("data", {}).get ("bom", {}).get ("iBoM").get ("--output_dir", default_config ["data"]["bom"]["iBoM"]["--output_dir"])
-  command_dir = output_dir  # The directory specified by the command line argument
+  file_path = os.path.abspath (pcb_filename) # Get the absolute path of the file.
+
+  # Get the directory path of the file and save it as the project directory.
+  # All other export directories will be relative to the project directory.
+  project_dir = os.path.dirname (file_path)
+  
+  # Read the output directory name from the config file.
+  od_from_config = project_dir + "/" + current_config.get ("data", {}).get ("bom", {}).get ("iBoM").get ("--output_dir", default_config ["data"]["bom"]["iBoM"]["--output_dir"])
+  od_from_cli = output_dir  # The directory specified by the command line argument
 
   # Get the final directory path
-  final_directory, filename_date = create_final_directory (config_dir, command_dir, "BoM", info ["rev"], "generateiBoM")
+  final_directory, filename_date = create_final_directory (od_from_config, od_from_cli, "BoM", info ["rev"], "generateiBoM")
 
   #---------------------------------------------------------------------------------------------#
 
@@ -479,12 +485,18 @@ def generateGerbers (output_dir, pcb_filename, to_overwrite = True):
   
   #---------------------------------------------------------------------------------------------#
   
-  # Read the target directory name from the config file
-  config_dir = current_config.get ("data", {}).get ("gerbers", {}).get ("--output_dir", default_config ["data"]["gerbers"]["--output_dir"])
-  command_dir = output_dir  # The directory specified by the command line argument
+  file_path = os.path.abspath (pcb_filename) # Get the absolute path of the file.
 
-  # Get the final directory path
-  final_directory, filename_date = create_final_directory (config_dir, command_dir, "Gerber", info ["rev"], "generateGerbers")
+  # Get the directory path of the file and save it as the project directory.
+  # All other export directories will be relative to the project directory.
+  project_dir = os.path.dirname (file_path)
+  
+  # Read the output directory name from the config file.
+  od_from_config = project_dir + "/" + current_config.get ("data", {}).get ("gerbers", {}).get ("--output_dir", default_config ["data"]["gerbers"]["--output_dir"])
+  od_from_cli = output_dir  # The output directory specified by the command line argument
+
+  # Get the final directory path.
+  final_directory, filename_date = create_final_directory (od_from_config, od_from_cli, "Gerber", info ["rev"], "generateGerbers")
 
   #---------------------------------------------------------------------------------------------#
   
@@ -598,15 +610,21 @@ def generateDrills (output_dir, pcb_filename):
   
   #-------------------------------------------------------------------------------------------#
 
+  file_path = os.path.abspath (pcb_filename) # Get the absolute path of the file.
+
+  # Get the directory path of the file and save it as the project directory.
+  # All other export directories will be relative to the project directory.
+  project_dir = os.path.dirname (file_path)
+  
   # Read the target directory name from the config file
-  config_dir = current_config.get ("data", {}).get ("drills", {}).get ("--output_dir", default_config ["data"]["drills"]["--output_dir"])
-  command_dir = output_dir  # The directory specified by the command line argument
+  od_from_config = project_dir + "/" + current_config.get ("data", {}).get ("drills", {}).get ("--output_dir", default_config ["data"]["drills"]["--output_dir"])
+  od_from_cli = output_dir  # The directory specified by the command line argument
 
   # Get the final directory path
-  final_directory, filename_date = create_final_directory (config_dir, command_dir, "Gerber", info ["rev"], "generateDrills")
+  final_directory, filename_date = create_final_directory (od_from_config, od_from_cli, "Gerber", info ["rev"], "generateDrills")
 
   # Check if the final directory ends with a slash, and add one if not.
-  if final_directory[-1] != "/":
+  if final_directory [-1] != "/":
     final_directory = f"{final_directory}/"
     
   #-------------------------------------------------------------------------------------------#
@@ -699,12 +717,18 @@ def generatePositions (output_dir, pcb_filename, to_overwrite = True):
   
   #---------------------------------------------------------------------------------------------#
 
-  # Read the target directory name from the config file
-  config_dir = current_config.get ("data", {}).get ("positions", {}).get ("--output_dir", default_config ["data"]["positions"]["--output_dir"])
-  command_dir = output_dir  # The directory specified by the command line argument
+  file_path = os.path.abspath (pcb_filename) # Get the absolute path of the file.
+
+  # Get the directory path of the file and save it as the project directory.
+  # All other export directories will be relative to the project directory.
+  project_dir = os.path.dirname (file_path)
+  
+  # Read the output directory name from the config file.
+  od_from_config = project_dir + "/" + current_config.get ("data", {}).get ("positions", {}).get ("--output_dir", default_config ["data"]["positions"]["--output_dir"])
+  od_from_cli = output_dir  # The directory specified by the command line argument
 
   # Get the final directory path
-  final_directory, filename_date = create_final_directory (config_dir, command_dir, "Assembly", info ["rev"], "generatePositions")
+  final_directory, filename_date = create_final_directory (od_from_config, od_from_cli, "Assembly", info ["rev"], "generatePositions")
   
   #---------------------------------------------------------------------------------------------#
   
@@ -839,12 +863,18 @@ def generatePcbPdf (output_dir, pcb_filename, to_overwrite = True):
   
   #---------------------------------------------------------------------------------------------#
 
-  # Read the target directory name from the config file
-  config_dir = current_config.get ("data", {}).get ("pcb_pdf", {}).get ("--output_dir", default_config ["data"]["pcb_pdf"]["--output_dir"])
-  command_dir = output_dir  # The directory specified by the command line argument
+  file_path = os.path.abspath (pcb_filename) # Get the absolute path of the file.
+
+  # Get the directory path of the file and save it as the project directory.
+  # All other export directories will be relative to the project directory.
+  project_dir = os.path.dirname (file_path)
+  
+  # Read the output directory name from the config file.
+  od_from_config = project_dir + "/" + current_config.get ("data", {}).get ("pcb_pdf", {}).get ("--output_dir", default_config ["data"]["pcb_pdf"]["--output_dir"])
+  od_from_cli = output_dir  # The output directory specified by the command line argument
 
   # Get the final directory path
-  final_directory, filename_date = create_final_directory (config_dir, command_dir, "PCB", info ["rev"], "generatePcbPdf")
+  final_directory, filename_date = create_final_directory (od_from_config, od_from_cli, "PCB", info ["rev"], "generatePcbPdf")
 
   #---------------------------------------------------------------------------------------------#
   
@@ -998,12 +1028,18 @@ def generateSchPdf (output_dir, sch_filename, to_overwrite = True):
 
   #---------------------------------------------------------------------------------------------#
 
-  # Read the target directory name from the config file
-  config_dir = current_config.get ("data", {}).get ("sch_pdf", {}).get ("--output_dir", default_config ["data"]["sch_pdf"]["--output_dir"])
-  command_dir = output_dir  # The directory specified by the command line argument
+  file_path = os.path.abspath (sch_filename) # Get the absolute path of the file.
 
-  # Get the final directory path
-  final_directory, filename_date = create_final_directory (config_dir, command_dir, "SCH", info ["rev"], "generateSchPdf")
+  # Get the directory path of the file and save it as the project directory.
+  # All other export directories will be relative to the project directory.
+  project_dir = os.path.dirname (file_path)
+  
+  # Read the output directory name from the config file.
+  od_from_config = project_dir + "/" + current_config.get ("data", {}).get ("sch_pdf", {}).get ("--output_dir", default_config ["data"]["sch_pdf"]["--output_dir"])
+  od_from_cli = output_dir  # The output directory specified by the command line argument
+
+  # Get the final directory path.
+  final_directory, filename_date = create_final_directory (od_from_config, od_from_cli, "SCH", info ["rev"], "generateSchPdf")
   
   #---------------------------------------------------------------------------------------------#
   
@@ -1072,7 +1108,7 @@ def generateSchPdf (output_dir, sch_filename, to_overwrite = True):
 
 #=============================================================================================#
 
-def generate3D (output_dir, pcb_filename, type, to_overwrite = True):
+def generate3D (output_dir, pcb_filename, type = "STEP", to_overwrite = True):
   # Common base command
   if type == "STEP" or type == "step":
     ddd_export_command = ["kicad-cli", "pcb", "export", "step"]
@@ -1099,12 +1135,18 @@ def generate3D (output_dir, pcb_filename, type, to_overwrite = True):
 
   #---------------------------------------------------------------------------------------------#
 
-  # Read the target directory name from the config file
-  config_dir = current_config.get ("data", {}).get ("ddd", {}).get ("--output_dir", default_config ["data"]["ddd"][type]["--output_dir"])
-  command_dir = output_dir  # The directory specified by the command line argument
+  file_path = os.path.abspath (pcb_filename) # Get the absolute path of the file.
+
+  # Get the directory path of the file and save it as the project directory.
+  # All other export directories will be relative to the project directory.
+  project_dir = os.path.dirname (file_path)
+  
+  # Read the output directory name from the config file.
+  od_from_config = project_dir + "/" + current_config.get ("data", {}).get ("ddd", {}).get (type, {}).get ("--output_dir", default_config ["data"]["ddd"][type]["--output_dir"])
+  od_from_cli = output_dir  # The directory specified by the command line argument
 
   # Get the final directory path
-  final_directory, filename_date = create_final_directory (config_dir, command_dir, "3D", info ["rev"], "generate3D")
+  final_directory, filename_date = create_final_directory (od_from_config, od_from_cli, "3D", info ["rev"], "generate3D")
 
   #---------------------------------------------------------------------------------------------#
   
@@ -1196,12 +1238,18 @@ def generateBom (output_dir, sch_filename, type, to_overwrite = True):
 
   #---------------------------------------------------------------------------------------------#
   
-  # Read the target directory name from the config file
-  config_dir = current_config.get ("data", {}).get ("bom", {}).get ("CSV").get ("--output_dir", default_config ["data"]["bom"]["CSV"]["--output_dir"])
-  command_dir = output_dir  # The directory specified by the command line argument
+  file_path = os.path.abspath (sch_filename) # Get the absolute path of the file.
 
-  # Get the final directory path
-  final_directory, filename_date = create_final_directory (config_dir, command_dir, "BoM", info ["rev"], "generateBom")
+  # Get the directory path of the file and save it as the project directory.
+  # All other export directories will be relative to the project directory.
+  project_dir = os.path.dirname (file_path)
+  
+  # Read the output directory name from the config file.
+  od_from_config = project_dir + "/" + current_config.get ("data", {}).get ("bom", {}).get ("CSV").get ("--output_dir", default_config ["data"]["bom"]["CSV"]["--output_dir"])
+  od_from_cli = output_dir  # The output directory specified by the command line argument
+
+  # Get the final directory path.
+  final_directory, filename_date = create_final_directory (od_from_config, od_from_cli, "BoM", info ["rev"], "generateBom")
   
   #---------------------------------------------------------------------------------------------#
   
@@ -1272,19 +1320,18 @@ def generateBom (output_dir, sch_filename, type, to_overwrite = True):
 
 #============================================================================================= #
 
-def create_final_directory (config_dir, command_dir, target_dir_name, rev, func_name, to_overwrite = True):
+def create_final_directory (dir_from_config, dir_from_cli, target_dir_name, rev, func_name, to_overwrite = True):
   # This will be the root directory for the output files.
   # Extra directories will be created based on the revision, date and sequence number.
   target_dir = None
 
-  # The configured directory has precedence over the command line argument.
-  # Check if the config directory is empty.
-  if config_dir == "":
-    print (f"{func_name} [INFO]: Config directory '{color.magenta (config_dir)}' is empty. Using the command line argument.")
-    target_dir = command_dir # If it's empty, use the command line argument
+  # The command line directory has precedence over the  configured directory.
+  if dir_from_cli == "":
+    print (f"{func_name} [INFO]: CLI directory '{color.magenta (dir_from_config)}' is empty. Using the configured directory.")
+    target_dir = dir_from_cli # If it's empty, use the configured directory
   else:
-    print (f"{func_name} [INFO]: Config directory '{color.magenta (config_dir)}' is not empty. Using the config directory.")
-    target_dir = config_dir # Otherwise, use the config directory
+    print (f"{func_name} [INFO]: CLI directory '{color.magenta (dir_from_config)}' is not empty. Using the CLI directory.")
+    target_dir = dir_from_config # Otherwise, use the command line argument
 
   if not os.path.exists (target_dir): # Check if the target directory exists
     print (f"{func_name} [INFO]: Output directory '{color.magenta (target_dir)}' does not exist. Creating it now.")
@@ -1571,7 +1618,7 @@ def load_config (config_file = None):
   Loads the JSON configuration file. If no file is provided, it uses the default configuration.
 
   Args:
-      config_file (str, optional): Path to the configuration file. Can be relative or absolute. Defaults to None.
+    config_file (str, optional): Path to the configuration file. Can be relative or absolute. Defaults to None.
   """
   
   global current_config  # Declare the global variable here
@@ -1587,7 +1634,7 @@ def load_config (config_file = None):
   if config_file is not None:
     # Load the configuration from the specified file.
     if os.path.exists (config_file):
-      print (f"load_config [INFO]: Loading configuration from {config_file}.")
+      print (f"load_config [INFO]: Loading configuration from '{color.magenta (config_file)}'.")
       with open (config_file, 'r') as f:
           current_config = json.load (f)
           # TODO: Check the JSON configuration file version and warn about consequences.
@@ -1603,8 +1650,173 @@ def load_config (config_file = None):
 #=============================================================================================#
 
 def run (config_file):
-  print (f"run [INFO]: Running KiExport with configuration file {config_file}.")
+  print (f"run [INFO]: Running KiExport with configuration file '{color.magenta (config_file)}'.")
   load_config (config_file)
+
+  #---------------------------------------------------------------------------------------------#
+
+  valid_commands = ["gerbers", "drills", "sch_pdf", "bom", "ibom", "pcb_pdf", "positions", "ddd"]
+
+  # Get the argument list from the config file.
+  user_cmd_list = current_config.get ("commands", [])
+  cmd_strings = []
+  cmd_lists = []
+
+  if not user_cmd_list:
+    print (color.red ("run [ERROR]: No list of commands specified in the configuration file."))
+    return
+  else:
+    cmd_count = 0
+
+    # Check if the commands are valid
+    for cmd in user_cmd_list:
+      # If cmd is a string, validate directly
+      if isinstance (cmd, str) and cmd in valid_commands:
+        cmd_strings.append (cmd)
+        cmd_count += 1
+
+      # If cmd is a list, validate the first item as a command
+      elif isinstance (cmd, list) and cmd [0] in valid_commands:
+        cmd_lists.append (cmd)
+        cmd_count += 1
+
+    if cmd_count == 0:
+      print (color.red ("run [ERROR]: No valid commands specified in the configuration file."))
+      return
+    else:
+      # Print the validated commands
+      print (f"run [INFO]: Running the following commands: {color.green (user_cmd_list)}, {color.green (cmd_count)}.")
+  
+  #---------------------------------------------------------------------------------------------#
+
+  # Find the absolute path to the config file directory.
+  config_path = os.path.abspath (config_file)
+  project_dir = os.path.dirname (config_path)
+  project_name = current_config.get ("project_name")
+
+  pcb_filename = project_name + ".kicad_pcb"
+  sch_filename = project_name + ".kicad_sch"
+
+  pcb_file_path = project_dir + "\\" + pcb_filename
+  sch_file_path = project_dir + "\\" + sch_filename
+
+  # Print the file names.
+  print (f"run [INFO]: Project Directory: {color.magenta (project_dir)}")
+  print (f"run [INFO]: PCB File: {color.magenta (pcb_filename)}")
+  print (f"run [INFO]: Schematic File: {color.magenta (sch_filename)}")
+  print()
+
+  # Check if the file exists.
+  if not os.path.isfile (pcb_file_path):
+    print (color.red (f"run [ERROR]: The PCB file '{pcb_file_path}' does not exist."))
+    print (color.red ("run [ERROR]: Commands that require the PCB file won't be executed."))
+    return
+  
+  if not os.path.isfile (sch_file_path):
+    print (color.red (f"run [ERROR]: The Schematic file '{sch_file_path}' does not exist."))
+    print (color.red ("run [ERROR]: Commands that require the Schematic file won't be executed."))
+    return
+
+  # return
+
+  #---------------------------------------------------------------------------------------------#
+
+  # Process the commands without any arguments or modifiers.
+  for cmd in cmd_strings:
+    if cmd == "gerbers":
+      output_dir = current_config.get ("data", {}).get ("gerbers", {}).get ("--output_dir", default_config ["data"]["gerbers"]["--output_dir"])
+      output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
+      generateGerbers (output_dir, pcb_file_path)
+
+    elif cmd == "drills":
+      output_dir = current_config.get ("data", {}).get ("drills", {}).get ("--output_dir", default_config ["data"]["drills"]["--output_dir"])
+      output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
+      generateDrills (output_dir, pcb_file_path)
+
+    elif cmd == "sch_pdf":
+      output_dir = current_config.get ("data", {}).get ("sch_pdf", {}).get ("--output_dir", default_config ["data"]["sch_pdf"]["--output_dir"])
+      output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
+      generateSchPdf (output_dir, sch_file_path)
+
+    elif cmd == "bom":
+      output_dir = current_config.get ("data", {}).get ("bom", {}).get ("CSV", {}).get ("--output_dir", default_config ["data"]["bom"]["CSV"]["--output_dir"])
+      output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
+      generateBom (output_dir, sch_file_path, "CSV")
+
+    elif cmd == "ibom":
+      output_dir = current_config.get ("data", {}).get ("bom", {}).get ("iBoM", {}).get ("--output_dir", default_config ["data"]["bom"]["iBoM"]["--output_dir"])
+      output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
+      generateiBoM (output_dir, pcb_file_path)
+
+    elif cmd == "pcb_pdf":
+      output_dir = current_config.get ("data", {}).get ("pcb_pdf", {}).get ("--output_dir", default_config ["data"]["pcb_pdf"]["--output_dir"])
+      output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
+      generatePcbPdf (output_dir, pcb_file_path)
+
+    elif cmd == "positions":
+      output_dir = current_config.get ("data", {}).get ("positions", {}).get ("--output_dir", default_config ["data"]["positions"]["--output_dir"])
+      output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
+      generatePositions (output_dir, pcb_file_path)
+
+    elif cmd == "ddd":
+      output_dir = current_config.get ("data", {}).get ("ddd", {}).get ("STEP", {}).get ("--output_dir", default_config ["data"]["ddd"]["STEP"]["--output_dir"])
+      output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
+      generate3D (output_dir, pcb_file_path, "STEP")
+
+  #---------------------------------------------------------------------------------------------#
+
+  # Process the commands with arguments or modifiers.
+  for cmd in cmd_lists:
+    if cmd [0] == "gerbers":
+      output_dir = current_config.get ("data", {}).get ("gerbers", {}).get ("--output_dir", default_config ["data"]["gerbers"]["--output_dir"])
+      output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
+      generateGerbers (output_dir, pcb_file_path)
+    
+    elif cmd [0] == "drills":
+      output_dir = current_config.get ("data", {}).get ("drills", {}).get ("--output_dir", default_config ["data"]["drills"]["--output_dir"])
+      output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
+      generateDrills (output_dir, pcb_file_path)
+
+    elif cmd [0] == "sch_pdf":
+      output_dir = current_config.get ("data", {}).get ("sch_pdf", {}).get ("--output_dir", default_config ["data"]["sch_pdf"]["--output_dir"])
+      output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
+      generateSchPdf (output_dir, sch_file_path)
+    
+    elif cmd [0] == "bom":
+      if cmd [1] == "XLS":
+        pass
+      else: # Default is CSV
+        output_dir = current_config.get ("data", {}).get ("bom", {}).get ("CSV", {}).get ("--output_dir", default_config ["data"]["bom"]["CSV"]["--output_dir"])
+        output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
+        generateBom (output_dir, sch_file_path, "CSV")
+    
+    elif cmd [0] == "ibom":
+      output_dir = current_config.get ("data", {}).get ("bom", {}).get ("iBoM", {}).get ("--output_dir", default_config ["data"]["bom"]["iBoM"]["--output_dir"])
+      output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
+      generateiBoM (output_dir, pcb_file_path)
+    
+    elif cmd [0] == "pcb_pdf":
+      output_dir = current_config.get ("data", {}).get ("pcb_pdf", {}).get ("--output_dir", default_config ["data"]["pcb_pdf"]["--output_dir"])
+      output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
+      generatePcbPdf (output_dir, pcb_file_path)
+    
+    elif cmd [0] == "positions":
+      output_dir = current_config.get ("data", {}).get ("positions", {}).get ("--output_dir", default_config ["data"]["positions"]["--output_dir"])
+      output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
+      generatePositions (output_dir, pcb_file_path)
+    
+    elif cmd [0] == "ddd":
+      if cmd [1] == "VRML":
+        output_dir = current_config.get ("data", {}).get ("ddd", {}).get ("VRML", {}).get ("--output_dir", default_config ["data"]["ddd"]["VRML"]["--output_dir"])
+        output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
+        generate3D (output_dir, pcb_file_path, "VRML")
+        
+      else: # Default is STEP
+        output_dir = current_config.get ("data", {}).get ("ddd", {}).get ("STEP", {}).get ("--output_dir", default_config ["data"]["ddd"]["STEP"]["--output_dir"])
+        output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
+        generate3D (output_dir, pcb_file_path, "STEP")
+      
+  return
 
 #=============================================================================================#
 

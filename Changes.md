@@ -1,6 +1,22 @@
 
 
 #
+### **+05:30 10:29:54 PM 03-11-2024, Sunday**
+
+  - Updated the JSON configuration file version to `1.2`.
+  - Updated the default configuration.
+  - Updated the way all of the functions read and interpret the output directories.
+    - Output directories are now relative to the project path.
+    - Absolute paths will be used always to avoid any problems.
+  - Updated `create_final_directory()` function.
+    - The CLI argument `--output_dir` has now precedence over what is in the JSON configuration file.
+  - Added default type of "STEP" to `generate3D()` function.
+  - Updated `run()`.
+    - It can now generate the complete set of files using the info from the JSON configuration file.
+    - The directory of the configuration file should be the same as the project path.
+  - Tested and working correctly.
+
+#
 ### **+05:30 02:49:52 PM 03-11-2024, Sunday**
 
   - Added documentation to `load_config()`.

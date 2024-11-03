@@ -2,14 +2,14 @@
   "name": "KiExport.JSON",
   "description": "Configuration file for KiExport",
   "filetype": "json",
-  "version": "1.1",
-  "project_name": "Mitayi-Pico-D1",
-  "commands": ["gerbers", "drills", "sch_pdf", "bom", "ibom", "pcb_pdf", "positions", "ddd"],
+  "version": "1.2",
+  "project_name": "Mitayi-Pico-RP2040",
+  "commands": ["gerbers", "drills", "sch_pdf", "bom", "ibom", "pcb_pdf", "positions", ["ddd", "STEP"], ["ddd", "VRML"]],
   "kicad_python_path": "C:\\Program Files\\KiCad\\8.0\\bin\\python.exe",
   "ibom_path": "C:\\Users\\vishn\\Documents\\KiCad\\8.0\\3rdparty\\plugins\\org_openscopeproject_InteractiveHtmlBom\\generate_interactive_bom.py",
   "data": {
     "gerbers": {
-      "--output_dir": "",
+      "--output_dir": "Export",
       "--layers": ["F.Cu","B.Cu","F.Paste","B.Paste","F.Silkscreen","B.Silkscreen","F.Mask","B.Mask","User.Drawings","User.Comments","Edge.Cuts","F.Courtyard","B.Courtyard","F.Fab","B.Fab"],
       "--drawing-sheet": false,
       "--exclude-refdes": false,
@@ -27,7 +27,7 @@
       "kie_include_drill": true
     },
     "drills": {
-      "--output_dir": "",
+      "--output_dir": "Export",
       "--format": "excellon",
       "--drill-origin": "plot",
       "--excellon-zeros-format": "decimal",
@@ -42,7 +42,7 @@
     },
     "bom": {
       "CSV": {
-        "--output_dir": "",
+        "--output_dir": "Export",
         "--preset": "Group by MPN-DNP",
         "--format-preset": "CSV",
         "--fields": "${ITEM_NUMBER},Reference,Value,Name,Footprint,${QUANTITY},${DNP},MPN,MFR,Alt MPN",
@@ -60,7 +60,7 @@
         "--keep-line-breaks": false
       },
       "iBoM": {
-        "--output_dir": "",
+        "--output_dir": "Export",
         "--show-dialog": false,
         "--dark-mode": true,
         "--hide-pads": false,
@@ -74,7 +74,7 @@
         "--bom-view": "left-right",
         "--layer-view": "FB",
         "--no-compression": false,
-        "--no-browser": false,
+        "--no-browser": true,
         "--include-tracks": true,
         "--include-nets": true,
         "--sort-order": "C,R,L,D,U,Y,X,F,SW,A,~,HS,CNN,J,P,NT,MH",
@@ -93,7 +93,7 @@
       }
     },
     "sch_pdf": {
-      "--output_dir": "",
+      "--output_dir": "Export",
       "--drawing-sheet": false,
       "--theme": "User",
       "--black-and-white": false,
@@ -103,7 +103,7 @@
       "--pages": false
     },
     "pcb_pdf": {
-      "--output_dir": "",
+      "--output_dir": "Export",
       "--layers": ["F.Cu","B.Cu","F.Paste","B.Paste","F.Silkscreen","B.Silkscreen","F.Mask","B.Mask","User.Drawings","User.Comments","Edge.Cuts","F.Courtyard","B.Courtyard","F.Fab","B.Fab"],
       "kie_common_layers": ["Edge.Cuts"],
       "--drawing-sheet": false,
@@ -118,7 +118,7 @@
       "kie_single_file": false
     },
     "positions": {
-      "--output_dir": "",
+      "--output_dir": "Export",
       "--side": "front,back,both",
       "--format": "csv",
       "--units": "mm",
@@ -131,7 +131,7 @@
     },
     "ddd": {
       "STEP": {
-        "--output_dir": "",
+        "--output_dir": "Export",
         "--force": true,
         "--grid-origin": false,
         "--drill-origin": false,
@@ -146,7 +146,7 @@
         "--user-origin": false
       },
       "VRML": {
-        "--output_dir": "",
+        "--output_dir": "Export",
         "--force": true,
         "--user-origin": false,
         "--units": "mm",
