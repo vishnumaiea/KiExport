@@ -4,8 +4,8 @@
 # KiExport
 # Tool to export manufacturing files from KiCad PCB projects.
 # Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)
-# Version: 0.0.25
-# Last Modified: +05:30 19:38:25 PM 02-11-2024, Saturday
+# Version: 0.0.26
+# Last Modified: +05:30 14:41:32 PM 03-11-2024, Sunday
 # GitHub: https://github.com/vishnumaiea/KiExport
 # License: MIT
 
@@ -24,7 +24,7 @@ import pymupdf
 #=============================================================================================#
 
 APP_NAME = "KiExport"
-APP_VERSION = "0.0.25"
+APP_VERSION = "0.0.26"
 
 SAMPLE_PCB_FILE = "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb"
 
@@ -1566,7 +1566,7 @@ def extract_info_from_pcb (pcb_file_path):
 
 #=============================================================================================#
 
-def load_config (config_file, project_file = None):
+def load_config (config_file = None):
   global current_config  # Declare the global variable here
   global default_config  # Declare the global variable here
 
@@ -1574,19 +1574,28 @@ def load_config (config_file, project_file = None):
   print (f"load_config [INFO]: Loading default configuration.")
   default_config = json.loads (DEFAULT_CONFIG_JSON)
 
-  # If a project file is specified, load the configuration from the location of the project file.
-  # Else, assume that the configuration file is in the same directory as the cwd.
-  if project_file is not None:
-    config_file = os.path.join (os.path.dirname (project_file), config_file)
+  #---------------------------------------------------------------------------------------------#
+  
+  if config_file is not None:
+    # Load the configuration from the specified file.
+    if os.path.exists (config_file):
+      print (f"load_config [INFO]: Loading configuration from {config_file}.")
+      with open (config_file, 'r') as f:
+          current_config = json.load (f)
+    else:
+      print (color.yellow (f"load_config [WARNING]: The provided configuration file '{config_file}' does not exist. Default values will be used."))
+      current_config = default_config
 
-  # Load the configuration from the specified file
-  if os.path.exists (config_file):
-    print (f"load_config [INFO]: Loading configuration from {config_file}.")
-    with open (config_file, 'r') as f:
-        current_config = json.load (f)
   else:
-    print (f"load_config [WARNING]: A configuration file does not exist. Default values will be used.")
+    # Use the default configuration.
+    print (f"load_config [INFO]: Using default configuration.")
     current_config = default_config
+
+#=============================================================================================#
+
+def run (config_file):
+  print (f"run [INFO]: Running KiExport with configuration file {config_file}.")
+  load_config (config_file)
 
 #=============================================================================================#
 
@@ -1598,86 +1607,111 @@ def test():
 #=============================================================================================#
 
 def parseArguments():
+  # Configure the argument parser.
   parser = argparse.ArgumentParser (description = "KiExport: Tool to export manufacturing files from KiCad PCB projects.")
-  
-  parser.add_argument('-v', '--version', action = 'version', version = f'{APP_VERSION}', help = "Show the version of the tool and exit.")
-
+  parser.add_argument ('-v', '--version', action = 'version', version = f'{APP_VERSION}', help = "Show the version of the tool and exit.")
   subparsers = parser.add_subparsers (dest = "command", help = "Available commands.")
 
-  # Subparser for the Gerber export command
+  # Subparser for the Run command.
+  # Example: python .\kiexport.py run -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb"
+  run_parser = subparsers.add_parser ("run", help = "Run KiExport using the provided JSON configuration file.")
+  run_parser.add_argument ("config_file", help = "Path to the JSON configuration file.")
+
+  # Subparser for the Gerber export command.
   # Example: python .\kiexport.py gerbers -od "Mitayi-Pico-D1/Export" -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb"
   gerbers_parser = subparsers.add_parser ("gerbers", help = "Export Gerber files.")
   gerbers_parser.add_argument ("-if", "--input_filename", required = True, help = "Path to the .kicad_pcb file.")
   gerbers_parser.add_argument ("-od", "--output_dir", required = True, help = "Directory to save the Gerber files to.")
 
-  # Subparser for the Drills export command
+  # Subparser for the Drills export command.
   # Example: python .\kiexport.py drills -od "Mitayi-Pico-D1/Export" -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb"
   drills_parser = subparsers.add_parser ("drills", help = "Export Drill files.")
   drills_parser.add_argument ("-if", "--input_filename", required = True, help = "Path to the .kicad_pcb file.")
   drills_parser.add_argument ("-od", "--output_dir", required = True, help = "Directory to save the Drill files to.")
 
-  # Subparser for the Position file export command
+  # Subparser for the Position file export command.
   # Example: python .\kiexport.py positions -od "Mitayi-Pico-D1/Export" -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb"
   positions_parser = subparsers.add_parser ("positions", help = "Export Position files.")
   positions_parser.add_argument ("-if", "--input_filename", required = True, help = "Path to the .kicad_pcb file.")
   positions_parser.add_argument ("-od", "--output_dir", required = True, help = "Directory to save the Position files to.")
 
-  # Subparser for the PCB PDF export command
+  # Subparser for the PCB PDF export command.
   # Example: python .\kiexport.py pcb_pdf -od "Mitayi-Pico-D1/Export" -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb"
   pcb_pdf_parser = subparsers.add_parser ("pcb_pdf", help = "Export PCB PDF files.")
   pcb_pdf_parser.add_argument ("-if", "--input_filename", required = True, help = "Path to the .kicad_pcb file.")
   pcb_pdf_parser.add_argument ("-od", "--output_dir", required = True, help = "Directory to save the PCB PDF files to.")
 
-  # Subparser for the Schematic PDF export command
+  # Subparser for the Schematic PDF export command.
   # Example: python .\kiexport.py sch_pdf -od "Mitayi-Pico-D1/Export" -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_sch"
   sch_pdf_parser = subparsers.add_parser ("sch_pdf", help = "Export schematic PDF files.")
   sch_pdf_parser.add_argument ("-if", "--input_filename", required = True, help = "Path to the .kicad_sch file.")
   sch_pdf_parser.add_argument ("-od", "--output_dir", required = True, help = "Directory to save the Schematic PDF files to.")
 
-  # Subparser for the 3D file export command
+  # Subparser for the 3D file export command.
   # Example: python .\kiexport.py ddd -t "VRML" -od "Mitayi-Pico-D1/Export" -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb"
   ddd_parser = subparsers.add_parser ("ddd", help = "Export 3D files.")
   ddd_parser.add_argument ("-if", "--input_filename", required = True, help = "Path to the .kicad_pcb file.")
   ddd_parser.add_argument ("-od", "--output_dir", required = True, help = "Directory to save the 3D files to.")
   ddd_parser.add_argument ("-t", "--type", required = True, help = "The type of file to generate. Can be STEP or VRML.")
 
-  # Subparser for the BoM file export command
+  # Subparser for the BoM file export command.
   # Example: python .\kiexport.py bom -od "Mitayi-Pico-D1/Export" -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb"
   bom_parser = subparsers.add_parser ("bom", help = "Export BoM files.")
   bom_parser.add_argument ("-if", "--input_filename", required = True, help = "Path to the .kicad_sch file.")
   bom_parser.add_argument ("-od", "--output_dir", required = True, help = "Directory to save the BoM files to.")
   bom_parser.add_argument ("-t", "--type", help = "The type of file to generate. Default is CSV.")
 
-  # Subparser for the HTML iBoM file export command
+  # Subparser for the HTML iBoM file export command.
   # Example: python .\kiexport.py ibom -od "Mitayi-Pico-D1/Export" -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb"
   ibom_parser = subparsers.add_parser ("ibom", help = "Export HMTL iBoM files. The Kicad iBOM plugin is required")
   ibom_parser.add_argument ("-if", "--input_filename", required = True, help = "Path to the .kicad_pcb file.")
   ibom_parser.add_argument ("-od", "--output_dir", required = True, help = "Directory to save the BoM files to.")
 
+  # Subparser for the test function.
   test_parser = subparsers.add_parser ("test", help = "Internal test function.")
 
-  # Parse arguments
+  #---------------------------------------------------------------------------------------------#
+
+  # Parse arguments.
   args = parser.parse_args()
-  
   printInfo()
 
+  #---------------------------------------------------------------------------------------------#
+
+  # Handle empty arguments.
   if args.command is None:
     print (color.red ("Looks like you forgot to specify any inputs. Time to RTFM."))
     print()
     parser.print_help()
     return
+  
+  #---------------------------------------------------------------------------------------------#
 
-  # Check if we received an input file
-  if args.input_filename is not None:
-    load_config (config_file = "kiexport.json", project_file = args.input_filename)
-  else:
-    load_config (config_file = "kiexport.json")
-
-  # Check the command and run it.
+  # Handle the version command.
   if args.command == "-v" or args.command == "--version":
     print (f"KiExport v{APP_VERSION}")
     return
 
+  #---------------------------------------------------------------------------------------------#
+
+  # The Run command accepts a config file as an argument and generate the files based on the
+  # config file. The name of the config file can be anything.
+  if args.command == "run":
+    run (args.config_file)
+    return
+    
+  else:
+    # Load the standard config file for other commands.
+    if args.input_filename is not None: # Check if we received an input file
+      config_file_path = os.path.join (os.path.dirname (args.input_filename), "kiexport.json")
+      load_config (config_file = config_file_path)
+    else:
+      load_config (config_file = "kiexport.json")
+  
+  #---------------------------------------------------------------------------------------------#
+  
+  # Check the command and run it.
+  
   if args.command == "gerbers":
     generateGerbers (args.output_dir, args.input_filename)
 

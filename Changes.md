@@ -1,6 +1,18 @@
 
 
 #
+### **+05:30 02:38:19 PM 03-11-2024, Sunday**
+
+  - Simplified `load_config()`.
+    - Removed the extra `project_file` argument.
+    - Now the configuration can be loaded as a relative or absolute path.
+    - The default configuration file name will still be `kiexport.json`.
+  - Added new `run` command and `run()` function.
+    - This will generate files based on the provided JSON configuration file.
+    - The configuration file can be anything.
+  - New Version `0.0.26`
+
+#
 ### **+05:30 08:16:16 PM 02-11-2024, Saturday**
 
   - Updated Readme

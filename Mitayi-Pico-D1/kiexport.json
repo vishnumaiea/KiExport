@@ -4,7 +4,7 @@
   "filetype": "json",
   "version": "1.1",
   "project_name": "Mitayi-Pico-D1",
-  "commands": ["gerbers", "drills", "sch_pdf", "bom", "pcb_pdf", "positions", "ddd"],
+  "commands": ["gerbers", "drills", "sch_pdf", "bom", "ibom", "pcb_pdf", "positions", "ddd"],
   "kicad_python_path": "C:\\Program Files\\KiCad\\8.0\\bin\\python.exe",
   "ibom_path": "C:\\Users\\vishn\\Documents\\KiCad\\8.0\\3rdparty\\plugins\\org_openscopeproject_InteractiveHtmlBom\\generate_interactive_bom.py",
   "data": {
