@@ -1,6 +1,13 @@
 
 
 #
+### **+05:30 08:22:02 PM 04-11-2024, Monday**
+
+  - Updated Readme.
+    - Added `run` command documentation.
+    - Updated Configuration File documentation.
+
+#
 ### **+05:30 08:04:52 PM 04-11-2024, Monday**
 
   - Exported EXE for version `0.0.26`.

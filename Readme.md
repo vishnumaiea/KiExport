@@ -30,6 +30,7 @@ This tool was created with the help of [**ChatGPT**](https://chat.openai.com/cha
     - [`ddd`](#ddd)
     - [`bom`](#bom)
     - [`ibom`](#ibom)
+    - [`run`](#run)
   - [Configuration File](#configuration-file)
   - [Limitations](#limitations)
   - [License](#license)
@@ -323,11 +324,29 @@ Example:
 kiexport ibom -od "Mitayi-Pico-D1/Export" -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb"
 ```
 
+### `run`
+
+This command can be used to generate multiple types of files by providing just a valid JSON configuration file. Unlike other commands which will look specifically for the `kiexport.json` file, this command will accept a JSON file with any name. This is useful when you need different configurations for different manufacturers and use-cases. You can create a configuration file for each manufacturer and use them with the `run` command individually.
+
+Since the `run` command does not accept any other arguments, everything needed to generate the manufacturing files should be in the JSON configuration file.
+
+```
+kiexport run <config_file>
+```
+
+- `<config_file>`: Path to the JSON configuration file. Required.
+
+Example:
+
+```
+kiexport run Mitayi-Pico-D1/kiexport.json
+```
+
 ## Configuration File
 
-KiExport supports a JSON configuration file called `kiexport.json`. The name of the file should be exact. The configuration file should be placed in the root folder of your KiCad project where the main `.kicad_sch` and `.kicad_pcb` files are located. Check the `Mitayi-Pico-D1` folder for an example. A copy of the default configuration file is integrated into the script to use as the default one.
+KiExport supports a JSON configuration file called `kiexport.json`. The name of the file should be exact when running the all of the generic commands except `run`. The `run` command will accept a configuration file with any name. The configuration file should be placed in the root folder of your KiCad project where the main `.kicad_sch` and `.kicad_pcb` files are located. Check the `Mitayi-Pico-D1` folder for an example. A copy of the default configuration file is integrated into the script to use as the default one. So if any of the input parameters are missing from your configuration file, the script will use the default values.
 
-To create a configuration file for your own project, add the `project_name`, the required commands under `commands` and the data for those commands under `data`. All keys that starts with `--` are directly passed to the KiCad-CLI and anything that starts with `kie_` is a data for the KiExport application.
+To create a configuration file for your own project, add the `project_name`, the required commands under `commands`. The commands can be a simple list of strings, or a nested list. You can add any number of instances of the same command. The data for the commands should be added under `data`.  All keys that starts with `--` are directly passed to the KiCad-CLI and anything that starts with `kie_` is a data for the KiExport application.
 
 ## Limitations
 
