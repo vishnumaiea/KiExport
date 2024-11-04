@@ -7,7 +7,7 @@ KiExport generates the manufacturing files based on the options available in the
 The [**Mitayi Pico RP2040**](https://github.com/CIRCUITSTATE/Mitayi-Pico-RP2040) project is added as a sample project to test the script. 
 
 - **Author:** [Vishnu Mohanan](https://github.com/vishnumaiea)
-- **Version:** `0.0.25`
+- **Version:** `0.0.26`
 - **Contributors:** Dominic Le Blanc ([@domleblanc94](https://github.com/domleblanc94))
 
 This tool was created with the help of [**ChatGPT**](https://chat.openai.com/chat). Thanks to humanity!
@@ -66,7 +66,7 @@ You can clone/fork the project to obtain a copy of the repository in your system
 git clone https://github.com/vishnumaiea/KiExport.git
 ```
 
-Additionally, you can download the project as a ZIP file and extract it in your system. After getting the files, you can add the project folder to the System Path. If your system opens Python script files with the Python interpreter by default, you can run any python script directly from the terminal even without using the `.py` extension as shown in the image below.
+Additionally, you can download the project as a ZIP file from the main page or the Releases page and extract it in your system. After getting the files, you can add the project folder to the System Path. If your system opens Python script files with the Python interpreter by default, you can run any python script directly from the terminal even without using the `.py` extension as shown in the image below.
 
 ![Windows Terminal](/resources/2024-10-12_10-05-04-PM-.png)
 

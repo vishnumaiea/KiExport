@@ -5,7 +5,7 @@
 # Tool to export manufacturing files from KiCad PCB projects.
 # Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)
 # Version: 0.0.26
-# Last Modified: +05:30 23:23:23 PM 03-11-2024, Sunday
+# Last Modified: +05:30 23:47:17 PM 03-11-2024, Sunday
 # GitHub: https://github.com/vishnumaiea/KiExport
 # License: MIT
 
@@ -30,6 +30,7 @@ SAMPLE_PCB_FILE = "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb"
 
 current_config = None
 default_config = None
+
 DEFAULT_CONFIG_JSON = '''
 {
   "name": "KiExport.JSON",
@@ -1834,7 +1835,7 @@ def parseArguments():
   subparsers = parser.add_subparsers (dest = "command", help = "Available commands.")
 
   # Subparser for the Run command.
-  # Example: python .\kiexport.py run -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb"
+  # Example: python .\kiexport.py run -if "Mitayi-Pico-D1/kiexport.json"
   run_parser = subparsers.add_parser ("run", help = "Run KiExport using the provided JSON configuration file.")
   run_parser.add_argument ("config_file", help = "Path to the JSON configuration file.")
 
@@ -1876,7 +1877,7 @@ def parseArguments():
   ddd_parser.add_argument ("-t", "--type", required = True, help = "The type of file to generate. Can be STEP or VRML.")
 
   # Subparser for the BoM file export command.
-  # Example: python .\kiexport.py bom -od "Mitayi-Pico-D1/Export" -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb"
+  # Example: python .\kiexport.py bom -od "Mitayi-Pico-D1/Export" -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_sch"
   bom_parser = subparsers.add_parser ("bom", help = "Export BoM files.")
   bom_parser.add_argument ("-if", "--input_filename", required = True, help = "Path to the .kicad_sch file.")
   bom_parser.add_argument ("-od", "--output_dir", required = True, help = "Directory to save the BoM files to.")
