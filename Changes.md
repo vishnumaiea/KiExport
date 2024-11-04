@@ -1,6 +1,11 @@
 
 
 #
+### **+05:30 08:04:52 PM 04-11-2024, Monday**
+
+  - Exported EXE for version `0.0.26`.
+
+#
 ### **+05:30 10:29:54 PM 03-11-2024, Sunday**
 
   - Updated the JSON configuration file version to `1.2`.
