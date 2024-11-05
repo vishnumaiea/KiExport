@@ -5,7 +5,7 @@
 # Tool to export manufacturing files from KiCad PCB projects.
 # Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)
 # Version: 0.0.26
-# Last Modified: +05:30 23:47:17 PM 03-11-2024, Sunday
+# Last Modified: +05:30 21:56:03 PM 05-11-2024, Tuesday
 # GitHub: https://github.com/vishnumaiea/KiExport
 # License: MIT
 
@@ -265,8 +265,8 @@ def generateiBoM (output_dir = None, pcb_filename = None, extra_args = None):
   """
 
   # Read the paths.
-  kicad_python_path = f"{current_config.get ("kicad_python_path", default_config ["kicad_python_path"])}"
-  ibom_path = f"{current_config.get ("ibom_path", default_config ["ibom_path"])}"
+  kicad_python_path = f'"{current_config.get ("kicad_python_path", default_config ["kicad_python_path"])}"'
+  ibom_path = f'"{current_config.get ("ibom_path", default_config ["ibom_path"])}"'
 
   # Check if the KiCad Python path exists.
   if not os.path.isfile (kicad_python_path):

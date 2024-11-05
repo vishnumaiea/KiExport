@@ -1,6 +1,11 @@
 
 
 #
+### **+05:30 09:56:10 PM 05-11-2024, Tuesday**
+
+  - Fixed fstring quotes mismatches.
+
+#
 ### **+05:30 08:22:02 PM 04-11-2024, Monday**
 
   - Updated Readme.
