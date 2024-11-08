@@ -4,7 +4,7 @@
   "filetype": "json",
   "version": "1.2",
   "project_name": "Mitayi-Pico-RP2040",
-  "commands": ["gerbers", "drills", "sch_pdf", "bom", "ibom", "pcb_pdf", "positions", ["ddd", "STEP"], ["ddd", "VRML"]],
+  "commands": ["gerbers", "drills", "sch_pdf", "bom", "ibom", "pcb_pdf", "positions", "svg", ["ddd", "STEP"], ["ddd", "VRML"]],
   "kicad_python_path": "C:\\Program Files\\KiCad\\8.0\\bin\\python.exe",
   "ibom_path": "C:\\Users\\vishn\\Documents\\KiCad\\8.0\\3rdparty\\plugins\\org_openscopeproject_InteractiveHtmlBom\\generate_interactive_bom.py",
   "data": {
@@ -128,6 +128,18 @@
       "--exclude-fp-th": false,
       "--exclude-dnp": false,
       "--gerber-board-edge": false
+    },
+    "svg": {
+      "--output_dir": "Export",
+      "--layers": ["F.Cu","B.Cu","F.Paste","B.Paste","F.Silkscreen","B.Silkscreen","F.Mask","B.Mask","User.Drawings","User.Comments","Edge.Cuts","F.Courtyard","B.Courtyard","F.Fab","B.Fab"],
+      "--drawing-sheet": false,
+      "--mirror": false,
+      "--theme": "User",
+      "--negative": false,
+      "--black-and-white": false,
+      "--page-size-mode": 0,
+      "--exclude-drawing-sheet": false,
+      "--drill-shape-opt": 2
     },
     "ddd": {
       "STEP": {

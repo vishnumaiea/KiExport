@@ -1,6 +1,16 @@
 
 
 #
+### **+05:30 11:54:14 PM 08-11-2024, Friday**
+
+  - Added SVG generation support.
+    - Added `generateSvg()` function.
+    - Added `svg` command.
+    - Updated the JSON with SVG generation options.
+    - Tested and working.
+  - New Version `0.0.27`.
+
+#
 ### **+05:30 11:02:36 PM 08-11-2024, Friday**
 
   - Fixed the `rename_files()` not handling an empty extension list.

@@ -4,8 +4,8 @@
 # KiExport
 # Tool to export manufacturing files from KiCad PCB projects.
 # Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)
-# Version: 0.0.26
-# Last Modified: +05:30 23:05:17 PM 08-11-2024, Friday
+# Version: 0.0.27
+# Last Modified: +05:30 23:55:16 PM 08-11-2024, Friday
 # GitHub: https://github.com/vishnumaiea/KiExport
 # License: MIT
 
@@ -23,7 +23,7 @@ import pymupdf
 #=============================================================================================#
 
 APP_NAME = "KiExport"
-APP_VERSION = "0.0.26"
+APP_VERSION = "0.0.27"
 
 SAMPLE_PCB_FILE = "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb"
 
@@ -37,7 +37,7 @@ DEFAULT_CONFIG_JSON = '''
   "filetype": "json",
   "version": "1.2",
   "project_name": "Mitayi-Pico-RP2040",
-  "commands": ["gerbers", "drills", "sch_pdf", "bom", "ibom", "pcb_pdf", "positions", ["ddd", "STEP"], ["ddd", "VRML"]],
+  "commands": ["gerbers", "drills", "sch_pdf", "bom", "ibom", "pcb_pdf", "positions", "svg", ["ddd", "STEP"], ["ddd", "VRML"]],
   "kicad_python_path": "C:\\\\Program Files\\\\KiCad\\\\8.0\\\\bin\\\\python.exe",
   "ibom_path": "C:\\\\Users\\\\vishn\\\\Documents\\\\KiCad\\\\8.0\\\\3rdparty\\\\plugins\\\\org_openscopeproject_InteractiveHtmlBom\\\\generate_interactive_bom.py",
   "data": {
@@ -161,6 +161,18 @@ DEFAULT_CONFIG_JSON = '''
       "--exclude-fp-th": false,
       "--exclude-dnp": false,
       "--gerber-board-edge": false
+    },
+    "svg": {
+      "--output_dir": "Export",
+      "--layers": ["F.Cu","B.Cu","F.Paste","B.Paste","F.Silkscreen","B.Silkscreen","F.Mask","B.Mask","User.Drawings","User.Comments","Edge.Cuts","F.Courtyard","B.Courtyard","F.Fab","B.Fab"],
+      "--drawing-sheet": false,
+      "--mirror": false,
+      "--theme": "User",
+      "--negative": false,
+      "--black-and-white": false,
+      "--page-size-mode": 0,
+      "--exclude-drawing-sheet": false,
+      "--drill-shape-opt": 2
     },
     "ddd": {
       "STEP": {
@@ -1318,7 +1330,119 @@ def generateBom (output_dir, sch_filename, type, to_overwrite = True):
 
   print (color.green ("generateBom [OK]: BoM file exported successfully."))
 
-#============================================================================================= #
+#=============================================================================================#
+
+def generateSvg (output_dir, pcb_filename, to_overwrite = True):
+  # Common base command
+  svg_pdf_export_command = ["kicad-cli", "pcb", "export", "svg"]
+
+  # Check if the input file exists
+  if not check_file_exists (pcb_filename):
+    print (color.red (f"generateSvg [ERROR]: '{pcb_filename}' does not exist."))
+    return
+
+  #---------------------------------------------------------------------------------------------#
+  
+  file_name = extract_pcb_file_name (pcb_filename) # Extract information from the input file
+  file_name = file_name.replace (" ", "-") # If there are whitespace characters in the project name, replace them with a hyphen
+
+  project_name = extract_project_name (file_name)
+  info = extract_info_from_pcb (pcb_filename) # Extract basic information from the input file
+
+  print (f"generateSvg [INFO]: Project name is '{color.magenta (project_name)}' and revision is {color.magenta ('R')}{color.magenta (info ['rev'])}.")
+
+  #---------------------------------------------------------------------------------------------#
+
+  file_path = os.path.abspath (pcb_filename) # Get the absolute path of the file.
+
+  # Get the directory path of the file and save it as the project directory.
+  # All other export directories will be relative to the project directory.
+  project_dir = os.path.dirname (file_path)
+  
+  # Read the output directory name from the config file.
+  od_from_config = project_dir + "/" + current_config.get ("data", {}).get ("svg", {}).get ("--output_dir", default_config ["data"]["svg"]["--output_dir"])
+  od_from_cli = output_dir  # The output directory specified by the command line argument
+
+  # Get the final directory path.
+  final_directory, filename_date = create_final_directory (od_from_config, od_from_cli, "SVG", info ["rev"], "generateSvg")
+  
+  #---------------------------------------------------------------------------------------------#
+
+  # Delete the existing files in the output directory
+  delete_files (final_directory, include_extensions = [".svg"])
+
+  #---------------------------------------------------------------------------------------------#
+  
+  # Get the argument list from the config file.
+  arg_list = current_config.get ("data", {}).get ("svg", {})
+
+  full_command = []
+  full_command.extend (svg_pdf_export_command) # Add the base command
+
+  seq_number = 1
+  not_completed = True
+  
+  # Create the output file name.
+  while not_completed:
+    file_name = f"{final_directory}/{project_name}-R{info ['rev']}-SVG-{filename_date}-{seq_number}.svg"
+
+    if os.path.exists (file_name):
+      seq_number += 1 # Increment the sequence number and try again
+      not_completed = True
+    else:
+      full_command.append ("--output")
+      full_command.append (f'"{file_name}"') # Add the output file name with double quotes around it
+      break
+  
+  # Add the remaining arguments.
+  # Check if the argument list is not an empty dictionary.
+  if arg_list:
+    for key, value in arg_list.items():
+      if key.startswith ("--"): # Only fetch the arguments that start with "--"
+        if key == "--output_dir": # Skip the --output_dir argument, sice we already added it
+          continue
+
+        elif key == "--layers":
+          full_command.append (key)
+          layers_csv = ",".join (value) # Convert the list to a comma-separated string
+          full_command.append (f'"{layers_csv}"')
+        
+        else:
+          # Check if the value is empty
+          if value == "": # Skip if the value is empty
+            continue
+          else:
+            # Check if the vlaue is a JSON boolean
+            if isinstance (value, bool):
+              if value == True: # If the value is true, then append the key as an argument
+                full_command.append (key)
+            else:
+              # Check if the value is a string and not a numeral
+              if isinstance (value, str) and not value.isdigit():
+                  full_command.append (key)
+                  full_command.append (f'"{value}"') # Add as a double-quoted string
+              elif isinstance (value, (int, float)):
+                  full_command.append (key)
+                  full_command.append (str (value))  # Append the numeric value as string
+  
+  # Finally add the input file
+  full_command.append (f'"{pcb_filename}"')
+  print ("generateSvg [INFO]: Running command: ", color.blue (' '.join (full_command)))
+
+  #---------------------------------------------------------------------------------------------#
+  
+  # Run the command
+  try:
+    full_command = ' '.join (full_command) # Convert the list to a string
+    subprocess.run (full_command, check = True)
+  
+  except subprocess.CalledProcessError as e:
+    print (color.red (f"generateSvg [ERROR]: Error occurred: {e}"))
+    return
+
+  print (color.green ("generateSvg [OK]: SVG file exported successfully."))
+
+#=============================================================================================#
 
 def create_final_directory (dir_from_config, dir_from_cli, target_dir_name, rev, func_name, to_overwrite = True):
   # This will be the root directory for the output files.
@@ -1400,7 +1524,7 @@ def zip_all_files (source_folder, zip_file_path):
     
     # print (f"ZIP file created: {os.path.basename (zip_file_path)}")
 
-# =============================================================================================#
+# ============================================================================================#
 
 def zip_all_files_2 (source_folder, extensions = None, zip_file_name = None):
     """
@@ -1669,7 +1793,7 @@ def run (config_file):
 
   #---------------------------------------------------------------------------------------------#
 
-  valid_commands = ["gerbers", "drills", "sch_pdf", "bom", "ibom", "pcb_pdf", "positions", "ddd"]
+  valid_commands = ["gerbers", "drills", "sch_pdf", "bom", "ibom", "pcb_pdf", "positions", "ddd", "svg"]
 
   # Get the argument list from the config file.
   user_cmd_list = current_config.get ("commands", [])
@@ -1774,6 +1898,11 @@ def run (config_file):
       output_dir = current_config.get ("data", {}).get ("ddd", {}).get ("STEP", {}).get ("--output_dir", default_config ["data"]["ddd"]["STEP"]["--output_dir"])
       output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
       generate3D (output_dir, pcb_file_path, "STEP")
+    
+    elif cmd == "svg":
+      output_dir = current_config.get ("data", {}).get ("svg", {}).get ("--output_dir", default_config ["data"]["svg"]["--output_dir"])
+      output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
+      generateSvg (output_dir, pcb_file_path)
 
   #---------------------------------------------------------------------------------------------#
 
@@ -1827,6 +1956,11 @@ def run (config_file):
         output_dir = current_config.get ("data", {}).get ("ddd", {}).get ("STEP", {}).get ("--output_dir", default_config ["data"]["ddd"]["STEP"]["--output_dir"])
         output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
         generate3D (output_dir, pcb_file_path, "STEP")
+    
+    elif cmd [0] == "svg":
+      output_dir = current_config.get ("data", {}).get ("svg", {}).get ("--output_dir", default_config ["data"]["svg"]["--output_dir"])
+      output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
+      generateSvg (output_dir, pcb_file_path)
       
   return
 
@@ -1900,6 +2034,12 @@ def parseArguments():
   ibom_parser.add_argument ("-if", "--input_filename", required = True, help = "Path to the .kicad_pcb file.")
   ibom_parser.add_argument ("-od", "--output_dir", required = True, help = "Directory to save the BoM files to.")
 
+  # Subparser for the SVG export command.
+  # Example: python .\kiexport.py svg -od "Mitayi-Pico-D1/Export" -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb"
+  svg_parser = subparsers.add_parser ("svg", help = "Export SVG files.")
+  svg_parser.add_argument ("-if", "--input_filename", required = True, help = "Path to the .kicad_pcb file.")
+  svg_parser.add_argument ("-od", "--output_dir", required = True, help = "Directory to save the SVG files to.")
+
   # Subparser for the test function.
   test_parser = subparsers.add_parser ("test", help = "Internal test function.")
 
@@ -1968,6 +2108,9 @@ def parseArguments():
 
   elif args.command == "ibom":
     generateiBoM (args.output_dir, args.input_filename)
+
+  elif args.command == "svg":
+    generateSvg (args.output_dir, args.input_filename)
 
   elif args.command == "test":
     test()
