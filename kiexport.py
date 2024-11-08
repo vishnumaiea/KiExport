@@ -5,7 +5,7 @@
 # Tool to export manufacturing files from KiCad PCB projects.
 # Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)
 # Version: 0.0.26
-# Last Modified: +05:30 21:56:03 PM 05-11-2024, Tuesday
+# Last Modified: +05:30 18:37:49 PM 07-11-2024, Thursday
 # GitHub: https://github.com/vishnumaiea/KiExport
 # License: MIT
 
@@ -18,7 +18,6 @@ import re
 from datetime import datetime
 import zipfile
 import json
-import fitz
 import pymupdf
 
 #=============================================================================================#
@@ -1709,14 +1708,12 @@ def run (config_file):
 
   # Check if the file exists.
   if not os.path.isfile (pcb_file_path):
-    print (color.red (f"run [ERROR]: The PCB file '{pcb_file_path}' does not exist."))
-    print (color.red ("run [ERROR]: Commands that require the PCB file won't be executed."))
-    return
+    print (color.yellow (f"run [WARNING]: The PCB file '{pcb_file_path}' does not exist."))
+    print (color.yellow ("run [WARNING]: Commands that require the PCB file won't be executed."))
   
   if not os.path.isfile (sch_file_path):
-    print (color.red (f"run [ERROR]: The Schematic file '{sch_file_path}' does not exist."))
-    print (color.red ("run [ERROR]: Commands that require the Schematic file won't be executed."))
-    return
+    print (color.yellow (f"run [WARNING]: The Schematic file '{sch_file_path}' does not exist."))
+    print (color.yellow ("run [WARNING]: Commands that require the Schematic file won't be executed."))
 
   # return
 

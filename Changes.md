@@ -1,6 +1,13 @@
 
 
 #
+### **+05:30 07:27:45 PM 08-11-2024, Friday**
+
+  - Removed unused libraries.
+  - Fixed the issue of the app exiting when trying to generate files from PCB-only projects that do not have a schematic file in the project folder.
+    - The app will now warn about the missing files (either schematic of PCB) and will skip the commands that require the missing files.
+
+#
 ### **+05:30 09:56:10 PM 05-11-2024, Tuesday**
 
   - Fixed fstring quotes mismatches.
