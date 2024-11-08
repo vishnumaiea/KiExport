@@ -1,6 +1,14 @@
 
 
 #
+### **+05:30 11:02:36 PM 08-11-2024, Friday**
+
+  - Fixed the `rename_files()` not handling an empty extension list.
+    - It will now rename all files when the extension list is empty.
+    - Thanks to `@domleblanc94`.
+  - Added docstring to `rename_files()` function.
+
+#
 ### **+05:30 07:27:45 PM 08-11-2024, Friday**
 
   - Removed unused libraries.

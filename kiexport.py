@@ -5,7 +5,7 @@
 # Tool to export manufacturing files from KiCad PCB projects.
 # Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)
 # Version: 0.0.26
-# Last Modified: +05:30 18:37:49 PM 07-11-2024, Thursday
+# Last Modified: +05:30 23:05:17 PM 08-11-2024, Friday
 # GitHub: https://github.com/vishnumaiea/KiExport
 # License: MIT
 
@@ -1509,11 +1509,25 @@ def delete_files (directory, include_extensions = None, exclude_extensions = Non
 #=============================================================================================#
 
 def rename_files (directory, prefix, revision = "", extensions = None):
+  """
+  Rename files in the specified directory. Only files starting with the prefix will be renamed.
+  You can also specify the revision number to be used when the file is renamed. The renaming will only
+  be applied to the files with the listed extensions. If no extensions are given,
+  all files will be renamed.
+
+  Args:
+      directory (str): The directory of the files to rename.
+      prefix (str): The prefix of the files to be renamed. Only these files will be renamed.
+      revision (str, optional): The revision tag. For example, "0.1". Defaults to "".
+      extensions (list of str, optional): The list of extensions. Only these files will be renamed. Defaults to None.
+  """
+  
   if extensions is None:
-    extensions = []
+    extensions = [] # All file types will be considered if no extension filter is specified
 
   for filename in os.listdir (directory):
-    if filename.startswith (prefix) and any (filename.endswith (ext) for ext in extensions):
+    # Check if the filename starts with the prefix and ends with a valid extension (or any extension if none specified)
+    if filename.startswith (prefix) and (not extensions or any (filename.endswith (ext) for ext in extensions)):
       # Construct the new filename with the revision tag
       base_name = filename [len (prefix):]  # Remove the prefix part
       new_filename = f"{prefix}-R{revision}{base_name}"
