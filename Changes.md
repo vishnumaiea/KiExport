@@ -1,6 +1,12 @@
 
 
 #
+### **+05:30 06:07:24 PM 09-11-2024, Saturday**
+
+  - Updated Readme.
+    - Added `svg` command documentation.
+
+#
 ### **+05:30 11:54:14 PM 08-11-2024, Friday**
 
   - Added SVG generation support.

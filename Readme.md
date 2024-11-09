@@ -7,7 +7,7 @@ KiExport generates the manufacturing files based on the options available in the
 The [**Mitayi Pico RP2040**](https://github.com/CIRCUITSTATE/Mitayi-Pico-RP2040) project is added as a sample project to test the script. 
 
 - **Author:** [Vishnu Mohanan](https://github.com/vishnumaiea)
-- **Version:** `0.0.26`
+- **Version:** `0.0.27`
 - **Contributors:** Dominic Le Blanc ([@domleblanc94](https://github.com/domleblanc94))
 
 This tool was created with the help of [**ChatGPT**](https://chat.openai.com/chat). Thanks to humanity!
@@ -28,6 +28,7 @@ This tool was created with the help of [**ChatGPT**](https://chat.openai.com/cha
     - [`pcb_pdf`](#pcb_pdf)
     - [`sch_pdf`](#sch_pdf)
     - [`ddd`](#ddd)
+    - [`svg`](#svg)
     - [`bom`](#bom)
     - [`ibom`](#ibom)
     - [`run`](#run)
@@ -136,8 +137,11 @@ If you generate the files multiple times a day, older files will be overwritten 
         |       Mitayi-Pico-RP2040-R0.6-User_Comments.pdf
         |       Mitayi-Pico-RP2040-R0.6-User_Drawings.pdf
         |
-        \---SCH
-                Mitayi-Pico-RP2040-R0.6-SCH-26102024-1.pdf
+        +---SCH
+        |       Mitayi-Pico-RP2040-R0.6-SCH-26102024-1.pdf
+        |
+        \---SVG
+                Mitayi-Pico-RP2040-R0.6-SVG-26102024-1.svg
 ```
 
 ## Usage
@@ -287,6 +291,23 @@ Example:
 
 ```
 kiexport ddd -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb" -od "Mitayi-Pico-D1/Export" -t STEP
+```
+
+### `svg`
+
+Export the PCB as SVG files.
+
+```
+kiexport svg -if <input_file> -od <output_dir>
+```
+
+- `-if`: Path to the input `.kicad_pcb` file. Required.
+- `-od`: Path to the output directory. Required.
+
+Example:
+
+```
+kiexport svg -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb" -od "Mitayi-Pico-D1/Export"
 ```
 
 ### `bom`
