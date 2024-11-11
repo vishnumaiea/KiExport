@@ -1,6 +1,13 @@
 
 
 #
+### **+05:30 09:55:52 PM 11-11-2024, Monday**
+
+  - Fixed app exiting when either `kicad_python_path` or `ibom_path` are not found.
+    - The `generateiBoM()` will now skip the command if either of the paths are not found.
+  - Fixed whitespace handling in paths in `generateiBoM()` function.
+
+#
 ### **+05:30 06:07:24 PM 09-11-2024, Saturday**
 
   - Updated Readme.

@@ -5,7 +5,7 @@
 # Tool to export manufacturing files from KiCad PCB projects.
 # Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)
 # Version: 0.0.27
-# Last Modified: +05:30 23:55:16 PM 08-11-2024, Friday
+# Last Modified: +05:30 21:59:18 PM 11-11-2024, Monday
 # GitHub: https://github.com/vishnumaiea/KiExport
 # License: MIT
 
@@ -276,29 +276,28 @@ def generateiBoM (output_dir = None, pcb_filename = None, extra_args = None):
   """
 
   # Read the paths.
-  kicad_python_path = f'"{current_config.get ("kicad_python_path", default_config ["kicad_python_path"])}"'
-  ibom_path = f'"{current_config.get ("ibom_path", default_config ["ibom_path"])}"'
+  kicad_python_path = f'{current_config.get ("kicad_python_path", default_config ["kicad_python_path"])}'
+  ibom_path = f'{current_config.get ("ibom_path", default_config ["ibom_path"])}'
 
   # Check if the KiCad Python path exists.
   if not os.path.isfile (kicad_python_path):
-    raise FileNotFoundError (f"generateiBoM() [ERROR]: The KiCad Python path '{kicad_python_path}' does not exist.")
-  else:
-    kicad_python_path = f'"{current_config.get ("kicad_python_path", default_config ["kicad_python_path"])}"'
+    print (color.red (f"generateiBoM() [ERROR]: The KiCad Python path '{kicad_python_path}' does not exist. This command will be skipped."))
+    return
 
   # Check if the iBOM script path exists.
   if not os.path.isfile (ibom_path):
-    raise FileNotFoundError (f"generateiBoM() [ERROR]: The iBOM path '{ibom_path}' does not exist.")
-  else:
-    ibom_path = f'"{current_config.get ("ibom_path", default_config ["ibom_path"])}"'
+    print (color.red (f"generateiBoM() [ERROR]: The iBOM path '{ibom_path}' does not exist. This command will be skipped."))
+    return
   
   # Construct the iBOM command.
-  ibom_export_command = [kicad_python_path, ibom_path]
+  ibom_export_command = [f'"{kicad_python_path}"', f'"{ibom_path}"']
 
   #---------------------------------------------------------------------------------------------#
   
   # Ensure PCB file exists.
   if not os.path.isfile (pcb_filename):
-    raise FileNotFoundError (f"generateiBoM() [ERROR]: The PCB file '{pcb_filename}' does not exist.")
+    print (color.red (f"generateiBoM() [ERROR]: The PCB file '{pcb_filename}' does not exist. The command will be skipped."))
+    return
   
   #---------------------------------------------------------------------------------------------#
 
@@ -1983,6 +1982,7 @@ def parseArguments():
   # Example: python .\kiexport.py run -if "Mitayi-Pico-D1/kiexport.json"
   run_parser = subparsers.add_parser ("run", help = "Run KiExport using the provided JSON configuration file.")
   run_parser.add_argument ("config_file", help = "Path to the JSON configuration file.")
+  run_parser.add_argument ("command_list", nargs = "?", help = "Specific commands in the JSON to execute (optional).")
 
   # Subparser for the Gerber export command.
   # Example: python .\kiexport.py gerbers -od "Mitayi-Pico-D1/Export" -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb"
