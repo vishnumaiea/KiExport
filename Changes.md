@@ -1,6 +1,11 @@
 
 
 #
+### **+05:30 07:35:29 PM 18-12-2024, Wednesday**
+
+  - Fixed crashing when opening a source file without specifying the encoding.
+
+#
 ### **+05:30 09:55:52 PM 11-11-2024, Monday**
 
   - Fixed app exiting when either `kicad_python_path` or `ibom_path` are not found.

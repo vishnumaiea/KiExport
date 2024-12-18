@@ -5,7 +5,7 @@
 # Tool to export manufacturing files from KiCad PCB projects.
 # Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)
 # Version: 0.0.27
-# Last Modified: +05:30 21:59:18 PM 11-11-2024, Monday
+# Last Modified: +05:30 19:36:27 PM 18-12-2024, Wednesday
 # GitHub: https://github.com/vishnumaiea/KiExport
 # License: MIT
 
@@ -1716,7 +1716,7 @@ def extract_info_from_pcb (pcb_file_path):
   info = {}
   
   try:
-    with open (pcb_file_path, 'r') as file:
+    with open (pcb_file_path, 'r', encoding = "utf-8") as file:
       content = file.read()
     
     # Regular expressions to extract information
@@ -1772,8 +1772,8 @@ def load_config (config_file = None):
     # Load the configuration from the specified file.
     if os.path.exists (config_file):
       print (f"load_config [INFO]: Loading configuration from '{color.magenta (config_file)}'.")
-      with open (config_file, 'r') as f:
-          current_config = json.load (f)
+      with open (config_file, 'r', encoding = "utf-8") as file:
+          current_config = json.load (file)
           # TODO: Check the JSON configuration file version and warn about consequences.
     else:
       print (color.yellow (f"load_config [WARNING]: The provided configuration file '{config_file}' does not exist. Default values will be used."))
