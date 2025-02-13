@@ -165,6 +165,7 @@ DEFAULT_CONFIG_JSON = '''
     "svg": {
       "--output_dir": "Export",
       "--layers": ["F.Cu","B.Cu","F.Paste","B.Paste","F.Silkscreen","B.Silkscreen","F.Mask","B.Mask","User.Drawings","User.Comments","Edge.Cuts","F.Courtyard","B.Courtyard","F.Fab","B.Fab"],
+      "kie_common_layers": [""],
       "--drawing-sheet": false,
       "--mirror": false,
       "--theme": "User",
@@ -1333,7 +1334,7 @@ def generateBom (output_dir, sch_filename, type, to_overwrite = True):
 
 def generateSvg (output_dir, pcb_filename, to_overwrite = True):
   # Common base command
-  svg_pdf_export_command = ["kicad-cli", "pcb", "export", "svg"]
+  pcb_svg_export_command = ["kicad-cli", "pcb", "export", "svg"]
 
   # Check if the input file exists
   if not check_file_exists (pcb_filename):
@@ -1375,71 +1376,96 @@ def generateSvg (output_dir, pcb_filename, to_overwrite = True):
   # Get the argument list from the config file.
   arg_list = current_config.get ("data", {}).get ("svg", {})
 
-  full_command = []
-  full_command.extend (svg_pdf_export_command) # Add the base command
+  # Check the number of technical layers to export. This is not the number of copper layers.
+  layer_count = len (arg_list.get ("--layers", []))
 
-  seq_number = 1
-  not_completed = True
+  if layer_count <= 0:
+    print (color.red (f"generateSvg [ERROR]: No layers specified for export."))
+    return
+
+  # Get the number of common layers to include in each of the PDF.
+  # common_layer_count = len (arg_list.get ("kie_common_layers", []))
+
+  base_command = []
+  base_command.extend (pcb_svg_export_command) # Add the base command
   
-  # Create the output file name.
-  while not_completed:
-    file_name = f"{final_directory}/{project_name}-R{info ['rev']}-SVG-{filename_date}-{seq_number}.svg"
-
-    if os.path.exists (file_name):
-      seq_number += 1 # Increment the sequence number and try again
-      not_completed = True
-    else:
-      full_command.append ("--output")
-      full_command.append (f'"{file_name}"') # Add the output file name with double quotes around it
-      break
-  
-  # Add the remaining arguments.
-  # Check if the argument list is not an empty dictionary.
-  if arg_list:
-    for key, value in arg_list.items():
-      if key.startswith ("--"): # Only fetch the arguments that start with "--"
-        if key == "--output_dir": # Skip the --output_dir argument, sice we already added it
-          continue
-
-        elif key == "--layers":
-          full_command.append (key)
-          layers_csv = ",".join (value) # Convert the list to a comma-separated string
-          full_command.append (f'"{layers_csv}"')
-        
-        else:
-          # Check if the value is empty
-          if value == "": # Skip if the value is empty
+  for i in range (layer_count):
+    full_command = base_command [:]
+    # Get the arguments.
+    if arg_list: # Check if the argument list is not an empty dictionary.
+      for key, value in arg_list.items():
+        if key.startswith ("--"): # Only fetch the arguments that start with "--"
+          if key == "--output_dir": # Skip the --output_dir argument, sice we already added it
             continue
+          elif key == "--layers":
+            layer_name = arg_list ["--layers"][i] # Get a layer name from the layer list
+            layer_name = layer_name.replace (".", "_") # Replace dots with underscores
+            layer_name = layer_name.replace (" ", "_") # Replace spaces with underscores
+
+            full_command.append ("--output")
+            full_command.append (f'"{final_directory}/{project_name}-R{info ["rev"]}-{layer_name}.svg"') # This is the ouput file name, and not a directory name
+
+            layer_name = arg_list ["--layers"][i] # Get a layer name from the layer list
+            layer_list = [f"{layer_name}"]  # Now create a list with the first item as the layer name
+            common_layer_list = arg_list ["kie_common_layers"]  # Add the common layers
+            layer_list.extend (common_layer_list) # Now combine the two lists
+            layers_csv = ",".join (layer_list) # Convert the list to a comma-separated string
+            full_command.append (key)
+            full_command.append (f'"{layers_csv}"')
           else:
-            # Check if the vlaue is a JSON boolean
-            if isinstance (value, bool):
-              if value == True: # If the value is true, then append the key as an argument
-                full_command.append (key)
+            # Check if the value is empty
+            if value == "": # Skip if the value is empty
+              continue
             else:
-              # Check if the value is a string and not a numeral
-              if isinstance (value, str) and not value.isdigit():
+              # Check if the vlaue is a JSON boolean
+              if isinstance (value, bool):
+                if value == True: # If the value is true, then append the key as an argument
                   full_command.append (key)
-                  full_command.append (f'"{value}"') # Add as a double-quoted string
-              elif isinstance (value, (int, float)):
-                  full_command.append (key)
-                  full_command.append (str (value))  # Append the numeric value as string
-  
-  # Finally add the input file
-  full_command.append (f'"{pcb_filename}"')
-  print ("generateSvg [INFO]: Running command: ", color.blue (' '.join (full_command)))
+              else:
+                # Check if the value is a string and not a numeral
+                if isinstance (value, str) and not value.isdigit():
+                    full_command.append (key)
+                    full_command.append (f'"{value}"') # Add as a double-quoted string
+                elif isinstance (value, (int, float)):
+                    full_command.append (key)
+                    full_command.append (str (value))  # Append the numeric value as string
+
+    full_command.append (f'"{pcb_filename}"')
+    print ("generateSvg [INFO]: Running command: ", color.blue (' '.join (full_command)))
+
+      # Run the command
+    try:
+      full_command = ' '.join (full_command) # Convert the list to a string
+      subprocess.run (full_command, check = True)
+      # print (color.green ("generateSvg [OK]: PCB PDF files exported successfully."))
+    
+    except subprocess.CalledProcessError as e:
+      print (color.red (f"generateSvg [ERROR]: Error occurred: {e}"))
+      continue
+
+  #---------------------------------------------------------------------------------------------#
+
+  print (color.green ("generateSvg [OK]: SVG files exported successfully."))
 
   #---------------------------------------------------------------------------------------------#
   
-  # Run the command
-  try:
-    full_command = ' '.join (full_command) # Convert the list to a string
-    subprocess.run (full_command, check = True)
-  
-  except subprocess.CalledProcessError as e:
-    print (color.red (f"generateSvg [ERROR]: Error occurred: {e}"))
-    return
+  seq_number = 1
+  not_completed = True
 
-  print (color.green ("generateSvg [OK]: SVG file exported successfully."))
+  files_to_include = [".svg"]
+  
+  # Sequentially name and create the zip files.
+  while not_completed:
+    zip_file_name = f"{project_name}-R{info ['rev']}-PCB-SVG-{filename_date}-{seq_number}.zip"
+
+    if os.path.exists (f"{final_directory}/{zip_file_name}"):
+      seq_number += 1
+    else:
+      # zip_all_files (final_directory, f"{final_directory}/{zip_file_name}")
+      zip_all_files_2 (final_directory, files_to_include, zip_file_name)
+      print (f"generateSvg [OK]: ZIP file '{color.magenta (zip_file_name)}' created successfully.")
+      print()
+      not_completed = False
 
 #=============================================================================================#
 

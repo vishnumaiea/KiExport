@@ -1,6 +1,13 @@
 
 
 #
+### **+05:30 11:12:50 PM 13-02-2025, Thursday**
+
+  - Added common layers support for SVG generation.
+    - New `kie_common_layers` parameter under SVG configuration.
+  - SVG files are now saved as ZIP file.
+
+#
 ### **+05:30 07:35:29 PM 18-12-2024, Wednesday**
 
   - Fixed crashing when opening a source file without specifying the encoding.
