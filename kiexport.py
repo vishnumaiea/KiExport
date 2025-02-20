@@ -4,8 +4,8 @@
 # KiExport
 # Tool to export manufacturing files from KiCad PCB projects.
 # Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)
-# Version: 0.0.27
-# Last Modified: +05:30 19:36:27 PM 18-12-2024, Wednesday
+# Version: 0.0.28
+# Last Modified: +05:30 04:24:26 PM 20-02-2025, Thursday
 # GitHub: https://github.com/vishnumaiea/KiExport
 # License: MIT
 
@@ -23,7 +23,7 @@ import pymupdf
 #=============================================================================================#
 
 APP_NAME = "KiExport"
-APP_VERSION = "0.0.27"
+APP_VERSION = "0.0.28"
 
 SAMPLE_PCB_FILE = "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb"
 
@@ -35,9 +35,10 @@ DEFAULT_CONFIG_JSON = '''
   "name": "KiExport.JSON",
   "description": "Configuration file for KiExport",
   "filetype": "json",
-  "version": "1.2",
+  "version": "1.3",
   "project_name": "Mitayi-Pico-RP2040",
   "commands": ["gerbers", "drills", "sch_pdf", "bom", "ibom", "pcb_pdf", "positions", "svg", ["ddd", "STEP"], ["ddd", "VRML"]],
+  "kicad_cli_path": "C:\\\\Program Files\\\\KiCad\\\\9.0\\\\bin\\\\kicad-cli.exe",
   "kicad_python_path": "C:\\\\Program Files\\\\KiCad\\\\8.0\\\\bin\\\\python.exe",
   "ibom_path": "C:\\\\Users\\\\vishn\\\\Documents\\\\KiCad\\\\8.0\\\\3rdparty\\\\plugins\\\\org_openscopeproject_InteractiveHtmlBom\\\\generate_interactive_bom.py",
   "data": {
@@ -464,6 +465,9 @@ def generateGerbers (output_dir, pcb_filename, to_overwrite = True):
   # Generate the drill files first if specified
   kie_include_drill = current_config.get ("data", {}).get ("gerbers", {}).get ("kie_include_drill", default_config ["data"]["gerbers"]["kie_include_drill"])
 
+  # Get the KiCad CLI path.
+  kicad_cli_path = f'{current_config.get ("kicad_cli_path", default_config ["kicad_cli_path"])}'
+
   # Check if the value is boolean and then true or false
   if isinstance (kie_include_drill, bool):
     kie_include_drill = str (kie_include_drill).lower()
@@ -479,7 +483,7 @@ def generateGerbers (output_dir, pcb_filename, to_overwrite = True):
   #---------------------------------------------------------------------------------------------#
   
   # Common base command
-  gerber_export_command = ["kicad-cli", "pcb", "export", "gerbers"]
+  gerber_export_command = [f'"{kicad_cli_path}"', "pcb", "export", "gerbers"]
 
   # Check if the pcb file exists
   if not check_file_exists (pcb_filename):
@@ -603,8 +607,11 @@ def generateGerbers (output_dir, pcb_filename, to_overwrite = True):
 #=============================================================================================#
 
 def generateDrills (output_dir, pcb_filename):
+  # Get the KiCad CLI path.
+  kicad_cli_path = f'{current_config.get ("kicad_cli_path", default_config ["kicad_cli_path"])}'
+
   # Common base command
-  drill_export_command = ["kicad-cli", "pcb", "export", "drill"]
+  drill_export_command = [f'"{kicad_cli_path}"', "pcb", "export", "drill"]
 
   # Check if the pcb file exists
   if not check_file_exists (pcb_filename):
@@ -710,8 +717,11 @@ def generatePositions (output_dir, pcb_filename, to_overwrite = True):
   global current_config  # Access the global config
   global default_config  # Access the global config
   
+  # Get the KiCad CLI path.
+  kicad_cli_path = f'{current_config.get ("kicad_cli_path", default_config ["kicad_cli_path"])}'
+
   # Common base command
-  position_export_command = ["kicad-cli", "pcb", "export", "pos"]
+  position_export_command = [f'"{kicad_cli_path}"', "pcb", "export", "pos"]
 
   # Check if the input file exists
   if not check_file_exists (pcb_filename):
@@ -856,8 +866,11 @@ def generatePositions (output_dir, pcb_filename, to_overwrite = True):
 #=============================================================================================#
 
 def generatePcbPdf (output_dir, pcb_filename, to_overwrite = True):
+  # Get the KiCad CLI path.
+  kicad_cli_path = f'{current_config.get ("kicad_cli_path", default_config ["kicad_cli_path"])}'
+
   # Common base command
-  pcb_pdf_export_command = ["kicad-cli", "pcb", "export", "pdf"]
+  pcb_pdf_export_command = [f'"{kicad_cli_path}"', "pcb", "export", "pdf"]
 
   # Check if the pcb file exists
   if not check_file_exists (pcb_filename):
@@ -1020,8 +1033,11 @@ def generateSchPdf (output_dir, sch_filename, to_overwrite = True):
   global current_config  # Access the global config
   global default_config  # Access the global config
 
+  # Get the KiCad CLI path.
+  kicad_cli_path = f'{current_config.get ("kicad_cli_path", default_config ["kicad_cli_path"])}'
+
   # Common base command
-  sch_pdf_export_command = ["kicad-cli", "sch", "export", "pdf"]
+  sch_pdf_export_command = [f'"{kicad_cli_path}"', "sch", "export", "pdf"]
 
   # Check if the input file exists
   if not check_file_exists (sch_filename):
@@ -1121,13 +1137,16 @@ def generateSchPdf (output_dir, sch_filename, to_overwrite = True):
 #=============================================================================================#
 
 def generate3D (output_dir, pcb_filename, type = "STEP", to_overwrite = True):
+  # Get the KiCad CLI path.
+  kicad_cli_path = f'{current_config.get ("kicad_cli_path", default_config ["kicad_cli_path"])}'
+
   # Common base command
   if type == "STEP" or type == "step":
-    ddd_export_command = ["kicad-cli", "pcb", "export", "step"]
+    ddd_export_command = [f'"{kicad_cli_path}"', "pcb", "export", "step"]
     type = "STEP"
     extension = "step"
   elif type == "VRML" or type == "vrml":
-    ddd_export_command = ["kicad-cli", "pcb", "export", "vrml"]
+    ddd_export_command = [f'"{kicad_cli_path}"', "pcb", "export", "vrml"]
     type = "VRML"
     extension = "wrl"
 
@@ -1230,8 +1249,11 @@ def generate3D (output_dir, pcb_filename, type = "STEP", to_overwrite = True):
 #=============================================================================================#
 
 def generateBom (output_dir, sch_filename, type, to_overwrite = True):
+  # Get the KiCad CLI path.
+  kicad_cli_path = f'{current_config.get ("kicad_cli_path", default_config ["kicad_cli_path"])}'
+
   # Common base command
-  bom_export_command = ["kicad-cli", "sch", "export", "bom"]
+  bom_export_command = [f'"{kicad_cli_path}"', "sch", "export", "bom"]
 
   # Check if the input file exists
   if not check_file_exists (sch_filename):
@@ -1333,8 +1355,11 @@ def generateBom (output_dir, sch_filename, type, to_overwrite = True):
 #=============================================================================================#
 
 def generateSvg (output_dir, pcb_filename, to_overwrite = True):
+  # Get the KiCad CLI path.
+  kicad_cli_path = f'{current_config.get ("kicad_cli_path", default_config ["kicad_cli_path"])}'
+
   # Common base command
-  pcb_svg_export_command = ["kicad-cli", "pcb", "export", "svg"]
+  pcb_svg_export_command = [f'"{kicad_cli_path}"', "pcb", "export", "svg"]
 
   # Check if the input file exists
   if not check_file_exists (pcb_filename):
