@@ -1,6 +1,11 @@
 
 
 #
+### **+05:30 05:01:18 PM 11-04-2025, Friday**
+
+  - Added `validate_command_list()` to validate command lists from command-line.
+
+#
 ### **+05:30 02:27:47 PM 11-04-2025, Friday**
 
   - The `run()` and `loadConfig()` functions now check if the provided parameter (filename or path) is a valid file.
