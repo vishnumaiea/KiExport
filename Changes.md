@@ -1,6 +1,12 @@
 
 
 #
+### **+05:30 05:26:06 PM 11-04-2025, Friday**
+
+  - `run` command can now accept a list of commands as the second parameter.
+  - This will allow the user to provide a subset of commands to run from the configuration file.
+
+#
 ### **+05:30 05:01:18 PM 11-04-2025, Friday**
 
   - Added `validate_command_list()` to validate command lists from command-line.

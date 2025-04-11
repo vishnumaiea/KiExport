@@ -4,8 +4,8 @@
 # KiExport
 # Tool to export manufacturing files from KiCad PCB projects.
 # Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)
-# Version: 0.0.29
-# Last Modified: +05:30 05:01:51 PM 11-04-2025, Friday
+# Version: 0.0.30
+# Last Modified: +05:30 05:25:59 PM 11-04-2025, Friday
 # GitHub: https://github.com/vishnumaiea/KiExport
 # License: MIT
 
@@ -1811,8 +1811,8 @@ def extract_info_from_pcb (pcb_file_path):
 
 #=============================================================================================#
 
-def validate_command_list(cli_string):
-  valid_json = json.dumps({
+def validate_command_list (cli_string):
+  valid_commands_json = json.dumps ({
     "gerbers": [],
     "drills": [],
     "sch_pdf": [],
@@ -1824,41 +1824,50 @@ def validate_command_list(cli_string):
     "ddd": ["STEP", "VRML"]
   })
   
-  def quote_bare_words(s):
-    def replacer(match):
-        word = match.group(0)
+  #---------------------------------------------------------------------------------------------#
+
+  def quote_bare_words (s):
+    def replacer (match):
+        word = match.group (0)
         return f'"{word}"'
     pattern = r'\b(?!True|False|None)\w+\b'
-    return re.sub(pattern, replacer, s)
+    return re.sub (pattern, replacer, s)
+
+  #---------------------------------------------------------------------------------------------#
 
   # Step 1: Load JSON dict
-  valid_dict = json.loads(valid_json)
+  valid_commands_dict = json.loads (valid_commands_json)
 
   # Step 2: Parse CLI string to Python list
   try:
-    safe_str = quote_bare_words(cli_string)
-    parsed_cli = ast.literal_eval(f'[{safe_str}]')
+    safe_str = quote_bare_words (cli_string)
+    parsed_cli = ast.literal_eval (f'[{safe_str}]')
   except Exception as e:
-    raise ValueError(f"Failed to parse CLI input: {e}")
+    print (color.red (f"validate_command_list [ERROR]: Failed to parse CLI input: {e}"))
+    return False
 
   # Step 3: Validate
-  validated = []
+  validated_list = []
   for item in parsed_cli:
-    if isinstance(item, str):
-      if item not in valid_dict:
-        raise ValueError(f"Invalid standalone command: {item}")
-      validated.append(item)
-    elif isinstance(item, list) and len(item) == 2:
-      main, sub = item
-      if main not in valid_dict:
-        raise ValueError(f"Invalid main command: {main}")
-      if sub not in valid_dict[main]:
-        raise ValueError(f"Invalid subcommand '{sub}' for main command '{main}'")
-      validated.append([main, sub])
-    else:
-      raise ValueError(f"Unrecognized command format: {item}")
+    if isinstance (item, str):
+      if item not in valid_commands_dict:
+        print (color.red (f"validate_command_list [ERROR]: Invalid standalone command '{item}'"))
+        return False
+      validated_list.append (item)
 
-  return validated
+    elif isinstance (item, list) and len (item) == 2:
+      main, sub = item
+      if main not in valid_commands_dict:
+        print (color.red (f"validate_command_list [ERROR]: Invalid main command '{main}'"))
+        return False
+      if sub not in valid_commands_dict [main]:
+        print (color.red (f"validate_command_list [ERROR]: Invalid subcommand '{sub}' for main command '{main}'"))
+        return False
+      validated_list.append ([main, sub])
+    else:
+      print (color.red (f"validate_command_list [ERROR]: Unrecognized command format '{item}'"))
+    
+  return validated_list
 
 #=============================================================================================#
 
@@ -1958,6 +1967,11 @@ def run (config_file, command_list = None):
 
   # Get the command list from the cli.
   cli_cmd_list = validate_command_list (cli_string = command_list)
+
+  if cli_cmd_list is False:
+    print (color.red ("run [ERROR]: Invalid command list provided."))
+    return
+
   cli_cmd_strings = []
   cli_cmd_lists = []
 
