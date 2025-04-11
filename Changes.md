@@ -1,6 +1,12 @@
 
 
 #
+### **+05:30 02:27:47 PM 11-04-2025, Friday**
+
+  - The `run()` and `loadConfig()` functions now check if the provided parameter (filename or path) is a valid file.
+  - If an invalid parameter is provided the user will be prompted to choose the default configuration.
+
+#
 ### **+05:30 02:09:41 PM 11-04-2025, Friday**
 
   - `kiexport.json` can now use `%USERPROFILE%` to get the user path when specifying iBoM path.

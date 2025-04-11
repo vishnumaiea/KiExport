@@ -5,7 +5,7 @@
 # Tool to export manufacturing files from KiCad PCB projects.
 # Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)
 # Version: 0.0.29
-# Last Modified: +05:30 02:09:25 PM 11-04-2025, Friday
+# Last Modified: +05:30 02:32:56 PM 11-04-2025, Friday
 # GitHub: https://github.com/vishnumaiea/KiExport
 # License: MIT
 
@@ -41,7 +41,7 @@ DEFAULT_CONFIG_JSON = '''
   "commands": ["gerbers", "drills", "sch_pdf", "bom", "ibom", "pcb_pdf", "positions", "svg", ["ddd", "STEP"], ["ddd", "VRML"]],
   "kicad_cli_path": "C:\\\\Program Files\\\\KiCad\\\\9.0\\\\bin\\\\kicad-cli.exe",
   "kicad_python_path": "C:\\\\Program Files\\\\KiCad\\\\9.0\\\\bin\\\\python.exe",
-  "ibom_path": "C:\\\\Users\\\\vishn\\\\Documents\\\\KiCad\\\\9.0\\\\3rdparty\\\\plugins\\\\org_openscopeproject_InteractiveHtmlBom\\\\generate_interactive_bom.py",
+  "ibom_path": "%USERPROFILE%\\\\Documents\\\\KiCad\\\\9.0\\\\3rdparty\\\\plugins\\\\org_openscopeproject_InteractiveHtmlBom\\\\generate_interactive_bom.py",
   "data": {
     "gerbers": {
       "--output_dir": "Export",
@@ -1834,19 +1834,28 @@ def load_config (config_file = None):
           current_config = json.load (file)
           # TODO: Check the JSON configuration file version and warn about consequences.
     else:
-      print (color.yellow (f"load_config [WARNING]: The provided configuration file '{config_file}' does not exist. Default values will be used."))
+      print (color.red (f"load_config [ERROR]: The provided configuration file '{config_file}' does not exist."))
+      print (color.yellow (f"load_config [WARNING]: Default values will be used. Continue? [Y/N]"))
+      user_input = input ("").strip().lower()
+      if user_input != "y": return False
       current_config = default_config
+      return True
 
   else:
     # Use the default configuration.
     print (f"load_config [INFO]: Using default configuration.")
     current_config = default_config
+    return True
 
 #=============================================================================================#
 
 def run (config_file):
   print (f"run [INFO]: Running KiExport with configuration file '{color.magenta (config_file)}'.")
-  load_config (config_file)
+
+  # Check if the configuration is loaded successfully.
+  if (load_config (config_file) is not True):
+    print (color.red ("run [ERROR]: Failed to load the configuration file."))
+    return
 
   #---------------------------------------------------------------------------------------------#
 
