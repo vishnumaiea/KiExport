@@ -4,8 +4,8 @@
 # KiExport
 # Tool to export manufacturing files from KiCad PCB projects.
 # Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)
-# Version: 0.0.28
-# Last Modified: +05:30 04:24:26 PM 20-02-2025, Thursday
+# Version: 0.0.29
+# Last Modified: +05:30 02:09:25 PM 11-04-2025, Friday
 # GitHub: https://github.com/vishnumaiea/KiExport
 # License: MIT
 
@@ -14,6 +14,7 @@
 import subprocess
 import argparse
 import os
+import stat
 import re
 from datetime import datetime
 import zipfile
@@ -23,7 +24,7 @@ import pymupdf
 #=============================================================================================#
 
 APP_NAME = "KiExport"
-APP_VERSION = "0.0.28"
+APP_VERSION = "0.0.29"
 
 SAMPLE_PCB_FILE = "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb"
 
@@ -39,8 +40,8 @@ DEFAULT_CONFIG_JSON = '''
   "project_name": "Mitayi-Pico-RP2040",
   "commands": ["gerbers", "drills", "sch_pdf", "bom", "ibom", "pcb_pdf", "positions", "svg", ["ddd", "STEP"], ["ddd", "VRML"]],
   "kicad_cli_path": "C:\\\\Program Files\\\\KiCad\\\\9.0\\\\bin\\\\kicad-cli.exe",
-  "kicad_python_path": "C:\\\\Program Files\\\\KiCad\\\\8.0\\\\bin\\\\python.exe",
-  "ibom_path": "C:\\\\Users\\\\vishn\\\\Documents\\\\KiCad\\\\8.0\\\\3rdparty\\\\plugins\\\\org_openscopeproject_InteractiveHtmlBom\\\\generate_interactive_bom.py",
+  "kicad_python_path": "C:\\\\Program Files\\\\KiCad\\\\9.0\\\\bin\\\\python.exe",
+  "ibom_path": "C:\\\\Users\\\\vishn\\\\Documents\\\\KiCad\\\\9.0\\\\3rdparty\\\\plugins\\\\org_openscopeproject_InteractiveHtmlBom\\\\generate_interactive_bom.py",
   "data": {
     "gerbers": {
       "--output_dir": "Export",
@@ -281,14 +282,20 @@ def generateiBoM (output_dir = None, pcb_filename = None, extra_args = None):
   kicad_python_path = f'{current_config.get ("kicad_python_path", default_config ["kicad_python_path"])}'
   ibom_path = f'{current_config.get ("ibom_path", default_config ["ibom_path"])}'
 
+  ibom_path = os.path.expandvars (ibom_path)
+
   # Check if the KiCad Python path exists.
   if not os.path.isfile (kicad_python_path):
     print (color.red (f"generateiBoM() [ERROR]: The KiCad Python path '{kicad_python_path}' does not exist. This command will be skipped."))
     return
 
   # Check if the iBOM script path exists.
+  ibom_path = ibom_path.strip()
+  ibom_path = os.path.normpath (ibom_path)
   if not os.path.isfile (ibom_path):
     print (color.red (f"generateiBoM() [ERROR]: The iBOM path '{ibom_path}' does not exist. This command will be skipped."))
+    # st = os.stat (ibom_path)
+    # print(f"Permissions: {oct(st.st_mode)}")
     return
   
   # Construct the iBOM command.

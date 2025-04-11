@@ -1,6 +1,12 @@
 
 
 #
+### **+05:30 02:09:41 PM 11-04-2025, Friday**
+
+  - `kiexport.json` can now use `%USERPROFILE%` to get the user path when specifying iBoM path.
+  - New Version 🆕 `0.0.29`.
+
+#
 ### **+05:30 04:24:41 PM 20-02-2025, Thursday**
 
   - Added new `kicad_cli_path` configuration parameter.
