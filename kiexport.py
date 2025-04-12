@@ -25,7 +25,7 @@ import ast
 #=============================================================================================#
 
 APP_NAME = "KiExport"
-APP_VERSION = "0.0.29"
+APP_VERSION = "0.0.31"
 APP_DESCRIPTION = "Tool to export manufacturing files from KiCad PCB projects."
 APP_AUTHOR = "Vishnu Mohanan (@vishnumaiea, @vizmohanan)"
 

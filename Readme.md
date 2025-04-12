@@ -1,13 +1,14 @@
 
 # KiExport
 
-**KiExport** is a Python application for exporting manufacturing files from KiCad PCB design projects. This is a CLI (Command Line Interface) utility. Commands and arguments can be passed to the script while running or from a JSON configuration file named `kiexport.json`. You should be familiar working with CLI tools and how to execute commands from a terminal.
+**KiExport** is a Python application for automating manufacturing files generation from KiCad PCB design projects. This is a CLI (Command Line Interface) utility. Commands and arguments can be passed to the script while running or from a JSON configuration file named `kiexport.json`. You should be familiar working with CLI tools and how to execute commands from a terminal.
 
-KiExport generates the manufacturing files based on the options available in the `kiexport.json` file, and saves them in an organized way. It renames the files, folders and create ZIP archive files with proper names so that you can send them to a manufacturer or client easily. Since the `kiexport.json` configuration file can be edited for any project, you only have to create the file once. 
+KiExport generates the manufacturing files based on the options available in the `kiexport.json` file, and saves them in an organized way. It renames the files, folders and create ZIP archive files with proper names date stamps so that you can send them to a manufacturer or client easily. Since the `kiexport.json` configuration file can be edited for any project, you only have to create the file once. You can also create multiple configuration files according to different manufacturing requirements.
+
 The [**Mitayi Pico RP2040**](https://github.com/CIRCUITSTATE/Mitayi-Pico-RP2040) project is added as a sample project to test the script. 
 
 - **Author:** [Vishnu Mohanan](https://github.com/vishnumaiea)
-- **Version:** `0.0.29`
+- **Version:** `0.0.31`
 - **Contributors:** Dominic Le Blanc ([@domleblanc94](https://github.com/domleblanc94))
 
 This tool was created with the help of [**ChatGPT**](https://chat.openai.com/chat). Thanks to humanity!
@@ -49,6 +50,8 @@ This tool was created with the help of [**ChatGPT**](https://chat.openai.com/cha
 - Instead of typing the arguments manually to a terminal all the time, we can save the options as a JSON file and call the KiCad CLI every time we want to generate the files.
 
 ## Requirements
+
+This soiftware was developed and tested on Windows 11. It should work on other platforms as well, but it is not tested. The following software should be installed in your system to use this tool.
 
 - Python 3.x
 - KiCad 8.x
@@ -349,18 +352,23 @@ kiexport ibom -od "Mitayi-Pico-D1/Export" -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040
 
 This command can be used to generate multiple types of files by providing just a valid JSON configuration file. Unlike other commands which will look specifically for the `kiexport.json` file, this command will accept a JSON file with any name. This is useful when you need different configurations for different manufacturers and use-cases. You can create a configuration file for each manufacturer and use them with the `run` command individually.
 
-Since the `run` command does not accept any other arguments, everything needed to generate the manufacturing files should be in the JSON configuration file.
+Since the `run` command does not accept any configuration parameters directly, everything needed to generate the manufacturing files should be in the JSON configuration file. Additionally, `run` can also accept a subset of commands to run from the supplied configuration file. This can be useful when you do not want to run commands individually.
 
 ```
-kiexport run <config_file>
+kiexport run <config_file> <commands>
 ```
 
 - `<config_file>`: Path to the JSON configuration file. Required.
+- `<commands>`: A list of commands to run from the configuration file. Optional. The list of commands should be a comma separated string in the same format as the `commands` key in the configuration file. Do not use quotes for individual commands in this case.
 
 Example:
 
 ```
 kiexport run Mitayi-Pico-D1/kiexport.json
+
+kiexport run Mitayi-Pico-D1/kiexport.json "gerbers, positions"
+kiexport run Mitayi-Pico-D1/kiexport.json "pcb_pdf, sch_pdf"
+kiexport run Mitayi-Pico-D1/kiexport.json "gerbers, [ddd, STEP], [ddd, VRML]"
 ```
 
 ## Configuration File
