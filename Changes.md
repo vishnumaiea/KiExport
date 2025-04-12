@@ -1,6 +1,15 @@
 
 
 #
+### **+05:30 04:08:04 PM 12-04-2025, Saturday**
+
+  - Updated `kiexport.json`.
+  - Updated `DEFAULT_CONFIG_JSON`.
+  - `validate_command_list()` will now skip checking custom subcommands, such as that of `pcb_render`.
+  - `run` command can now run `pcb_render` command.
+  - New Version 🆕 `0.0.33`.
+
+#
 ### **+05:30 01:28:19 PM 12-04-2025, Saturday**
 
   - Added support for new `pcb_render` command.

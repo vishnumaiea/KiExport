@@ -4,8 +4,8 @@
 # KiExport
 # Tool to export manufacturing files from KiCad PCB projects.
 # Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)
-# Version: 0.0.32
-# Last Modified: +05:30 02:01:07 PM 12-04-2025, Saturday
+# Version: 0.0.33
+# Last Modified: +05:30 04:11:17 PM 12-04-2025, Saturday
 # GitHub: https://github.com/vishnumaiea/KiExport
 # License: MIT
 
@@ -25,7 +25,7 @@ import ast
 #=============================================================================================#
 
 APP_NAME = "KiExport"
-APP_VERSION = "0.0.32"
+APP_VERSION = "0.0.33"
 APP_DESCRIPTION = "Tool to export manufacturing files from KiCad PCB projects."
 APP_AUTHOR = "Vishnu Mohanan (@vishnumaiea, @vizmohanan)"
 
@@ -39,9 +39,9 @@ DEFAULT_CONFIG_JSON = '''
   "name": "KiExport.JSON",
   "description": "Configuration file for KiExport",
   "filetype": "json",
-  "version": "1.3",
+  "version": "1.4",
   "project_name": "Mitayi-Pico-RP2040",
-  "commands": ["gerbers", "drills", "sch_pdf", "bom", "ibom", "pcb_pdf", "positions", "svg", ["ddd", "STEP"], ["ddd", "VRML"]],
+  "commands": ["gerbers", "drills", "sch_pdf", "bom", "ibom", "pcb_pdf", ["pcb_render", "Top"], ["pcb_render", "Bottom"], "positions", "svg", ["ddd", "STEP"], ["ddd", "VRML"]],
   "kicad_cli_path": "C:\\\\Program Files\\\\KiCad\\\\9.0\\\\bin\\\\kicad-cli.exe",
   "kicad_python_path": "C:\\\\Program Files\\\\KiCad\\\\9.0\\\\bin\\\\python.exe",
   "ibom_path": "%USERPROFILE%\\\\Documents\\\\KiCad\\\\9.0\\\\3rdparty\\\\plugins\\\\org_openscopeproject_InteractiveHtmlBom\\\\generate_interactive_bom.py",
@@ -2097,6 +2097,7 @@ def validate_command_list (cli_string):
     `validated_list` ([]) : A list of valid commands.
   """
 
+  # Top level commands.
   valid_commands_json = json.dumps ({
     "gerbers": [],
     "drills": [],
@@ -2107,6 +2108,12 @@ def validate_command_list (cli_string):
     "positions": [],
     "svg": [],
     "ddd": ["STEP", "VRML"],
+    "pcb_render": []
+  })
+
+  # Some commands like the "pcb_render" can have custom named presets.
+  # We don't need to check them.
+  preset_commands_json = json.dumps ({
     "pcb_render": []
   })
   
@@ -2134,21 +2141,27 @@ def validate_command_list (cli_string):
 
   # Validate
   validated_list = []
+
   for item in parsed_cli:
+    # Standalone commands. 
     if isinstance (item, str):
-      if item not in valid_commands_dict:
+      if item not in valid_commands_dict: # Check if the command is a valid top-level command
         print (color.red (f"validate_command_list [ERROR]: Invalid standalone command '{item}'"))
         return False
+      
       validated_list.append (item)
 
+    # Commands with subcommands.
     elif isinstance (item, list) and len (item) == 2:
       main, sub = item
-      if main not in valid_commands_dict:
+      if main not in valid_commands_dict: # Check if the command is a valid top-level command
         print (color.red (f"validate_command_list [ERROR]: Invalid main command '{main}'"))
         return False
-      if sub not in valid_commands_dict [main]:
+      
+      if (main not in preset_commands_json) and (sub not in valid_commands_dict [main]):
         print (color.red (f"validate_command_list [ERROR]: Invalid subcommand '{sub}' for main command '{main}'"))
         return False
+      
       validated_list.append ([main, sub])
     else:
       print (color.red (f"validate_command_list [ERROR]: Unrecognized command format '{item}'"))
@@ -2216,7 +2229,10 @@ def run (config_file, command_list = None):
 
   #---------------------------------------------------------------------------------------------#
 
+  # List of top-level commands.
   valid_commands = ["gerbers", "drills", "sch_pdf", "bom", "ibom", "pcb_pdf", "positions", "ddd", "svg", "pcb_render"]
+
+  #---------------------------------------------------------------------------------------------#
 
   # Get the command list from the config file.
   config_cmd_list = current_config.get ("commands", [])
@@ -2437,6 +2453,13 @@ def run (config_file, command_list = None):
       output_dir = current_config.get ("data", {}).get ("svg", {}).get ("--output_dir", default_config ["data"]["svg"]["--output_dir"])
       output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
       generateSvg (output_dir, pcb_file_path)
+    
+    elif cmd [0] == "pcb_render":
+      output_dir = current_config.get ("data", {}).get ("pcb_render", {}).get ("--output_dir", default_config ["data"]["pcb_render"]["--output_dir"])
+      output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
+      # Run for the items in the list by iterating from the second item.
+      for preset in cmd [1:]:
+        generatePcbRenders (output_dir = output_dir, pcb_filename = pcb_file_path, preset = preset)
       
   return
 
