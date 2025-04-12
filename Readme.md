@@ -24,7 +24,6 @@ This tool was created with the help of [**ChatGPT**](https://chat.openai.com/cha
   - [Commands](#commands)
     - [`version`](#version)
     - [`help`](#help)
-    - [`run`](#run)
     - [`gerbers`](#gerbers)
     - [`positions`](#positions)
     - [`pcb_pdf`](#pcb_pdf)
@@ -34,6 +33,7 @@ This tool was created with the help of [**ChatGPT**](https://chat.openai.com/cha
     - [`svg`](#svg)
     - [`bom`](#bom)
     - [`ibom`](#ibom)
+    - [`run`](#run)
   - [Configuration File](#configuration-file)
   - [Limitations](#limitations)
   - [License](#license)
@@ -227,24 +227,6 @@ You can include the command to get the help menu of a specific command. For exam
 kiexport gerbers -h
 ```
 
-### `run`
-
-This command can be used to generate multiple types of files by providing just a valid JSON configuration file. Unlike other commands which will look specifically for the `kiexport.json` file, this command will accept a JSON file with any name. This is useful when you need different configurations for different manufacturers and use-cases. You can create a configuration file for each manufacturer and use them with the `run` command individually.
-
-Since the `run` command does not accept any other arguments, everything needed to generate the manufacturing files should be in the JSON configuration file. If you use this command, you don't need to use any of the other commands to generate the files. Check out the [`kiexport.json`](Mitayi-Pico-D1/kiexport.json) file for an example configuration file.
-
-```
-kiexport run <config_file>
-```
-
-- `<config_file>`: Path to the JSON configuration file. Required.
-
-Example:
-
-```
-kiexport run Mitayi-Pico-D1/kiexport.json
-```
-
 ### `gerbers` 
 
 Export Gerbers.
@@ -396,7 +378,7 @@ kiexport ibom -od "Mitayi-Pico-D1/Export" -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040
 
 ### `run`
 
-This command can be used to generate multiple types of files by providing just a valid JSON configuration file. Unlike other commands which will look specifically for the `kiexport.json` file, this command will accept a JSON file with any name. This is useful when you need different configurations for different manufacturers and use-cases. You can create a configuration file for each manufacturer and use them with the `run` command individually.
+This command can be used to generate multiple types of files by providing just a valid JSON configuration file. Unlike other commands which will look specifically for the `kiexport.json` file, this command will accept a JSON file with any name. This is useful when you need different configurations for different manufacturers and use-cases. You can create a configuration file for each manufacturer and use them with the `run` command individually. Check out the [`kiexport.json`](Mitayi-Pico-D1/kiexport.json) file for an example configuration file.
 
 Since the `run` command does not accept any configuration parameters directly, everything needed to generate the manufacturing files should be in the JSON configuration file. Additionally, `run` can also accept a subset of commands to run from the supplied configuration file. This can be useful when you do not want to run commands individually.
 
