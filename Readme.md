@@ -54,7 +54,7 @@ This tool was created with the help of [**ChatGPT**](https://chat.openai.com/cha
 This soiftware was developed and tested on Windows 11. It should work on other platforms as well, but it is not tested. The following software should be installed in your system to use this tool.
 
 - Python 3.x
-- KiCad 8.x
+- KiCad 8.x or later
 - Git
 - Interactive HTML BoM Plugin (if you want to generate HTML BoM)
 - Recommended:
@@ -63,7 +63,7 @@ This soiftware was developed and tested on Windows 11. It should work on other p
 
 ## Installation
 
-KiExport relies on the [**KiCad-CLI**](https://docs.kicad.org/8.0/en/cli/cli.html) tool to generate the files and therefore supports all the features of KiCad-CLI. You should have a KiCad version installed in your system to use this tool. You can download and install the latest version of KiCad from [here](https://kicad.org/download/). After installation, browse to the installation folder and find the `bin` directory where the `kicad-cli.exe` file is located. Add the `bin` folder to your System Path. If you do not know how to add a new path to the System Path variable, check out any tutorials on the internet.
+KiExport relies on the [**KiCad-CLI**](https://docs.kicad.org/9.0/en/cli/cli.html) tool to generate the files and therefore supports all the features of KiCad-CLI. You should have a KiCad version installed in your system to use this tool. You can download and install the latest version of KiCad from [here](https://kicad.org/download/). After installation, browse to the installation folder and find the `bin` directory where the `kicad-cli.exe` file is located. Add the `bin` folder to your System Path. If you do not know how to add a new path to the System Path variable, check out any tutorials on the internet.
 
 You can clone/fork the project to obtain a copy of the repository in your system using the following command. Git should be installed and available on the path.
 
@@ -388,7 +388,7 @@ This project is licensed under the MIT license.
 
 ## References
 
-- [KiCad Command-Line Interface](https://docs.kicad.org/8.0/en/cli/cli.html)
+- [KiCad Command-Line Interface](https://docs.kicad.org/9.0/en/cli/cli.html)
 - [Getting Started with KiCad Version 6 : Beginner’s Tutorial to Schematic and PCB Design](https://www.circuitstate.com/tutorials/getting-started-with-kicad-version-6-beginners-tutorial-to-schematic-and-pcb-design/)
 - [How to Install KiCad Version 6 and Organize Part Libraries](https://www.circuitstate.com/tutorials/how-to-install-kicad-version-6-and-organize-part-libraries/)
 - [How to Get Your KiCad PCB Design Ready for Automated Assembly – KiCad 6 Tutorial](https://www.circuitstate.com/tutorials/how-to-get-your-kicad-pcb-design-ready-for-automated-assembly-kicad-6-tutorial/)
