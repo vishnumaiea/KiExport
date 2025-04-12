@@ -1,6 +1,11 @@
 
 
 #
+### **+05:30 11:00:30 AM 12-04-2025, Saturday**
+
+  - `run` command now will still work without a list of commands passed through CLI. 
+
+#
 ### **+05:30 05:26:06 PM 11-04-2025, Friday**
 
   - `run` command can now accept a list of commands as the second parameter.

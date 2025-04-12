@@ -4,8 +4,8 @@
 # KiExport
 # Tool to export manufacturing files from KiCad PCB projects.
 # Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)
-# Version: 0.0.30
-# Last Modified: +05:30 10:49:12 AM 12-04-2025, Saturday
+# Version: 0.0.31
+# Last Modified: +05:30 11:00:25 AM 12-04-2025, Saturday
 # GitHub: https://github.com/vishnumaiea/KiExport
 # License: MIT
 
@@ -1977,46 +1977,52 @@ def run (config_file, command_list = None):
   
   #---------------------------------------------------------------------------------------------#
 
-  # Get the command list from the cli.
-  cli_cmd_list = validate_command_list (cli_string = command_list)
+  if command_list is not None:
+    # Get the command list from the cli.
+    cli_cmd_list = validate_command_list (cli_string = command_list)
 
-  if cli_cmd_list is False:
-    print (color.red ("run [ERROR]: Invalid command list provided."))
-    return
+    if cli_cmd_list is False:
+      print (color.red ("run [ERROR]: Invalid command list provided."))
+      return
 
-  cli_cmd_strings = []
-  cli_cmd_lists = []
+    cli_cmd_strings = []
+    cli_cmd_lists = []
 
-  # Now check if the commands passed through the CLI are valid.
-  if not cli_cmd_list:
-    print (color.reset ("run [INFO]: No command subset provided. Running all commands from the configuration file."))
-    # return
-  else:
-    cmd_count = 0
-
-    # Check if the commands are valid.
-    for cmd in cli_cmd_list:
-      # If cmd is a string (eg. "drills"), validate directly.
-      if isinstance (cmd, str) and cmd in valid_commands:
-        cli_cmd_strings.append (cmd)
-        cmd_count += 1
-
-      # If cmd is a list (eg. "["ddd", "STEP"]"), validate the first item as a command.
-      elif isinstance (cmd, list) and cmd [0] in valid_commands:
-        cli_cmd_lists.append (cmd)
-        cmd_count += 1
-
-    if cmd_count == 0:
+    # Now check if the commands passed through the CLI are valid.
+    if not cli_cmd_list:
       print (color.reset ("run [INFO]: No command subset provided. Running all commands from the configuration file."))
       # return
     else:
-      # Print the validated commands.
-      print (f"run [INFO]: Found the following commands in the cli list: {color.green (cli_cmd_list)}, {color.green (cmd_count)}.")
+      cmd_count = 0
+
+      # Check if the commands are valid.
+      for cmd in cli_cmd_list:
+        # If cmd is a string (eg. "drills"), validate directly.
+        if isinstance (cmd, str) and cmd in valid_commands:
+          cli_cmd_strings.append (cmd)
+          cmd_count += 1
+
+        # If cmd is a list (eg. "["ddd", "STEP"]"), validate the first item as a command.
+        elif isinstance (cmd, list) and cmd [0] in valid_commands:
+          cli_cmd_lists.append (cmd)
+          cmd_count += 1
+
+      if cmd_count == 0:
+        print (color.reset ("run [INFO]: No command subset provided. Running all commands from the configuration file."))
+        # return
+      else:
+        # Print the validated commands.
+        print (f"run [INFO]: Found the following commands in the cli list: {color.green (cli_cmd_list)}, {color.green (cmd_count)}.")
 
   #---------------------------------------------------------------------------------------------#
 
-  cmd_strings = cli_cmd_strings
-  cmd_lists = cli_cmd_lists
+  # Choose the list of commands.
+  if command_list is not None:
+    cmd_strings = cli_cmd_strings
+    cmd_lists = cli_cmd_lists
+  else:
+    cmd_strings = config_cmd_strings
+    cmd_lists = config_cmd_lists
 
   # Find the absolute path to the config file directory.
   config_path = os.path.abspath (config_file)
