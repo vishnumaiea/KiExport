@@ -1,13 +1,14 @@
 
 # KiExport
 
-**KiExport** is a Python application for exporting manufacturing files from KiCad PCB design projects. This is a CLI (Command Line Interface) utility. Commands and arguments can be passed to the script while running or from a JSON configuration file named `kiexport.json`. You should be familiar working with CLI tools and how to execute commands from a terminal.
+**KiExport** is a Python application for automating manufacturing files generation from KiCad PCB design projects. This is a CLI (Command Line Interface) utility. Commands and arguments can be passed to the script while running or from a JSON configuration file named `kiexport.json`. You should be familiar working with CLI tools and how to execute commands from a terminal.
 
-KiExport generates the manufacturing files based on the options available in the `kiexport.json` file, and saves them in an organized way. It renames the files, folders and create ZIP archive files with proper names so that you can send them to a manufacturer or client easily. Since the `kiexport.json` configuration file can be edited for any project, you only have to create the file once. 
+KiExport generates the manufacturing files based on the options available in the `kiexport.json` file, and saves them in an organized way. It renames the files, folders and create ZIP archive files with proper names date stamps so that you can send them to a manufacturer or client easily. Since the `kiexport.json` configuration file can be edited for any project, you only have to create the file once. You can also create multiple configuration files according to different manufacturing requirements.
+
 The [**Mitayi Pico RP2040**](https://github.com/CIRCUITSTATE/Mitayi-Pico-RP2040) project is added as a sample project to test the script. 
 
 - **Author:** [Vishnu Mohanan](https://github.com/vishnumaiea)
-- **Version:** `0.0.27`
+- **Version:** `0.0.33`
 - **Contributors:** Dominic Le Blanc ([@domleblanc94](https://github.com/domleblanc94))
 
 This tool was created with the help of [**ChatGPT**](https://chat.openai.com/chat). Thanks to humanity!
@@ -27,6 +28,7 @@ This tool was created with the help of [**ChatGPT**](https://chat.openai.com/cha
     - [`gerbers`](#gerbers)
     - [`positions`](#positions)
     - [`pcb_pdf`](#pcb_pdf)
+    - [`pcb_render`](#pcb_render)
     - [`sch_pdf`](#sch_pdf)
     - [`ddd`](#ddd)
     - [`svg`](#svg)
@@ -50,8 +52,10 @@ This tool was created with the help of [**ChatGPT**](https://chat.openai.com/cha
 
 ## Requirements
 
+This soiftware was developed and tested on Windows 11. It should work on other platforms as well, but it is not tested. The following software should be installed in your system to use this tool.
+
 - Python 3.x
-- KiCad 8.x
+- KiCad 8.x or later
 - Git
 - Interactive HTML BoM Plugin (if you want to generate HTML BoM)
 - Recommended:
@@ -60,7 +64,7 @@ This tool was created with the help of [**ChatGPT**](https://chat.openai.com/cha
 
 ## Installation
 
-KiExport relies on the [**KiCad-CLI**](https://docs.kicad.org/8.0/en/cli/cli.html) tool to generate the files and therefore supports all the features of KiCad-CLI. You should have a KiCad version installed in your system to use this tool. You can download and install the latest version of KiCad from [here](https://kicad.org/download/). After installation, browse to the installation folder and find the `bin` directory where the `kicad-cli.exe` file is located. Add the `bin` folder to your System Path. If you do not know how to add a new path to the System Path variable, check out any tutorials on the internet.
+KiExport relies on the [**KiCad-CLI**](https://docs.kicad.org/9.0/en/cli/cli.html) tool to generate the files and therefore supports all the features of KiCad-CLI. You should have a KiCad version installed in your system to use this tool. You can download and install the latest version of KiCad from [here](https://kicad.org/download/). After installation, browse to the installation folder and find the `bin` directory where the `kicad-cli.exe` file is located. Add the `bin` folder to your System Path. If you do not know how to add a new path to the System Path variable, check out any tutorials on the internet.
 
 You can clone/fork the project to obtain a copy of the repository in your system using the following command. Git should be installed and available on the path.
 
@@ -173,6 +177,8 @@ kiexport sch_pdf -od "%OUTPUT_DIR%" -if "%SCH_FILE%"
 kiexport bom -od "%OUTPUT_DIR%" -if "%SCH_FILE%"
 kiexport ibom -od "%OUTPUT_DIR%" -if "%PCB_FILE%"
 kiexport pcb_pdf -od "%OUTPUT_DIR%" -if "%PCB_FILE%"
+kiexport pcb_render -od "%OUTPUT_DIR%" -if "%PCB_FILE%"
+kiexport svg -od "%OUTPUT_DIR%" -if "%PCB_FILE%"
 kiexport gerbers -od "%OUTPUT_DIR%" -if "%PCB_FILE%"
 kiexport positions -od "%OUTPUT_DIR%" -if "%PCB_FILE%"
 kiexport ddd -od "%OUTPUT_DIR%" -if "%PCB_FILE%" -t "STEP"
@@ -284,6 +290,23 @@ Example:
 kiexport pcb_pdf -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb" -od "Mitayi-Pico-D1/Export"
 ```
 
+### `pcb_render`
+
+Export the PCB as a rendered image.
+
+```
+kiexport pcb_render -if <input_file> -od <output_dir>
+```
+
+- `-if`: Path to the input `.kicad_pcb` file. Required.
+- `-od`: Path to the output directory. Required.
+
+Example:
+
+```
+kiexport pcb_render -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb" -od "Mitayi-Pico-D1/Export"
+```
+
 ### `sch_pdf`
 
 Export the schematic as PDF.
@@ -371,6 +394,29 @@ Example:
 kiexport ibom -od "Mitayi-Pico-D1/Export" -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb"
 ```
 
+### `run`
+
+This command can be used to generate multiple types of files by providing just a valid JSON configuration file. Unlike other commands which will look specifically for the `kiexport.json` file, this command will accept a JSON file with any name. This is useful when you need different configurations for different manufacturers and use-cases. You can create a configuration file for each manufacturer and use them with the `run` command individually.
+
+Since the `run` command does not accept any configuration parameters directly, everything needed to generate the manufacturing files should be in the JSON configuration file. Additionally, `run` can also accept a subset of commands to run from the supplied configuration file. This can be useful when you do not want to run commands individually.
+
+```
+kiexport run <config_file> <commands>
+```
+
+- `<config_file>`: Path to the JSON configuration file. Required.
+- `<commands>`: A list of commands to run from the configuration file. Optional. The list of commands should be a comma separated string in the same format as the `commands` key in the configuration file. Do not use quotes for individual commands in this case.
+
+Example:
+
+```
+kiexport run Mitayi-Pico-D1/kiexport.json
+
+kiexport run Mitayi-Pico-D1/kiexport.json "gerbers, positions"
+kiexport run Mitayi-Pico-D1/kiexport.json "pcb_pdf, sch_pdf"
+kiexport run Mitayi-Pico-D1/kiexport.json "gerbers, [ddd, STEP], [ddd, VRML]"
+```
+
 ## Configuration File
 
 KiExport supports a JSON configuration file called `kiexport.json`. The name of the file should be exact when running the all of the generic commands except `run`. The `run` command will accept a configuration file with any name. The configuration file should be placed in the root folder of your KiCad project where the main `.kicad_sch` and `.kicad_pcb` files are located. Check the `Mitayi-Pico-D1` folder for an example. A copy of the default configuration file is integrated into the script to use as the default one. So if any of the input parameters are missing from your configuration file, the script will use the default values.
@@ -388,7 +434,7 @@ This project is licensed under the MIT license.
 
 ## References
 
-- [KiCad Command-Line Interface](https://docs.kicad.org/8.0/en/cli/cli.html)
+- [KiCad Command-Line Interface](https://docs.kicad.org/9.0/en/cli/cli.html)
 - [Getting Started with KiCad Version 6 : Beginner’s Tutorial to Schematic and PCB Design](https://www.circuitstate.com/tutorials/getting-started-with-kicad-version-6-beginners-tutorial-to-schematic-and-pcb-design/)
 - [How to Install KiCad Version 6 and Organize Part Libraries](https://www.circuitstate.com/tutorials/how-to-install-kicad-version-6-and-organize-part-libraries/)
 - [How to Get Your KiCad PCB Design Ready for Automated Assembly – KiCad 6 Tutorial](https://www.circuitstate.com/tutorials/how-to-get-your-kicad-pcb-design-ready-for-automated-assembly-kicad-6-tutorial/)

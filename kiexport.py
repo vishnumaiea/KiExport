@@ -4,8 +4,8 @@
 # KiExport
 # Tool to export manufacturing files from KiCad PCB projects.
 # Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)
-# Version: 0.0.27
-# Last Modified: +05:30 19:36:27 PM 18-12-2024, Wednesday
+# Version: 0.0.33
+# Last Modified: +05:30 04:11:17 PM 12-04-2025, Saturday
 # GitHub: https://github.com/vishnumaiea/KiExport
 # License: MIT
 
@@ -14,16 +14,20 @@
 import subprocess
 import argparse
 import os
+import stat
 import re
 from datetime import datetime
 import zipfile
 import json
 import pymupdf
+import ast
 
 #=============================================================================================#
 
 APP_NAME = "KiExport"
-APP_VERSION = "0.0.27"
+APP_VERSION = "0.0.33"
+APP_DESCRIPTION = "Tool to export manufacturing files from KiCad PCB projects."
+APP_AUTHOR = "Vishnu Mohanan (@vishnumaiea, @vizmohanan)"
 
 SAMPLE_PCB_FILE = "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb"
 
@@ -35,11 +39,12 @@ DEFAULT_CONFIG_JSON = '''
   "name": "KiExport.JSON",
   "description": "Configuration file for KiExport",
   "filetype": "json",
-  "version": "1.2",
+  "version": "1.4",
   "project_name": "Mitayi-Pico-RP2040",
-  "commands": ["gerbers", "drills", "sch_pdf", "bom", "ibom", "pcb_pdf", "positions", "svg", ["ddd", "STEP"], ["ddd", "VRML"]],
-  "kicad_python_path": "C:\\\\Program Files\\\\KiCad\\\\8.0\\\\bin\\\\python.exe",
-  "ibom_path": "C:\\\\Users\\\\vishn\\\\Documents\\\\KiCad\\\\8.0\\\\3rdparty\\\\plugins\\\\org_openscopeproject_InteractiveHtmlBom\\\\generate_interactive_bom.py",
+  "commands": ["gerbers", "drills", "sch_pdf", "bom", "ibom", "pcb_pdf", ["pcb_render", "Top"], ["pcb_render", "Bottom"], "positions", "svg", ["ddd", "STEP"], ["ddd", "VRML"]],
+  "kicad_cli_path": "C:\\\\Program Files\\\\KiCad\\\\9.0\\\\bin\\\\kicad-cli.exe",
+  "kicad_python_path": "C:\\\\Program Files\\\\KiCad\\\\9.0\\\\bin\\\\python.exe",
+  "ibom_path": "%USERPROFILE%\\\\Documents\\\\KiCad\\\\9.0\\\\3rdparty\\\\plugins\\\\org_openscopeproject_InteractiveHtmlBom\\\\generate_interactive_bom.py",
   "data": {
     "gerbers": {
       "--output_dir": "Export",
@@ -199,6 +204,135 @@ DEFAULT_CONFIG_JSON = '''
         "--models-dir": false,
         "--models-relative": false
       }
+    },
+    "pcb_render": {
+      "--output_dir": "Export",
+      "Front": {
+        "kie_type": "png",
+        "kie_name_stub": "Front",
+        "--width": 4000,
+        "--height": 3000,
+        "--side": "front",
+        "--background": "default",
+        "--quality": "basic",
+        "--preset": "follow_plot_settings",
+        "--floor": false,
+        "--perspective": false,
+        "--zoom ": 1,
+        "--pan ": "0,0,0",
+        "--pivot": "0,0,0",
+        "--rotate": "0,0,0",
+        "--light-top": false,
+        "--light-bottom": false,
+        "--light-side": false,
+        "--light-camera": false,
+        "--light-side-elevation": false
+      },
+      "Back": {
+        "kie_type": "png",
+        "kie_name_stub": "Back",
+        "--width": 4000,
+        "--height": 3000,
+        "--side": "back",
+        "--background": "default",
+        "--quality": "basic",
+        "--preset": "follow_plot_settings",
+        "--floor": false,
+        "--perspective": false,
+        "--zoom ": 1,
+        "--pan ": "0,0,0",
+        "--pivot": "0,0,0",
+        "--rotate": "0,0,0",
+        "--light-top": false,
+        "--light-bottom": false,
+        "--light-side": false,
+        "--light-camera": false,
+        "--light-side-elevation": false
+      },
+      "Top": {
+        "kie_type": "png",
+        "kie_name_stub": "Top",
+        "--width": 4000,
+        "--height": 3000,
+        "--side": "top",
+        "--background": "default",
+        "--quality": "basic",
+        "--preset": "follow_plot_settings",
+        "--floor": false,
+        "--perspective": false,
+        "--zoom ": 1,
+        "--pan ": "0,0,0",
+        "--pivot": "0,0,0",
+        "--rotate": "0,0,0",
+        "--light-top": false,
+        "--light-bottom": false,
+        "--light-side": false,
+        "--light-camera": false,
+        "--light-side-elevation": false
+      },
+      "Bottom": {
+        "kie_type": "png",
+        "kie_name_stub": "Bottom",
+        "--width": 4000,
+        "--height": 3000,
+        "--side": "bottom",
+        "--background": "default",
+        "--quality": "basic",
+        "--preset": "follow_plot_settings",
+        "--floor": false,
+        "--perspective": false,
+        "--zoom ": 1,
+        "--pan ": "0,0,0",
+        "--pivot": "0,0,0",
+        "--rotate": "0,0,0",
+        "--light-top": false,
+        "--light-bottom": false,
+        "--light-side": false,
+        "--light-camera": false,
+        "--light-side-elevation": false
+      },
+      "Left": {
+        "kie_type": "png",
+        "kie_name_stub": "Left",
+        "--width": 4000,
+        "--height": 3000,
+        "--side": "left",
+        "--background": "default",
+        "--quality": "basic",
+        "--preset": "follow_plot_settings",
+        "--floor": false,
+        "--perspective": false,
+        "--zoom ": 1,
+        "--pan ": "0,0,0",
+        "--pivot": "0,0,0",
+        "--rotate": "0,0,0",
+        "--light-top": false,
+        "--light-bottom": false,
+        "--light-side": false,
+        "--light-camera": false,
+        "--light-side-elevation": false
+      },
+      "Right": {
+        "kie_type": "png",
+        "kie_name_stub": "Right",
+        "--width": 4000,
+        "--height": 3000,
+        "--side": "right",
+        "--background": "default",
+        "--quality": "basic",
+        "--preset": "follow_plot_settings",
+        "--floor": false,
+        "--perspective": false,
+        "--zoom ": 1,
+        "--pan ": "0,0,0",
+        "--pivot": "0,0,0",
+        "--rotate": "0,0,0",
+        "--light-top": false,
+        "--light-bottom": false,
+        "--light-side": false,
+        "--light-camera": false,
+        "--light-side-elevation": false
+      }
     }
   }
 }
@@ -280,14 +414,20 @@ def generateiBoM (output_dir = None, pcb_filename = None, extra_args = None):
   kicad_python_path = f'{current_config.get ("kicad_python_path", default_config ["kicad_python_path"])}'
   ibom_path = f'{current_config.get ("ibom_path", default_config ["ibom_path"])}'
 
+  ibom_path = os.path.expandvars (ibom_path)
+
   # Check if the KiCad Python path exists.
   if not os.path.isfile (kicad_python_path):
     print (color.red (f"generateiBoM() [ERROR]: The KiCad Python path '{kicad_python_path}' does not exist. This command will be skipped."))
     return
 
   # Check if the iBOM script path exists.
+  ibom_path = ibom_path.strip()
+  ibom_path = os.path.normpath (ibom_path)
   if not os.path.isfile (ibom_path):
     print (color.red (f"generateiBoM() [ERROR]: The iBOM path '{ibom_path}' does not exist. This command will be skipped."))
+    # st = os.stat (ibom_path)
+    # print(f"Permissions: {oct(st.st_mode)}")
     return
   
   # Construct the iBOM command.
@@ -464,6 +604,9 @@ def generateGerbers (output_dir, pcb_filename, to_overwrite = True):
   # Generate the drill files first if specified
   kie_include_drill = current_config.get ("data", {}).get ("gerbers", {}).get ("kie_include_drill", default_config ["data"]["gerbers"]["kie_include_drill"])
 
+  # Get the KiCad CLI path.
+  kicad_cli_path = f'{current_config.get ("kicad_cli_path", default_config ["kicad_cli_path"])}'
+
   # Check if the value is boolean and then true or false
   if isinstance (kie_include_drill, bool):
     kie_include_drill = str (kie_include_drill).lower()
@@ -479,7 +622,7 @@ def generateGerbers (output_dir, pcb_filename, to_overwrite = True):
   #---------------------------------------------------------------------------------------------#
   
   # Common base command
-  gerber_export_command = ["kicad-cli", "pcb", "export", "gerbers"]
+  gerber_export_command = [f'"{kicad_cli_path}"', "pcb", "export", "gerbers"]
 
   # Check if the pcb file exists
   if not check_file_exists (pcb_filename):
@@ -603,8 +746,11 @@ def generateGerbers (output_dir, pcb_filename, to_overwrite = True):
 #=============================================================================================#
 
 def generateDrills (output_dir, pcb_filename):
+  # Get the KiCad CLI path.
+  kicad_cli_path = f'{current_config.get ("kicad_cli_path", default_config ["kicad_cli_path"])}'
+
   # Common base command
-  drill_export_command = ["kicad-cli", "pcb", "export", "drill"]
+  drill_export_command = [f'"{kicad_cli_path}"', "pcb", "export", "drill"]
 
   # Check if the pcb file exists
   if not check_file_exists (pcb_filename):
@@ -710,8 +856,11 @@ def generatePositions (output_dir, pcb_filename, to_overwrite = True):
   global current_config  # Access the global config
   global default_config  # Access the global config
   
+  # Get the KiCad CLI path.
+  kicad_cli_path = f'{current_config.get ("kicad_cli_path", default_config ["kicad_cli_path"])}'
+
   # Common base command
-  position_export_command = ["kicad-cli", "pcb", "export", "pos"]
+  position_export_command = [f'"{kicad_cli_path}"', "pcb", "export", "pos"]
 
   # Check if the input file exists
   if not check_file_exists (pcb_filename):
@@ -856,8 +1005,11 @@ def generatePositions (output_dir, pcb_filename, to_overwrite = True):
 #=============================================================================================#
 
 def generatePcbPdf (output_dir, pcb_filename, to_overwrite = True):
+  # Get the KiCad CLI path.
+  kicad_cli_path = f'{current_config.get ("kicad_cli_path", default_config ["kicad_cli_path"])}'
+
   # Common base command
-  pcb_pdf_export_command = ["kicad-cli", "pcb", "export", "pdf"]
+  pcb_pdf_export_command = [f'"{kicad_cli_path}"', "pcb", "export", "pdf"]
 
   # Check if the pcb file exists
   if not check_file_exists (pcb_filename):
@@ -1014,14 +1166,161 @@ def generatePcbPdf (output_dir, pcb_filename, to_overwrite = True):
       print()
       not_completed = False
 
+#==============================================================================================#
+
+def generatePcbRenders (output_dir, pcb_filename, preset = None, to_overwrite = True):
+  global current_config  # Access the global config
+  global default_config  # Access the global config
+  
+  # Get the KiCad CLI path.
+  kicad_cli_path = f'{current_config.get ("kicad_cli_path", default_config ["kicad_cli_path"])}'
+
+  # Common base command.
+  pcb_render_export_command = [f'"{kicad_cli_path}"', "pcb", "render"]
+
+  # Check if the input file exists.
+  if not check_file_exists (pcb_filename):
+    print (color.red (f"generatePcbRenders [ERROR]: '{pcb_filename}' does not exist."))
+    return
+  
+  #---------------------------------------------------------------------------------------------#
+  
+  file_name = extract_pcb_file_name (pcb_filename) # Extract information from the input file
+  file_name = file_name.replace (" ", "-") # If there are whitespace characters in the project name, replace them with a hyphen
+
+  project_name = extract_project_name (file_name)
+  info = extract_info_from_pcb (pcb_filename)
+  
+  print (f"generatePcbRenders [INFO]: Project name is '{color.magenta (project_name)}' and revision is {color.magenta ('R')}{color.magenta (info ['rev'])}.")
+
+  #---------------------------------------------------------------------------------------------#
+
+  # Check if the preset exists in the config file.
+  if preset == None:
+    print (color.yellow (f"generatePcbRenders [WARNING]: No render presets are specified. All render presets will be used."))
+  
+  else:
+    # Check if the preset is valid.
+    if preset not in current_config.get ("data", {}).get ("pcb_render", {}):
+      print (color.red (f"generatePcbRenders [ERROR]: Invalid render preset '{preset}'. Please check the config file."))
+      return
+    else:
+      print (f"generatePcbRenders [INFO]: Using render preset '{color.magenta (preset)}' from the config file.")
+    
+  #---------------------------------------------------------------------------------------------#
+
+  file_path = os.path.abspath (pcb_filename) # Get the absolute path of the file.
+
+  # Get the directory path of the file and save it as the project directory.
+  # All other export directories will be relative to the project directory.
+  project_dir = os.path.dirname (file_path)
+  
+  # Read the output directory name from the config file.
+  od_from_config = project_dir + "/" + current_config.get ("data", {}).get ("pcb_render", {}).get ("--output_dir", default_config ["data"]["pcb_render"]["--output_dir"])
+  od_from_cli = output_dir  # The directory specified by the command line argument
+
+  # Get the final directory path
+  final_directory, filename_date = create_final_directory (od_from_config, od_from_cli, "Renders", info ["rev"], "generatePcbRenders")
+
+  #---------------------------------------------------------------------------------------------#
+
+  preset_list = []
+
+  if preset == None:
+
+    # Get the list of all render presets from the config file.
+    for key, value in current_config.get ("data", {}).get ("pcb_render", {}).items():
+      if not key.startswith ("--"):
+        preset_list.append (key)
+    
+    # Print the list of render presets.
+    print (f"generatePcbRenders [INFO]: Using all render presets: {color.blue (', '.join (preset_list))}")
+  
+  else:
+    preset_list = [preset] # Create a list with the specified preset
+  
+  #---------------------------------------------------------------------------------------------#
+
+  # Now render images using all of the presets.
+  for preset in preset_list:
+    full_command = []
+    full_command.extend (pcb_render_export_command)
+
+    seq_number = 1
+    not_completed = True
+    
+    name_stub = current_config.get ("data", {}).get ("pcb_render", {}).get (preset, {}).get ("kie_name_stub", default_config ["data"]["pcb_render"][preset]["kie_name_stub"])
+    kie_type = current_config.get ("data", {}).get ("pcb_render", {}).get (preset, {}).get ("kie_type", default_config ["data"]["pcb_render"][preset]["kie_type"])
+
+    # Generate the file name.
+    while not_completed:
+
+      file_name = f"{final_directory}/{project_name}-R{info ['rev']}-{name_stub}-{filename_date}-{seq_number}.{kie_type}"
+
+      if os.path.exists (file_name):
+        seq_number += 1
+        not_completed = True
+      else:
+        full_command.append ("--output")
+        full_command.append (f'"{file_name}"') # Add the output file name with double quotes around it
+        break
+    
+    # Get the argument list from the config file.
+    arg_list = current_config.get ("data", {}).get ("pcb_render", {}).get (preset)
+
+    # Add the remaining arguments.
+    # Check if the argument list is not an empty dictionary.
+    if arg_list:
+      for key, value in arg_list.items():
+        if key.startswith ("--"): # Only fetch the arguments that start with "--"
+          if key == "--output_dir": # Skip the --output_dir argument, sice we already added it
+            continue
+          else:
+            # Check if the value is empty
+            if value == "": # Skip if the value is empty
+              continue
+            else:
+              # Check if the vlaue is a JSON boolean
+              if isinstance (value, bool):
+                if value == True: # If the value is true, then append the key as an argument
+                  full_command.append (key)
+              else:
+                # Check if the value is a string and not a numeral
+                if isinstance (value, str) and not value.isdigit():
+                    full_command.append (key)
+                    full_command.append (f'"{value}"') # Add as a double-quoted string
+                elif isinstance (value, (int, float)):
+                    full_command.append (key)
+                    full_command.append (str (value))  # Append the numeric value as string
+    
+    # Finally add the input file
+    full_command.append (f'"{pcb_filename}"')
+    print ("generatePcbRenders [INFO]: Running command: ", color.blue (' '.join (full_command)))
+
+    #---------------------------------------------------------------------------------------------#
+  
+    # Run the command
+    try:
+      full_command = ' '.join (full_command) # Convert the list to a string
+      subprocess.run (full_command, check = True)
+    
+    except subprocess.CalledProcessError as e:
+      print (color.red (f"generatePcbRenders [ERROR]: Error occurred: {e}"))
+      return
+
+    print (color.green (f"generatePcbRenders [OK]: Render files using preset '{preset}' exported successfully."))
+
 #=============================================================================================#
 
 def generateSchPdf (output_dir, sch_filename, to_overwrite = True):
   global current_config  # Access the global config
   global default_config  # Access the global config
 
+  # Get the KiCad CLI path.
+  kicad_cli_path = f'{current_config.get ("kicad_cli_path", default_config ["kicad_cli_path"])}'
+
   # Common base command
-  sch_pdf_export_command = ["kicad-cli", "sch", "export", "pdf"]
+  sch_pdf_export_command = [f'"{kicad_cli_path}"', "sch", "export", "pdf"]
 
   # Check if the input file exists
   if not check_file_exists (sch_filename):
@@ -1121,13 +1420,16 @@ def generateSchPdf (output_dir, sch_filename, to_overwrite = True):
 #=============================================================================================#
 
 def generate3D (output_dir, pcb_filename, type = "STEP", to_overwrite = True):
+  # Get the KiCad CLI path.
+  kicad_cli_path = f'{current_config.get ("kicad_cli_path", default_config ["kicad_cli_path"])}'
+
   # Common base command
   if type == "STEP" or type == "step":
-    ddd_export_command = ["kicad-cli", "pcb", "export", "step"]
+    ddd_export_command = [f'"{kicad_cli_path}"', "pcb", "export", "step"]
     type = "STEP"
     extension = "step"
   elif type == "VRML" or type == "vrml":
-    ddd_export_command = ["kicad-cli", "pcb", "export", "vrml"]
+    ddd_export_command = [f'"{kicad_cli_path}"', "pcb", "export", "vrml"]
     type = "VRML"
     extension = "wrl"
 
@@ -1230,8 +1532,11 @@ def generate3D (output_dir, pcb_filename, type = "STEP", to_overwrite = True):
 #=============================================================================================#
 
 def generateBom (output_dir, sch_filename, type, to_overwrite = True):
+  # Get the KiCad CLI path.
+  kicad_cli_path = f'{current_config.get ("kicad_cli_path", default_config ["kicad_cli_path"])}'
+
   # Common base command
-  bom_export_command = ["kicad-cli", "sch", "export", "bom"]
+  bom_export_command = [f'"{kicad_cli_path}"', "sch", "export", "bom"]
 
   # Check if the input file exists
   if not check_file_exists (sch_filename):
@@ -1333,8 +1638,11 @@ def generateBom (output_dir, sch_filename, type, to_overwrite = True):
 #=============================================================================================#
 
 def generateSvg (output_dir, pcb_filename, to_overwrite = True):
+  # Get the KiCad CLI path.
+  kicad_cli_path = f'{current_config.get ("kicad_cli_path", default_config ["kicad_cli_path"])}'
+
   # Common base command
-  pcb_svg_export_command = ["kicad-cli", "pcb", "export", "svg"]
+  pcb_svg_export_command = [f'"{kicad_cli_path}"', "pcb", "export", "svg"]
 
   # Check if the input file exists
   if not check_file_exists (pcb_filename):
@@ -1776,6 +2084,92 @@ def extract_info_from_pcb (pcb_file_path):
 
 #=============================================================================================#
 
+def validate_command_list (cli_string):
+  """
+  Validates the command list from CLI against a list of valid commands.
+
+  Args:
+    `cli_string` (`str`): A list of commands, for example "gerbers, drills, sch_pdf".
+    or "gerbers, drills, sch_pdf, [ddd, STEP]".
+
+  Returns:
+    `False`: If the command list is invalid.
+    `validated_list` ([]) : A list of valid commands.
+  """
+
+  # Top level commands.
+  valid_commands_json = json.dumps ({
+    "gerbers": [],
+    "drills": [],
+    "sch_pdf": [],
+    "bom": [],
+    "ibom": [],
+    "pcb_pdf": [],
+    "positions": [],
+    "svg": [],
+    "ddd": ["STEP", "VRML"],
+    "pcb_render": []
+  })
+
+  # Some commands like the "pcb_render" can have custom named presets.
+  # We don't need to check them.
+  preset_commands_json = json.dumps ({
+    "pcb_render": []
+  })
+  
+  #---------------------------------------------------------------------------------------------#
+
+  def quote_bare_words (s):
+    def replacer (match):
+        word = match.group (0)
+        return f'"{word}"'
+    pattern = r'\b(?!True|False|None)\w+\b'
+    return re.sub (pattern, replacer, s)
+
+  #---------------------------------------------------------------------------------------------#
+
+  # Load JSON dict
+  valid_commands_dict = json.loads (valid_commands_json)
+
+  # Parse CLI string to Python list
+  try:
+    safe_str = quote_bare_words (cli_string)
+    parsed_cli = ast.literal_eval (f'[{safe_str}]')
+  except Exception as e:
+    print (color.red (f"validate_command_list [ERROR]: Failed to parse CLI input: {e}"))
+    return False
+
+  # Validate
+  validated_list = []
+
+  for item in parsed_cli:
+    # Standalone commands. 
+    if isinstance (item, str):
+      if item not in valid_commands_dict: # Check if the command is a valid top-level command
+        print (color.red (f"validate_command_list [ERROR]: Invalid standalone command '{item}'"))
+        return False
+      
+      validated_list.append (item)
+
+    # Commands with subcommands.
+    elif isinstance (item, list) and len (item) == 2:
+      main, sub = item
+      if main not in valid_commands_dict: # Check if the command is a valid top-level command
+        print (color.red (f"validate_command_list [ERROR]: Invalid main command '{main}'"))
+        return False
+      
+      if (main not in preset_commands_json) and (sub not in valid_commands_dict [main]):
+        print (color.red (f"validate_command_list [ERROR]: Invalid subcommand '{sub}' for main command '{main}'"))
+        return False
+      
+      validated_list.append ([main, sub])
+    else:
+      print (color.red (f"validate_command_list [ERROR]: Unrecognized command format '{item}'"))
+    
+  return validated_list
+
+#=============================================================================================#
+
 def load_config (config_file = None):
   """
   Loads the JSON configuration file. If no file is provided, it uses the default configuration.
@@ -1800,57 +2194,125 @@ def load_config (config_file = None):
       print (f"load_config [INFO]: Loading configuration from '{color.magenta (config_file)}'.")
       with open (config_file, 'r', encoding = "utf-8") as file:
           current_config = json.load (file)
+          return True
           # TODO: Check the JSON configuration file version and warn about consequences.
     else:
-      print (color.yellow (f"load_config [WARNING]: The provided configuration file '{config_file}' does not exist. Default values will be used."))
+      print (color.red (f"load_config [ERROR]: The provided configuration file '{config_file}' does not exist."))
+      print (color.yellow (f"load_config [WARNING]: Default values will be used. Continue? [Y/N]"))
+      user_input = input ("").strip().lower()
+      if user_input != "y": return False
       current_config = default_config
+      return True
 
   else:
     # Use the default configuration.
     print (f"load_config [INFO]: Using default configuration.")
     current_config = default_config
+    return True
 
 #=============================================================================================#
 
-def run (config_file):
+def run (config_file, command_list = None):
+  """
+  Fetches command list and configuration from the JSON file and runs the commands.
+
+  Args:
+      `config_file` (str): Path to the configuration file. Can be relative or absolute.
+  """
+
   print (f"run [INFO]: Running KiExport with configuration file '{color.magenta (config_file)}'.")
-  load_config (config_file)
+
+  # Check if the configuration is loaded successfully.
+  if (load_config (config_file) is not True):
+    print (color.red ("run [ERROR]: Failed to load the configuration file."))
+    return
 
   #---------------------------------------------------------------------------------------------#
 
-  valid_commands = ["gerbers", "drills", "sch_pdf", "bom", "ibom", "pcb_pdf", "positions", "ddd", "svg"]
+  # List of top-level commands.
+  valid_commands = ["gerbers", "drills", "sch_pdf", "bom", "ibom", "pcb_pdf", "positions", "ddd", "svg", "pcb_render"]
 
-  # Get the argument list from the config file.
-  user_cmd_list = current_config.get ("commands", [])
-  cmd_strings = []
-  cmd_lists = []
+  #---------------------------------------------------------------------------------------------#
 
-  if not user_cmd_list:
+  # Get the command list from the config file.
+  config_cmd_list = current_config.get ("commands", [])
+  config_cmd_strings = []
+  config_cmd_lists = []
+
+  # Check the commands in the configuration file.
+  if not config_cmd_list:
     print (color.red ("run [ERROR]: No list of commands specified in the configuration file."))
     return
   else:
     cmd_count = 0
 
-    # Check if the commands are valid
-    for cmd in user_cmd_list:
-      # If cmd is a string, validate directly
+    # Check if the commands are valid.
+    for cmd in config_cmd_list:
+      # If cmd is a string (eg. "drills"), validate directly.
       if isinstance (cmd, str) and cmd in valid_commands:
-        cmd_strings.append (cmd)
+        config_cmd_strings.append (cmd)
         cmd_count += 1
 
-      # If cmd is a list, validate the first item as a command
+      # If cmd is a list (eg. "["ddd", "STEP"]"), validate the first item as a command.
       elif isinstance (cmd, list) and cmd [0] in valid_commands:
-        cmd_lists.append (cmd)
+        config_cmd_lists.append (cmd)
         cmd_count += 1
 
     if cmd_count == 0:
       print (color.red ("run [ERROR]: No valid commands specified in the configuration file."))
       return
     else:
-      # Print the validated commands
-      print (f"run [INFO]: Running the following commands: {color.green (user_cmd_list)}, {color.green (cmd_count)}.")
+      # Print the validated commands.
+      print (f"run [INFO]: Found the following commands in the configuration file: {color.green (config_cmd_list)}, {color.green (cmd_count)}.")
   
   #---------------------------------------------------------------------------------------------#
+
+  if command_list is not None:
+    # Get the command list from the cli.
+    cli_cmd_list = validate_command_list (cli_string = command_list)
+
+    if cli_cmd_list is False:
+      print (color.red ("run [ERROR]: Invalid command list provided."))
+      return
+
+    cli_cmd_strings = []
+    cli_cmd_lists = []
+
+    # Now check if the commands passed through the CLI are valid.
+    if not cli_cmd_list:
+      print (color.reset ("run [INFO]: No command subset provided. Running all commands from the configuration file."))
+      # return
+    else:
+      cmd_count = 0
+
+      # Check if the commands are valid.
+      for cmd in cli_cmd_list:
+        # If cmd is a string (eg. "drills"), validate directly.
+        if isinstance (cmd, str) and cmd in valid_commands:
+          cli_cmd_strings.append (cmd)
+          cmd_count += 1
+
+        # If cmd is a list (eg. "["ddd", "STEP"]"), validate the first item as a command.
+        elif isinstance (cmd, list) and cmd [0] in valid_commands:
+          cli_cmd_lists.append (cmd)
+          cmd_count += 1
+
+      if cmd_count == 0:
+        print (color.reset ("run [INFO]: No command subset provided. Running all commands from the configuration file."))
+        # return
+      else:
+        # Print the validated commands.
+        print (f"run [INFO]: Found the following commands in the cli list: {color.green (cli_cmd_list)}, {color.green (cmd_count)}.")
+
+  #---------------------------------------------------------------------------------------------#
+
+  # Choose the list of commands.
+  if command_list is not None:
+    cmd_strings = cli_cmd_strings
+    cmd_lists = cli_cmd_lists
+  else:
+    cmd_strings = config_cmd_strings
+    cmd_lists = config_cmd_lists
 
   # Find the absolute path to the config file directory.
   config_path = os.path.abspath (config_file)
@@ -1929,6 +2391,11 @@ def run (config_file):
       output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
       generateSvg (output_dir, pcb_file_path)
 
+    elif cmd == "pcb_render":
+      output_dir = current_config.get ("data", {}).get ("pcb_render", {}).get ("--output_dir", default_config ["data"]["pcb_render"]["--output_dir"])
+      output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
+      generatePcbRenders (output_dir, pcb_file_path)
+
   #---------------------------------------------------------------------------------------------#
 
   # Process the commands with arguments or modifiers.
@@ -1986,6 +2453,13 @@ def run (config_file):
       output_dir = current_config.get ("data", {}).get ("svg", {}).get ("--output_dir", default_config ["data"]["svg"]["--output_dir"])
       output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
       generateSvg (output_dir, pcb_file_path)
+    
+    elif cmd [0] == "pcb_render":
+      output_dir = current_config.get ("data", {}).get ("pcb_render", {}).get ("--output_dir", default_config ["data"]["pcb_render"]["--output_dir"])
+      output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
+      # Run for the items in the list by iterating from the second item.
+      for preset in cmd [1:]:
+        generatePcbRenders (output_dir = output_dir, pcb_filename = pcb_file_path, preset = preset)
       
   return
 
@@ -1999,13 +2473,16 @@ def test():
 #=============================================================================================#
 
 def parseArguments():
+  """
+  Parses commands and arguments, and execute the corresponding functions.
+  """
   # Configure the argument parser.
-  parser = argparse.ArgumentParser (description = "KiExport: Tool to export manufacturing files from KiCad PCB projects.")
+  parser = argparse.ArgumentParser (description = f"{APP_NAME}: {APP_DESCRIPTION}")
   parser.add_argument ('-v', '--version', action = 'version', version = f'{APP_VERSION}', help = "Show the version of the tool and exit.")
   subparsers = parser.add_subparsers (dest = "command", help = "Available commands.")
 
   # Subparser for the Run command.
-  # Example: python .\kiexport.py run -if "Mitayi-Pico-D1/kiexport.json"
+  # Example: python .\kiexport.py run "Mitayi-Pico-D1/kiexport.json"
   run_parser = subparsers.add_parser ("run", help = "Run KiExport using the provided JSON configuration file.")
   run_parser.add_argument ("config_file", help = "Path to the JSON configuration file.")
   run_parser.add_argument ("command_list", nargs = "?", help = "Specific commands in the JSON to execute (optional).")
@@ -2066,6 +2543,13 @@ def parseArguments():
   svg_parser.add_argument ("-if", "--input_filename", required = True, help = "Path to the .kicad_pcb file.")
   svg_parser.add_argument ("-od", "--output_dir", required = True, help = "Directory to save the SVG files to.")
 
+  # Subparser for the PCB Render export command.
+  # Example: python .\kiexport.py pcb_render -od "Mitayi-Pico-D1/Export" -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb"
+  pcb_render_parser = subparsers.add_parser ("pcb_render", help = "Export rendered PCB images.")
+  pcb_render_parser.add_argument ("-if", "--input_filename", required = True, help = "Path to the .kicad_pcb file.")
+  pcb_render_parser.add_argument ("-od", "--output_dir", required = True, help = "Directory to save the rendered images to.")
+  pcb_render_parser.add_argument ("-ps", "--preset", required = False, help = "The render preset to use.")
+
   # Subparser for the test function.
   test_parser = subparsers.add_parser ("test", help = "Internal test function.")
 
@@ -2096,9 +2580,11 @@ def parseArguments():
   # The Run command accepts a config file as an argument and generate the files based on the
   # config file. The name of the config file can be anything.
   if args.command == "run":
-    run (args.config_file)
+    # Check if the paramter ends with ".json"
+    if args.config_file.endswith (".json") or args.config_file.endswith (".json\""):
+      run (config_file = args.config_file, command_list = args.command_list)
     return
-    
+
   else:
     # Load the standard config file for other commands.
     if args.input_filename is not None: # Check if we received an input file
@@ -2138,6 +2624,9 @@ def parseArguments():
   elif args.command == "svg":
     generateSvg (args.output_dir, args.input_filename)
 
+  elif args.command == "pcb_render":
+    generatePcbRenders (args.output_dir, args.input_filename, args.preset)
+
   elif args.command == "test":
     test()
     
@@ -2148,9 +2637,9 @@ def parseArguments():
 
 def printInfo():
   print ("")
-  print (color.cyan (f"KiExport v{APP_VERSION}"))
+  print (color.cyan (f"{APP_NAME} v{APP_VERSION}"))
   print (color.cyan ("CLI tool to export design and manufacturing files from KiCad projects."))
-  print (color.cyan ("Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)"))
+  print (color.cyan (f"Author: {APP_AUTHOR}"))
   print (color.cyan ("Contributors: Dominic Le Blanc (@domleblanc94)"))
   print ("")
 
