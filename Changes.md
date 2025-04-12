@@ -1,6 +1,18 @@
 
 
 #
+### **+05:30 01:28:19 PM 12-04-2025, Saturday**
+
+  - Added support for new `pcb_render` command.
+    - This can export the PCB as a rendered image with the help of KiCad V9's `pcb render` command.
+  - Added support for `pcb_render` configuration in the `kiexport.json` file.
+  - Added `generatePcbRenders()` function.
+  - Incremented the `kiexport.json` version to `1.4`.
+  - Updated Readme.
+    - Added `pcb_render` command documentation.
+  - New Version 🆕 `0.0.32`.
+
+#
 ### **+05:30 11:00:30 AM 12-04-2025, Saturday**
 
   - `run` command now will still work without a list of commands passed through CLI. 

@@ -8,7 +8,7 @@ KiExport generates the manufacturing files based on the options available in the
 The [**Mitayi Pico RP2040**](https://github.com/CIRCUITSTATE/Mitayi-Pico-RP2040) project is added as a sample project to test the script. 
 
 - **Author:** [Vishnu Mohanan](https://github.com/vishnumaiea)
-- **Version:** `0.0.31`
+- **Version:** `0.0.32`
 - **Contributors:** Dominic Le Blanc ([@domleblanc94](https://github.com/domleblanc94))
 
 This tool was created with the help of [**ChatGPT**](https://chat.openai.com/chat). Thanks to humanity!
@@ -27,6 +27,7 @@ This tool was created with the help of [**ChatGPT**](https://chat.openai.com/cha
     - [`gerbers`](#gerbers)
     - [`positions`](#positions)
     - [`pcb_pdf`](#pcb_pdf)
+    - [`pcb_render`](#pcb_render)
     - [`sch_pdf`](#sch_pdf)
     - [`ddd`](#ddd)
     - [`svg`](#svg)
@@ -176,6 +177,8 @@ kiexport sch_pdf -od "%OUTPUT_DIR%" -if "%SCH_FILE%"
 kiexport bom -od "%OUTPUT_DIR%" -if "%SCH_FILE%"
 kiexport ibom -od "%OUTPUT_DIR%" -if "%PCB_FILE%"
 kiexport pcb_pdf -od "%OUTPUT_DIR%" -if "%PCB_FILE%"
+kiexport pcb_render -od "%OUTPUT_DIR%" -if "%PCB_FILE%"
+kiexport svg -od "%OUTPUT_DIR%" -if "%PCB_FILE%"
 kiexport gerbers -od "%OUTPUT_DIR%" -if "%PCB_FILE%"
 kiexport positions -od "%OUTPUT_DIR%" -if "%PCB_FILE%"
 kiexport ddd -od "%OUTPUT_DIR%" -if "%PCB_FILE%" -t "STEP"
@@ -259,6 +262,23 @@ Example:
 
 ```
 kiexport pcb_pdf -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb" -od "Mitayi-Pico-D1/Export"
+```
+
+### `pcb_render`
+
+Export the PCB as a rendered image.
+
+```
+kiexport pcb_render -if <input_file> -od <output_dir>
+```
+
+- `-if`: Path to the input `.kicad_pcb` file. Required.
+- `-od`: Path to the output directory. Required.
+
+Example:
+
+```
+kiexport pcb_render -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb" -od "Mitayi-Pico-D1/Export"
 ```
 
 ### `sch_pdf`
