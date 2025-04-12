@@ -23,6 +23,7 @@ This tool was created with the help of [**ChatGPT**](https://chat.openai.com/cha
   - [Commands](#commands)
     - [`version`](#version)
     - [`help`](#help)
+    - [`run`](#run)
     - [`gerbers`](#gerbers)
     - [`positions`](#positions)
     - [`pcb_pdf`](#pcb_pdf)
@@ -31,7 +32,6 @@ This tool was created with the help of [**ChatGPT**](https://chat.openai.com/cha
     - [`svg`](#svg)
     - [`bom`](#bom)
     - [`ibom`](#ibom)
-    - [`run`](#run)
   - [Configuration File](#configuration-file)
   - [Limitations](#limitations)
   - [License](#license)
@@ -152,7 +152,7 @@ You can run the Python script directly from the source folder with the following
 python kiexport.py <command> <arguments>
 ```
 
-In addition, you can also run the Windows executable `kiexport.exe` with the following command. The `dist` folder should be added to the path in order for this to work.
+In addition, you can also run the Windows executable `kiexport.exe` with the following command. The `dist` folder should be added to the system Path in order for this to work.
 
 ```
 kiexport <command> <arguments>
@@ -177,6 +177,14 @@ kiexport gerbers -od "%OUTPUT_DIR%" -if "%PCB_FILE%"
 kiexport positions -od "%OUTPUT_DIR%" -if "%PCB_FILE%"
 kiexport ddd -od "%OUTPUT_DIR%" -if "%PCB_FILE%" -t "STEP"
 kiexport ddd -od "%OUTPUT_DIR%" -if "%PCB_FILE%" -t "VRML"
+
+pause
+```
+
+You can also create a batch file for running the `run` command as shown below. You can then double-click on the script every time you want to generate new files, saving you from typing the same commands over and over.
+
+```bat
+kiexport run Mitayi-Pico-D1/kiexport.json
 
 pause
 ```
@@ -211,6 +219,24 @@ You can include the command to get the help menu of a specific command. For exam
 
 ```
 kiexport gerbers -h
+```
+
+### `run`
+
+This command can be used to generate multiple types of files by providing just a valid JSON configuration file. Unlike other commands which will look specifically for the `kiexport.json` file, this command will accept a JSON file with any name. This is useful when you need different configurations for different manufacturers and use-cases. You can create a configuration file for each manufacturer and use them with the `run` command individually.
+
+Since the `run` command does not accept any other arguments, everything needed to generate the manufacturing files should be in the JSON configuration file. If you use this command, you don't need to use any of the other commands to generate the files. Check out the [`kiexport.json`](Mitayi-Pico-D1/kiexport.json) file for an example configuration file.
+
+```
+kiexport run <config_file>
+```
+
+- `<config_file>`: Path to the JSON configuration file. Required.
+
+Example:
+
+```
+kiexport run Mitayi-Pico-D1/kiexport.json
 ```
 
 ### `gerbers` 
@@ -277,7 +303,7 @@ kiexport sch_pdf -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_sch" -od "Mitayi-P
 
 ### `ddd`
 
-Export the 3D files.
+Export the 3D files. Generating STEP files can take some time when the PCB is large. Wait for the process to complete. VRML file generation is faster.
 
 ```
 kiexport ddd -if <input_file> -od <output_dir> -t <type>
@@ -295,7 +321,7 @@ kiexport ddd -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb" -od "Mitayi-Pico-
 
 ### `svg`
 
-Export the PCB as SVG files.
+Export the PCB as SVG files. The list of layers can be specified in the config file. You can also define common layers to be used when generating each layer. A ZIP file is created at the end while keeping the original files intact. Each run of the command will overwrite the standalone files but will create a new ZIP file with a new sequence number.
 
 ```
 kiexport svg -if <input_file> -od <output_dir>
@@ -343,24 +369,6 @@ Example:
 
 ```
 kiexport ibom -od "Mitayi-Pico-D1/Export" -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb"
-```
-
-### `run`
-
-This command can be used to generate multiple types of files by providing just a valid JSON configuration file. Unlike other commands which will look specifically for the `kiexport.json` file, this command will accept a JSON file with any name. This is useful when you need different configurations for different manufacturers and use-cases. You can create a configuration file for each manufacturer and use them with the `run` command individually.
-
-Since the `run` command does not accept any other arguments, everything needed to generate the manufacturing files should be in the JSON configuration file.
-
-```
-kiexport run <config_file>
-```
-
-- `<config_file>`: Path to the JSON configuration file. Required.
-
-Example:
-
-```
-kiexport run Mitayi-Pico-D1/kiexport.json
 ```
 
 ## Configuration File

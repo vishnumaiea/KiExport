@@ -132,6 +132,7 @@
     "svg": {
       "--output_dir": "Export",
       "--layers": ["F.Cu","B.Cu","F.Paste","B.Paste","F.Silkscreen","B.Silkscreen","F.Mask","B.Mask","User.Drawings","User.Comments","Edge.Cuts","F.Courtyard","B.Courtyard","F.Fab","B.Fab"],
+      "kie_common_layers": [""],
       "--drawing-sheet": false,
       "--mirror": false,
       "--theme": "User",
