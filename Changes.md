@@ -1,6 +1,34 @@
 
 
 #
+### **+05:30 11:00:30 AM 12-04-2025, Saturday**
+
+  - `run` command now will still work without a list of commands passed through CLI. 
+
+#
+### **+05:30 05:26:06 PM 11-04-2025, Friday**
+
+  - `run` command can now accept a list of commands as the second parameter.
+  - This will allow the user to provide a subset of commands to run from the configuration file.
+
+#
+### **+05:30 05:01:18 PM 11-04-2025, Friday**
+
+  - Added `validate_command_list()` to validate command lists from command-line.
+
+#
+### **+05:30 02:27:47 PM 11-04-2025, Friday**
+
+  - The `run()` and `loadConfig()` functions now check if the provided parameter (filename or path) is a valid file.
+  - If an invalid parameter is provided the user will be prompted to choose the default configuration.
+
+#
+### **+05:30 02:09:41 PM 11-04-2025, Friday**
+
+  - `kiexport.json` can now use `%USERPROFILE%` to get the user path when specifying iBoM path.
+  - New Version 🆕 `0.0.29`.
+
+#
 ### **+05:30 04:24:41 PM 20-02-2025, Thursday**
 
   - Added new `kicad_cli_path` configuration parameter.

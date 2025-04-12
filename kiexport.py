@@ -4,8 +4,8 @@
 # KiExport
 # Tool to export manufacturing files from KiCad PCB projects.
 # Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)
-# Version: 0.0.28
-# Last Modified: +05:30 04:24:26 PM 20-02-2025, Thursday
+# Version: 0.0.31
+# Last Modified: +05:30 11:00:25 AM 12-04-2025, Saturday
 # GitHub: https://github.com/vishnumaiea/KiExport
 # License: MIT
 
@@ -14,16 +14,20 @@
 import subprocess
 import argparse
 import os
+import stat
 import re
 from datetime import datetime
 import zipfile
 import json
 import pymupdf
+import ast
 
 #=============================================================================================#
 
 APP_NAME = "KiExport"
-APP_VERSION = "0.0.28"
+APP_VERSION = "0.0.31"
+APP_DESCRIPTION = "Tool to export manufacturing files from KiCad PCB projects."
+APP_AUTHOR = "Vishnu Mohanan (@vishnumaiea, @vizmohanan)"
 
 SAMPLE_PCB_FILE = "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb"
 
@@ -39,8 +43,8 @@ DEFAULT_CONFIG_JSON = '''
   "project_name": "Mitayi-Pico-RP2040",
   "commands": ["gerbers", "drills", "sch_pdf", "bom", "ibom", "pcb_pdf", "positions", "svg", ["ddd", "STEP"], ["ddd", "VRML"]],
   "kicad_cli_path": "C:\\\\Program Files\\\\KiCad\\\\9.0\\\\bin\\\\kicad-cli.exe",
-  "kicad_python_path": "C:\\\\Program Files\\\\KiCad\\\\8.0\\\\bin\\\\python.exe",
-  "ibom_path": "C:\\\\Users\\\\vishn\\\\Documents\\\\KiCad\\\\8.0\\\\3rdparty\\\\plugins\\\\org_openscopeproject_InteractiveHtmlBom\\\\generate_interactive_bom.py",
+  "kicad_python_path": "C:\\\\Program Files\\\\KiCad\\\\9.0\\\\bin\\\\python.exe",
+  "ibom_path": "%USERPROFILE%\\\\Documents\\\\KiCad\\\\9.0\\\\3rdparty\\\\plugins\\\\org_openscopeproject_InteractiveHtmlBom\\\\generate_interactive_bom.py",
   "data": {
     "gerbers": {
       "--output_dir": "Export",
@@ -281,14 +285,20 @@ def generateiBoM (output_dir = None, pcb_filename = None, extra_args = None):
   kicad_python_path = f'{current_config.get ("kicad_python_path", default_config ["kicad_python_path"])}'
   ibom_path = f'{current_config.get ("ibom_path", default_config ["ibom_path"])}'
 
+  ibom_path = os.path.expandvars (ibom_path)
+
   # Check if the KiCad Python path exists.
   if not os.path.isfile (kicad_python_path):
     print (color.red (f"generateiBoM() [ERROR]: The KiCad Python path '{kicad_python_path}' does not exist. This command will be skipped."))
     return
 
   # Check if the iBOM script path exists.
+  ibom_path = ibom_path.strip()
+  ibom_path = os.path.normpath (ibom_path)
   if not os.path.isfile (ibom_path):
     print (color.red (f"generateiBoM() [ERROR]: The iBOM path '{ibom_path}' does not exist. This command will be skipped."))
+    # st = os.stat (ibom_path)
+    # print(f"Permissions: {oct(st.st_mode)}")
     return
   
   # Construct the iBOM command.
@@ -1801,6 +1811,78 @@ def extract_info_from_pcb (pcb_file_path):
 
 #=============================================================================================#
 
+def validate_command_list (cli_string):
+  """
+  Validates the command list from CLI against a list of valid commands.
+
+  Args:
+    `cli_string` (`str`): A list of commands, for example "gerbers, drills, sch_pdf".
+    or "gerbers, drills, sch_pdf, [ddd, STEP]".
+
+  Returns:
+    `False`: If the command list is invalid.
+    `validated_list` ([]) : A list of valid commands.
+  """
+
+  valid_commands_json = json.dumps ({
+    "gerbers": [],
+    "drills": [],
+    "sch_pdf": [],
+    "bom": [],
+    "ibom": [],
+    "pcb_pdf": [],
+    "positions": [],
+    "svg": [],
+    "ddd": ["STEP", "VRML"]
+  })
+  
+  #---------------------------------------------------------------------------------------------#
+
+  def quote_bare_words (s):
+    def replacer (match):
+        word = match.group (0)
+        return f'"{word}"'
+    pattern = r'\b(?!True|False|None)\w+\b'
+    return re.sub (pattern, replacer, s)
+
+  #---------------------------------------------------------------------------------------------#
+
+  # Load JSON dict
+  valid_commands_dict = json.loads (valid_commands_json)
+
+  # Parse CLI string to Python list
+  try:
+    safe_str = quote_bare_words (cli_string)
+    parsed_cli = ast.literal_eval (f'[{safe_str}]')
+  except Exception as e:
+    print (color.red (f"validate_command_list [ERROR]: Failed to parse CLI input: {e}"))
+    return False
+
+  # Validate
+  validated_list = []
+  for item in parsed_cli:
+    if isinstance (item, str):
+      if item not in valid_commands_dict:
+        print (color.red (f"validate_command_list [ERROR]: Invalid standalone command '{item}'"))
+        return False
+      validated_list.append (item)
+
+    elif isinstance (item, list) and len (item) == 2:
+      main, sub = item
+      if main not in valid_commands_dict:
+        print (color.red (f"validate_command_list [ERROR]: Invalid main command '{main}'"))
+        return False
+      if sub not in valid_commands_dict [main]:
+        print (color.red (f"validate_command_list [ERROR]: Invalid subcommand '{sub}' for main command '{main}'"))
+        return False
+      validated_list.append ([main, sub])
+    else:
+      print (color.red (f"validate_command_list [ERROR]: Unrecognized command format '{item}'"))
+    
+  return validated_list
+
+#=============================================================================================#
+
 def load_config (config_file = None):
   """
   Loads the JSON configuration file. If no file is provided, it uses the default configuration.
@@ -1825,57 +1907,122 @@ def load_config (config_file = None):
       print (f"load_config [INFO]: Loading configuration from '{color.magenta (config_file)}'.")
       with open (config_file, 'r', encoding = "utf-8") as file:
           current_config = json.load (file)
+          return True
           # TODO: Check the JSON configuration file version and warn about consequences.
     else:
-      print (color.yellow (f"load_config [WARNING]: The provided configuration file '{config_file}' does not exist. Default values will be used."))
+      print (color.red (f"load_config [ERROR]: The provided configuration file '{config_file}' does not exist."))
+      print (color.yellow (f"load_config [WARNING]: Default values will be used. Continue? [Y/N]"))
+      user_input = input ("").strip().lower()
+      if user_input != "y": return False
       current_config = default_config
+      return True
 
   else:
     # Use the default configuration.
     print (f"load_config [INFO]: Using default configuration.")
     current_config = default_config
+    return True
 
 #=============================================================================================#
 
-def run (config_file):
+def run (config_file, command_list = None):
+  """
+  Fetches command list and configuration from the JSON file and runs the commands.
+
+  Args:
+      `config_file` (str): Path to the configuration file. Can be relative or absolute.
+  """
+
   print (f"run [INFO]: Running KiExport with configuration file '{color.magenta (config_file)}'.")
-  load_config (config_file)
+
+  # Check if the configuration is loaded successfully.
+  if (load_config (config_file) is not True):
+    print (color.red ("run [ERROR]: Failed to load the configuration file."))
+    return
 
   #---------------------------------------------------------------------------------------------#
 
   valid_commands = ["gerbers", "drills", "sch_pdf", "bom", "ibom", "pcb_pdf", "positions", "ddd", "svg"]
 
-  # Get the argument list from the config file.
-  user_cmd_list = current_config.get ("commands", [])
-  cmd_strings = []
-  cmd_lists = []
+  # Get the command list from the config file.
+  config_cmd_list = current_config.get ("commands", [])
+  config_cmd_strings = []
+  config_cmd_lists = []
 
-  if not user_cmd_list:
+  # Check the commands in the configuration file.
+  if not config_cmd_list:
     print (color.red ("run [ERROR]: No list of commands specified in the configuration file."))
     return
   else:
     cmd_count = 0
 
-    # Check if the commands are valid
-    for cmd in user_cmd_list:
-      # If cmd is a string, validate directly
+    # Check if the commands are valid.
+    for cmd in config_cmd_list:
+      # If cmd is a string (eg. "drills"), validate directly.
       if isinstance (cmd, str) and cmd in valid_commands:
-        cmd_strings.append (cmd)
+        config_cmd_strings.append (cmd)
         cmd_count += 1
 
-      # If cmd is a list, validate the first item as a command
+      # If cmd is a list (eg. "["ddd", "STEP"]"), validate the first item as a command.
       elif isinstance (cmd, list) and cmd [0] in valid_commands:
-        cmd_lists.append (cmd)
+        config_cmd_lists.append (cmd)
         cmd_count += 1
 
     if cmd_count == 0:
       print (color.red ("run [ERROR]: No valid commands specified in the configuration file."))
       return
     else:
-      # Print the validated commands
-      print (f"run [INFO]: Running the following commands: {color.green (user_cmd_list)}, {color.green (cmd_count)}.")
+      # Print the validated commands.
+      print (f"run [INFO]: Found the following commands in the configuration file: {color.green (config_cmd_list)}, {color.green (cmd_count)}.")
   
   #---------------------------------------------------------------------------------------------#
+
+  if command_list is not None:
+    # Get the command list from the cli.
+    cli_cmd_list = validate_command_list (cli_string = command_list)
+
+    if cli_cmd_list is False:
+      print (color.red ("run [ERROR]: Invalid command list provided."))
+      return
+
+    cli_cmd_strings = []
+    cli_cmd_lists = []
+
+    # Now check if the commands passed through the CLI are valid.
+    if not cli_cmd_list:
+      print (color.reset ("run [INFO]: No command subset provided. Running all commands from the configuration file."))
+      # return
+    else:
+      cmd_count = 0
+
+      # Check if the commands are valid.
+      for cmd in cli_cmd_list:
+        # If cmd is a string (eg. "drills"), validate directly.
+        if isinstance (cmd, str) and cmd in valid_commands:
+          cli_cmd_strings.append (cmd)
+          cmd_count += 1
+
+        # If cmd is a list (eg. "["ddd", "STEP"]"), validate the first item as a command.
+        elif isinstance (cmd, list) and cmd [0] in valid_commands:
+          cli_cmd_lists.append (cmd)
+          cmd_count += 1
+
+      if cmd_count == 0:
+        print (color.reset ("run [INFO]: No command subset provided. Running all commands from the configuration file."))
+        # return
+      else:
+        # Print the validated commands.
+        print (f"run [INFO]: Found the following commands in the cli list: {color.green (cli_cmd_list)}, {color.green (cmd_count)}.")
+
+  #---------------------------------------------------------------------------------------------#
+
+  # Choose the list of commands.
+  if command_list is not None:
+    cmd_strings = cli_cmd_strings
+    cmd_lists = cli_cmd_lists
+  else:
+    cmd_strings = config_cmd_strings
+    cmd_lists = config_cmd_lists
 
   # Find the absolute path to the config file directory.
   config_path = os.path.abspath (config_file)
@@ -2024,13 +2171,16 @@ def test():
 #=============================================================================================#
 
 def parseArguments():
+  """
+  Parses commands and arguments, and execute the corresponding functions.
+  """
   # Configure the argument parser.
-  parser = argparse.ArgumentParser (description = "KiExport: Tool to export manufacturing files from KiCad PCB projects.")
+  parser = argparse.ArgumentParser (description = f"{APP_NAME}: {APP_DESCRIPTION}")
   parser.add_argument ('-v', '--version', action = 'version', version = f'{APP_VERSION}', help = "Show the version of the tool and exit.")
   subparsers = parser.add_subparsers (dest = "command", help = "Available commands.")
 
   # Subparser for the Run command.
-  # Example: python .\kiexport.py run -if "Mitayi-Pico-D1/kiexport.json"
+  # Example: python .\kiexport.py run "Mitayi-Pico-D1/kiexport.json"
   run_parser = subparsers.add_parser ("run", help = "Run KiExport using the provided JSON configuration file.")
   run_parser.add_argument ("config_file", help = "Path to the JSON configuration file.")
   run_parser.add_argument ("command_list", nargs = "?", help = "Specific commands in the JSON to execute (optional).")
@@ -2121,9 +2271,11 @@ def parseArguments():
   # The Run command accepts a config file as an argument and generate the files based on the
   # config file. The name of the config file can be anything.
   if args.command == "run":
-    run (args.config_file)
+    # Check if the paramter ends with ".json"
+    if args.config_file.endswith (".json") or args.config_file.endswith (".json\""):
+      run (config_file = args.config_file, command_list = args.command_list)
     return
-    
+
   else:
     # Load the standard config file for other commands.
     if args.input_filename is not None: # Check if we received an input file
@@ -2173,9 +2325,9 @@ def parseArguments():
 
 def printInfo():
   print ("")
-  print (color.cyan (f"KiExport v{APP_VERSION}"))
+  print (color.cyan (f"{APP_NAME} v{APP_VERSION}"))
   print (color.cyan ("CLI tool to export design and manufacturing files from KiCad projects."))
-  print (color.cyan ("Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)"))
+  print (color.cyan (f"Author: {APP_AUTHOR}"))
   print (color.cyan ("Contributors: Dominic Le Blanc (@domleblanc94)"))
   print ("")
 
