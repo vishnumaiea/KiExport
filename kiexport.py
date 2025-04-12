@@ -5,7 +5,7 @@
 # Tool to export manufacturing files from KiCad PCB projects.
 # Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)
 # Version: 0.0.30
-# Last Modified: +05:30 05:25:59 PM 11-04-2025, Friday
+# Last Modified: +05:30 10:49:12 AM 12-04-2025, Saturday
 # GitHub: https://github.com/vishnumaiea/KiExport
 # License: MIT
 
@@ -1812,6 +1812,18 @@ def extract_info_from_pcb (pcb_file_path):
 #=============================================================================================#
 
 def validate_command_list (cli_string):
+  """
+  Validates the command list from CLI against a list of valid commands.
+
+  Args:
+    `cli_string` (`str`): A list of commands, for example "gerbers, drills, sch_pdf".
+    or "gerbers, drills, sch_pdf, [ddd, STEP]".
+
+  Returns:
+    `False`: If the command list is invalid.
+    `validated_list` ([]) : A list of valid commands.
+  """
+
   valid_commands_json = json.dumps ({
     "gerbers": [],
     "drills": [],
@@ -1835,10 +1847,10 @@ def validate_command_list (cli_string):
 
   #---------------------------------------------------------------------------------------------#
 
-  # Step 1: Load JSON dict
+  # Load JSON dict
   valid_commands_dict = json.loads (valid_commands_json)
 
-  # Step 2: Parse CLI string to Python list
+  # Parse CLI string to Python list
   try:
     safe_str = quote_bare_words (cli_string)
     parsed_cli = ast.literal_eval (f'[{safe_str}]')
@@ -1846,7 +1858,7 @@ def validate_command_list (cli_string):
     print (color.red (f"validate_command_list [ERROR]: Failed to parse CLI input: {e}"))
     return False
 
-  # Step 3: Validate
+  # Validate
   validated_list = []
   for item in parsed_cli:
     if isinstance (item, str):
