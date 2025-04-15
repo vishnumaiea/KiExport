@@ -1195,10 +1195,10 @@ def generatePcbRenders (output_dir, pcb_filename, preset = None, to_overwrite = 
 
   #---------------------------------------------------------------------------------------------#
 
-  # Check if the preset exists in the config file.
+  # Check if the passed preset exists in the config file.
   if preset == None:
-    print (color.yellow (f"generatePcbRenders [WARNING]: No render presets are specified. All render presets will be used."))
-  
+    print (color.yellow (f"generatePcbRenders [WARNING]: No render presets are specified in cli. All render presets available in the config file will be used."))
+
   else:
     # Check if the preset is valid.
     if preset not in current_config.get ("data", {}).get ("pcb_render", {}):

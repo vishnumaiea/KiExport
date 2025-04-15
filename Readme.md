@@ -17,6 +17,7 @@ This tool was created with the help of [**ChatGPT**](https://chat.openai.com/cha
 - [KiExport](#kiexport)
   - [Table of Contents](#table-of-contents)
   - [Why?](#why)
+  - [Why not KiCad Jobsets?](#why-not-kicad-jobsets)
   - [Requirements](#requirements)
   - [Installation](#installation)
   - [Example](#example)
@@ -49,6 +50,10 @@ This tool was created with the help of [**ChatGPT**](https://chat.openai.com/cha
 - The number and types of files generated from a KiCad project can be quite many. Renaming, organizing and archiving the files manually can be a tedious task. For example, we generate Gerbers, PCB PDF, Schematic PDF, STEP, VRML, CSV BoM, HTML BoM, Position Files, and Preview Images for a typical project. We have to do this every time we make a change to the project to keep consistency across the set of files generated at a time.
 - KiCad CLI can do almost all of what the KiCad UI can.
 - Instead of typing the arguments manually to a terminal all the time, we can save the options as a JSON file and call the KiCad CLI every time we want to generate the files.
+
+## Why not KiCad Jobsets?
+
+KiCad V9 added support for **Jobsets** which allow you to generate manufacturing files in an automated way. However, the feature is in its early stages and causes freezes and crashes often (at least when I tried it last time). Until the feature matures enough, the development on KiExport will continue.
 
 ## Requirements
 
