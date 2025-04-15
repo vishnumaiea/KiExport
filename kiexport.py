@@ -4,8 +4,8 @@
 # KiExport
 # Tool to export manufacturing files from KiCad PCB projects.
 # Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)
-# Version: 0.0.33
-# Last Modified: +05:30 04:11:17 PM 12-04-2025, Saturday
+# Version: 0.0.34
+# Last Modified: +05:30 05:34:05 PM 15-04-2025, Tuesday
 # GitHub: https://github.com/vishnumaiea/KiExport
 # License: MIT
 
@@ -25,7 +25,7 @@ import ast
 #=============================================================================================#
 
 APP_NAME = "KiExport"
-APP_VERSION = "0.0.33"
+APP_VERSION = "0.0.34"
 APP_DESCRIPTION = "Tool to export manufacturing files from KiCad PCB projects."
 APP_AUTHOR = "Vishnu Mohanan (@vishnumaiea, @vizmohanan)"
 
@@ -33,6 +33,8 @@ SAMPLE_PCB_FILE = "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb"
 
 current_config = None
 default_config = None
+
+command_exec_status = {}  # Command execution status
 
 DEFAULT_CONFIG_JSON = '''
 {
@@ -419,6 +421,7 @@ def generateiBoM (output_dir = None, pcb_filename = None, extra_args = None):
   # Check if the KiCad Python path exists.
   if not os.path.isfile (kicad_python_path):
     print (color.red (f"generateiBoM() [ERROR]: The KiCad Python path '{kicad_python_path}' does not exist. This command will be skipped."))
+    command_exec_status ["ibom"] = False
     return
 
   # Check if the iBOM script path exists.
@@ -428,6 +431,7 @@ def generateiBoM (output_dir = None, pcb_filename = None, extra_args = None):
     print (color.red (f"generateiBoM() [ERROR]: The iBOM path '{ibom_path}' does not exist. This command will be skipped."))
     # st = os.stat (ibom_path)
     # print(f"Permissions: {oct(st.st_mode)}")
+    command_exec_status ["ibom"] = False
     return
   
   # Construct the iBOM command.
@@ -438,6 +442,7 @@ def generateiBoM (output_dir = None, pcb_filename = None, extra_args = None):
   # Ensure PCB file exists.
   if not os.path.isfile (pcb_filename):
     print (color.red (f"generateiBoM() [ERROR]: The PCB file '{pcb_filename}' does not exist. The command will be skipped."))
+    command_exec_status ["ibom"] = False
     return
   
   #---------------------------------------------------------------------------------------------#
@@ -536,13 +541,16 @@ def generateiBoM (output_dir = None, pcb_filename = None, extra_args = None):
     full_command = ' '.join (full_command) # Convert the list to a string
     subprocess.run (full_command, check = True)
     print (color.green (f"generateiBoM() [INFO]: Interactive HTML BoM generated successfully."))
+    command_exec_status ["ibom"] = True
 
   except subprocess.CalledProcessError as e:
     print (color.red (f"generateiBoM() [ERROR]: Error during HTML BoM generation: {e}"))
     print (color.red (f"generateiBoM() [INFO]: Make sure the 'Interactive HTML BoM' application is installed and available on the PATH."))
+    command_exec_status ["ibom"] = False
 
   except Exception as e:
     print (color.red (f" generateiBoM() [ERROR]: An unexpected error occurred: {e}"))
+    command_exec_status ["ibom"] = False
 
 #=============================================================================================#
 
@@ -627,6 +635,7 @@ def generateGerbers (output_dir, pcb_filename, to_overwrite = True):
   # Check if the pcb file exists
   if not check_file_exists (pcb_filename):
     print (color.red (f"generateGerbers [ERROR]: '{pcb_filename}' does not exist."))
+    command_exec_status ["gerbers"] = False
     return
 
   #---------------------------------------------------------------------------------------------#
@@ -710,9 +719,11 @@ def generateGerbers (output_dir, pcb_filename, to_overwrite = True):
     full_command = ' '.join (full_command) # Convert the list to a string
     subprocess.run (full_command, check = True)
     print (color.green ("generateGerbers [OK]: Gerber files exported successfully."))
+    command_exec_status ["gerbers"] = True
   
   except subprocess.CalledProcessError as e:
     print (color.red (f"generateGerbers [ERROR]: Error occurred: {e}"))
+    command_exec_status ["gerbers"] = False
     return
   
   #---------------------------------------------------------------------------------------------#
@@ -755,6 +766,7 @@ def generateDrills (output_dir, pcb_filename):
   # Check if the pcb file exists
   if not check_file_exists (pcb_filename):
     print (color.red (f"generateDrills [ERROR]: '{pcb_filename}' does not exist."))
+    command_exec_status ["drills"] = False
     return
 
   #-------------------------------------------------------------------------------------------#
@@ -839,10 +851,12 @@ def generateDrills (output_dir, pcb_filename):
     subprocess.run (full_command, check = True)
     print (color.green ("generateDrills [OK]: Drill files exported successfully."))
     print()
+    command_exec_status ["drills"] = True
   
   except subprocess.CalledProcessError as e:
     print (color.red (f"generateDrills [ERROR]: Error occurred: {e}"))
     print()
+    command_exec_status ["drills"] = False
     return
   
   #-------------------------------------------------------------------------------------------#
@@ -865,6 +879,7 @@ def generatePositions (output_dir, pcb_filename, to_overwrite = True):
   # Check if the input file exists
   if not check_file_exists (pcb_filename):
     print (color.red (f"generatePositions [ERROR]: '{pcb_filename}' does not exist."))
+    command_exec_status ["positions"] = False
     return
 
   #---------------------------------------------------------------------------------------------#
@@ -974,9 +989,11 @@ def generatePositions (output_dir, pcb_filename, to_overwrite = True):
         subprocess.run (command_string, check = True)
       except subprocess.CalledProcessError as e:
         print (color.red (f"generatePositions [ERROR]: Error occurred while generating the files."))
+        command_exec_status ["positions"] = False
         return
 
   print (color.green ("generatePositions [OK]: Position files exported successfully."))
+  command_exec_status ["positions"] = True
   
   #---------------------------------------------------------------------------------------------#
   
@@ -1014,6 +1031,7 @@ def generatePcbPdf (output_dir, pcb_filename, to_overwrite = True):
   # Check if the pcb file exists
   if not check_file_exists (pcb_filename):
     print (color.red (f"generatePcbPdf [ERROR]: '{pcb_filename}' does not exist."))
+    command_exec_status ["pcb_pdf"] = False
     return
 
   #---------------------------------------------------------------------------------------------#
@@ -1055,6 +1073,7 @@ def generatePcbPdf (output_dir, pcb_filename, to_overwrite = True):
 
   if layer_count <= 0:
     print (color.red (f"generatePcbPdf [ERROR]: No layers specified for export."))
+    command_exec_status ["pcb_pdf"] = False
     return
 
   # Get the number of common layers to include in each of the PDF.
@@ -1114,9 +1133,11 @@ def generatePcbPdf (output_dir, pcb_filename, to_overwrite = True):
       full_command = ' '.join (full_command) # Convert the list to a string
       subprocess.run (full_command, check = True)
       # print (color.green ("generatePcbPdf [OK]: PCB PDF files exported successfully."))
+      command_exec_status ["pcb_pdf"] = True
     
     except subprocess.CalledProcessError as e:
       print (color.red (f"generatePcbPdf [ERROR]: Error occurred: {e}"))
+      command_exec_status ["pcb_pdf"] = True
       continue
   
   #---------------------------------------------------------------------------------------------#
@@ -1181,6 +1202,7 @@ def generatePcbRenders (output_dir, pcb_filename, preset = None, to_overwrite = 
   # Check if the input file exists.
   if not check_file_exists (pcb_filename):
     print (color.red (f"generatePcbRenders [ERROR]: '{pcb_filename}' does not exist."))
+    command_exec_status ["pcb_render"] = False
     return
   
   #---------------------------------------------------------------------------------------------#
@@ -1195,14 +1217,15 @@ def generatePcbRenders (output_dir, pcb_filename, preset = None, to_overwrite = 
 
   #---------------------------------------------------------------------------------------------#
 
-  # Check if the preset exists in the config file.
+  # Check if the passed preset exists in the config file.
   if preset == None:
-    print (color.yellow (f"generatePcbRenders [WARNING]: No render presets are specified. All render presets will be used."))
-  
+    print (color.yellow (f"generatePcbRenders [WARNING]: No render presets are specified in cli. All render presets available in the config file will be used."))
+
   else:
     # Check if the preset is valid.
     if preset not in current_config.get ("data", {}).get ("pcb_render", {}):
       print (color.red (f"generatePcbRenders [ERROR]: Invalid render preset '{preset}'. Please check the config file."))
+      command_exec_status ["pcb_render"] = False
       return
     else:
       print (f"generatePcbRenders [INFO]: Using render preset '{color.magenta (preset)}' from the config file.")
@@ -1254,7 +1277,6 @@ def generatePcbRenders (output_dir, pcb_filename, preset = None, to_overwrite = 
 
     # Generate the file name.
     while not_completed:
-
       file_name = f"{final_directory}/{project_name}-R{info ['rev']}-{name_stub}-{filename_date}-{seq_number}.{kie_type}"
 
       if os.path.exists (file_name):
@@ -1306,9 +1328,11 @@ def generatePcbRenders (output_dir, pcb_filename, preset = None, to_overwrite = 
     
     except subprocess.CalledProcessError as e:
       print (color.red (f"generatePcbRenders [ERROR]: Error occurred: {e}"))
+      command_exec_status ["pcb_render"] = False
       return
 
     print (color.green (f"generatePcbRenders [OK]: Render files using preset '{preset}' exported successfully."))
+    command_exec_status ["pcb_render"] = True
 
 #=============================================================================================#
 
@@ -1325,6 +1349,7 @@ def generateSchPdf (output_dir, sch_filename, to_overwrite = True):
   # Check if the input file exists
   if not check_file_exists (sch_filename):
     print (color.red (f"generateSchPdf [ERROR]: '{sch_filename}' does not exist."))
+    command_exec_status ["sch_pdf"] = False
     return
 
   #---------------------------------------------------------------------------------------------#
@@ -1413,9 +1438,11 @@ def generateSchPdf (output_dir, sch_filename, to_overwrite = True):
   
   except subprocess.CalledProcessError as e:
     print (color.red (f"generateSchPdf [ERROR]: Error occurred: {e}"))
+    command_exec_status ["sch_pdf"] = False
     return
 
   print (color.green ("generateSchPdf [OK]: Schematic PDF file exported successfully."))
+  command_exec_status ["sch_pdf"] = True
 
 #=============================================================================================#
 
@@ -1435,6 +1462,7 @@ def generate3D (output_dir, pcb_filename, type = "STEP", to_overwrite = True):
 
   if not check_file_exists (pcb_filename):
     print (color.red (f"generate3D [ERROR]: '{pcb_filename}' does not exist."))
+    command_exec_status ["ddd" + "_" + type] = False
     return
 
   #---------------------------------------------------------------------------------------------#
@@ -1525,9 +1553,11 @@ def generate3D (output_dir, pcb_filename, type = "STEP", to_overwrite = True):
   
   except subprocess.CalledProcessError as e:
     print (color.red (f"generate3D [ERROR]: Error occurred: {e}"))
+    command_exec_status ["ddd" + "_" + type] = False
     return
 
   print (color.green (f"generate3D [OK]: {type} file exported successfully."))
+  command_exec_status ["ddd" + "_" + type] = True
 
 #=============================================================================================#
 
@@ -1541,6 +1571,7 @@ def generateBom (output_dir, sch_filename, type, to_overwrite = True):
   # Check if the input file exists
   if not check_file_exists (sch_filename):
     print (color.red (f"generateBom [ERROR]: '{sch_filename}' does not exist."))
+    command_exec_status ["bom"] = False
     return
 
   #---------------------------------------------------------------------------------------------#
@@ -1631,9 +1662,11 @@ def generateBom (output_dir, sch_filename, type, to_overwrite = True):
   
   except subprocess.CalledProcessError as e:
     print (color.red (f"generateBom [ERROR]: Error occurred: {e}"))
+    command_exec_status ["bom"] = False
     return
 
   print (color.green ("generateBom [OK]: BoM file exported successfully."))
+  command_exec_status ["bom"] = True
 
 #=============================================================================================#
 
@@ -1647,6 +1680,7 @@ def generateSvg (output_dir, pcb_filename, to_overwrite = True):
   # Check if the input file exists
   if not check_file_exists (pcb_filename):
     print (color.red (f"generateSvg [ERROR]: '{pcb_filename}' does not exist."))
+    command_exec_status ["svg"] = False
     return
 
   #---------------------------------------------------------------------------------------------#
@@ -1689,6 +1723,7 @@ def generateSvg (output_dir, pcb_filename, to_overwrite = True):
 
   if layer_count <= 0:
     print (color.red (f"generateSvg [ERROR]: No layers specified for export."))
+    command_exec_status ["svg"] = False
     return
 
   # Get the number of common layers to include in each of the PDF.
@@ -1749,11 +1784,13 @@ def generateSvg (output_dir, pcb_filename, to_overwrite = True):
     
     except subprocess.CalledProcessError as e:
       print (color.red (f"generateSvg [ERROR]: Error occurred: {e}"))
+      command_exec_status ["svg"] = False
       continue
 
   #---------------------------------------------------------------------------------------------#
 
   print (color.green ("generateSvg [OK]: SVG files exported successfully."))
+  command_exec_status ["svg"] = True
 
   #---------------------------------------------------------------------------------------------#
   
@@ -2460,7 +2497,16 @@ def run (config_file, command_list = None):
       # Run for the items in the list by iterating from the second item.
       for preset in cmd [1:]:
         generatePcbRenders (output_dir = output_dir, pcb_filename = pcb_file_path, preset = preset)
-      
+  
+  # Once the command execution is complete, print the statuses from command_exec_status.
+  print()
+  print (f"run [INFO]: Command execution completed. Statuses:")
+  for cmd in command_exec_status:
+    if (command_exec_status [cmd] == True):
+      print (color.green (f"run [INFO]: {cmd}: {command_exec_status [cmd]}"))
+    else:
+      print (color.red (f"run [INFO]: {cmd}: {command_exec_status [cmd]}"))
+
   return
 
 #=============================================================================================#

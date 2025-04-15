@@ -8,7 +8,7 @@ KiExport generates the manufacturing files based on the options available in the
 The [**Mitayi Pico RP2040**](https://github.com/CIRCUITSTATE/Mitayi-Pico-RP2040) project is added as a sample project to test the script. 
 
 - **Author:** [Vishnu Mohanan](https://github.com/vishnumaiea)
-- **Version:** `0.0.33`
+- **Version:** `0.0.34`
 - **Contributors:** Dominic Le Blanc ([@domleblanc94](https://github.com/domleblanc94))
 
 This tool was created with the help of [**ChatGPT**](https://chat.openai.com/chat). Thanks to humanity!
@@ -17,6 +17,7 @@ This tool was created with the help of [**ChatGPT**](https://chat.openai.com/cha
 - [KiExport](#kiexport)
   - [Table of Contents](#table-of-contents)
   - [Why?](#why)
+  - [Why not KiCad Jobsets?](#why-not-kicad-jobsets)
   - [Requirements](#requirements)
   - [Installation](#installation)
   - [Example](#example)
@@ -42,13 +43,17 @@ This tool was created with the help of [**ChatGPT**](https://chat.openai.com/cha
 
 ## Why?
 
-- Currently, exporting manufacturing files from KiCad's own UI requires setting so many options correctly and moving through different steps for different types of files.
+- ~~Currently, exporting manufacturing files from KiCad's own UI requires setting so many options correctly and moving through different steps for different types of files.~~
 - If you make a mistake in choosing the options correctly, you will end up with a "bad" manufacturing file that will waste your time later.
-- KiCad currently has no ability to save the export options as presets and it does not always remember the previously used options.
+- ~~KiCad currently has no ability to save the export options as presets and it does not always remember the previously used options.~~
 - Existing plugins available for KiCad only work for specific types of files and specific set of manufacturing options.
 - The number and types of files generated from a KiCad project can be quite many. Renaming, organizing and archiving the files manually can be a tedious task. For example, we generate Gerbers, PCB PDF, Schematic PDF, STEP, VRML, CSV BoM, HTML BoM, Position Files, and Preview Images for a typical project. We have to do this every time we make a change to the project to keep consistency across the set of files generated at a time.
 - KiCad CLI can do almost all of what the KiCad UI can.
 - Instead of typing the arguments manually to a terminal all the time, we can save the options as a JSON file and call the KiCad CLI every time we want to generate the files.
+
+## Why not KiCad Jobsets?
+
+KiCad V9 added support for **Jobsets** which allow you to generate manufacturing files in an automated way. However, the feature is in its early stages and causes freezes and crashes often (at least when I tried it last time). Until the feature matures enough, the development on KiExport will continue.
 
 ## Requirements
 
@@ -140,6 +145,12 @@ If you generate the files multiple times a day, older files will be overwritten 
         |       Mitayi-Pico-RP2040-R0.6-PCB-PDF-All-26102024-1.pdf
         |       Mitayi-Pico-RP2040-R0.6-User_Comments.pdf
         |       Mitayi-Pico-RP2040-R0.6-User_Drawings.pdf
+        |
+        +---Render
+        |       Mitayi-Pico-RP2040-R0.6-Top-26102024-1.png
+        |       Mitayi-Pico-RP2040-R0.6-Bottom-26102024-1.png
+        |       Mitayi-Pico-RP2040-R0.6-Front-26102024-1.png
+        |       Mitayi-Pico-RP2040-R0.6-Back-26102024-1.png
         |
         +---SCH
         |       Mitayi-Pico-RP2040-R0.6-SCH-26102024-1.pdf

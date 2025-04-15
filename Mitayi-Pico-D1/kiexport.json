@@ -214,7 +214,7 @@
       },
       "Top": {
         "kie_type": "png",
-        "kie_name_stub": "PCB-Render-Top",
+        "kie_name_stub": "follow_pcb_editor",
         "--width": 4000,
         "--height": 3000,
         "--side": "top",

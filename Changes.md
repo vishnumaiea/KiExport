@@ -1,4 +1,13 @@
 
+# Changes
+
+#
+### **+05:30 05:34:30 PM 15-04-2025, Tuesday**
+
+  - Added `command_exec_status`.
+    - This will hold the execution status of all of the executed commands.
+    - The statuses are printed at the end of the `run` command.
+  - New Version 🆕 `0.0.34`.
 
 #
 ### **+05:30 04:08:04 PM 12-04-2025, Saturday**

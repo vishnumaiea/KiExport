@@ -15,6 +15,7 @@
       "vias": 1.0,
       "zones": 0.36000001430511475
     },
+    "prototype_zone_fills": false,
     "ratsnest_display_mode": 1,
     "selection_filter": {
       "dimensions": false,
