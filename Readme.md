@@ -146,6 +146,12 @@ If you generate the files multiple times a day, older files will be overwritten 
         |       Mitayi-Pico-RP2040-R0.6-User_Comments.pdf
         |       Mitayi-Pico-RP2040-R0.6-User_Drawings.pdf
         |
+        +---Render
+        |       Mitayi-Pico-RP2040-R0.6-Top-26102024-1.png
+        |       Mitayi-Pico-RP2040-R0.6-Bottom-26102024-1.png
+        |       Mitayi-Pico-RP2040-R0.6-Front-26102024-1.png
+        |       Mitayi-Pico-RP2040-R0.6-Back-26102024-1.png
+        |
         +---SCH
         |       Mitayi-Pico-RP2040-R0.6-SCH-26102024-1.pdf
         |
