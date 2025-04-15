@@ -43,9 +43,9 @@ This tool was created with the help of [**ChatGPT**](https://chat.openai.com/cha
 
 ## Why?
 
-- Currently, exporting manufacturing files from KiCad's own UI requires setting so many options correctly and moving through different steps for different types of files.
+- ~~Currently, exporting manufacturing files from KiCad's own UI requires setting so many options correctly and moving through different steps for different types of files.~~
 - If you make a mistake in choosing the options correctly, you will end up with a "bad" manufacturing file that will waste your time later.
-- KiCad currently has no ability to save the export options as presets and it does not always remember the previously used options.
+- ~~KiCad currently has no ability to save the export options as presets and it does not always remember the previously used options.~~
 - Existing plugins available for KiCad only work for specific types of files and specific set of manufacturing options.
 - The number and types of files generated from a KiCad project can be quite many. Renaming, organizing and archiving the files manually can be a tedious task. For example, we generate Gerbers, PCB PDF, Schematic PDF, STEP, VRML, CSV BoM, HTML BoM, Position Files, and Preview Images for a typical project. We have to do this every time we make a change to the project to keep consistency across the set of files generated at a time.
 - KiCad CLI can do almost all of what the KiCad UI can.
