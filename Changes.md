@@ -2,6 +2,16 @@
 # Changes
 
 #
+### **+05:30 12:07:32 PM 18-04-2025, Friday**
+
+  - Changed reference project version to `v9.99`.
+  - Created new branch 'V10-Support` to test KiCad V10 support.
+  - Updated `kiexport.json`.
+    - Added new render presets.
+    - Changed KiCad CLI paths.
+  - Updated `DEFAULT_CONFIG_JSON`.
+
+#
 ### **+05:30 05:34:30 PM 15-04-2025, Tuesday**
 
   - Added `command_exec_status`.
