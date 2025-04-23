@@ -2,6 +2,29 @@
 # Changes
 
 #
+### **+05:30 05:10:36 PM 22-04-2025, Tuesday**
+
+  - Fixed configuration lookup issue.
+    - Previously, the configuration lookup used to fail when the `DEFAULT_CONFIG_JSON` did not have the keys that are already in the user configuration.
+    - The app used to lookup the configuration even when it was already found in the user configuration.
+    - This has been fixed with the help of lazy loaded configuration.
+    - Now, the default configuration is looked up only if something is not found in the user configuration.
+    - Added `LazyDict` class to handle the lazy loading of the configuration.
+    - Added `to_lazy_dict()` function to convert the configuration to a lazy dictionary.
+    - Replaced all default `get()` called with equivalent `get (<key>, lambda: default_config [..])` calls.
+  - New Version 🆕 `0.0.35`.
+
+#
+### **+05:30 12:07:32 PM 18-04-2025, Friday**
+
+  - Changed reference project version to `v9.99`.
+  - Created new branch 'V10-Support` to test KiCad V10 support.
+  - Updated `kiexport.json`.
+    - Added new render presets.
+    - Changed KiCad CLI paths.
+  - Updated `DEFAULT_CONFIG_JSON`.
+
+#
 ### **+05:30 05:34:30 PM 15-04-2025, Tuesday**
 
   - Added `command_exec_status`.

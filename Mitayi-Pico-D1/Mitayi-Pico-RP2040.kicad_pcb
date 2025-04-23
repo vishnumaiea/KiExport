@@ -1,7 +1,7 @@
 (kicad_pcb
-	(version 20241229)
+	(version 20250401)
 	(generator "pcbnew")
-	(generator_version "9.0")
+	(generator_version "9.99")
 	(general
 		(thickness 1)
 		(legacy_teardrops no)
@@ -93,7 +93,20 @@
 		)
 		(pad_to_mask_clearance 0)
 		(allow_soldermask_bridges_in_footprints no)
-		(tenting front back)
+		(tenting
+			(front yes)
+			(back yes)
+		)
+		(covering
+			(front no)
+			(back no)
+		)
+		(plugging
+			(front no)
+			(back no)
+		)
+		(capping no)
+		(filling no)
 		(aux_axis_origin 121.5 99.8)
 		(grid_origin 121.5 99.8)
 		(pcbplotparams
@@ -312,6 +325,7 @@
 		(sheetname "Root")
 		(sheetfile "Mitayi-Pico-RP2040.kicad_sch")
 		(attr smd)
+		(duplicate_pad_numbers_are_jumpers yes)
 		(fp_line
 			(start -0.167621 -0.38)
 			(end 0.167621 -0.38)
@@ -442,6 +456,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "bdeae496-9f40-48a4-b52e-f851dbb18af3")
 		)
 		(pad "2" smd roundrect
@@ -462,6 +480,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "dedb49d6-471b-46fd-8040-616163a26d55")
 		)
@@ -536,6 +558,7 @@
 			)
 		)
 		(attr board_only exclude_from_pos_files exclude_from_bom)
+		(duplicate_pad_numbers_are_jumpers yes)
 		(fp_poly
 			(pts
 				(xy 0.269478 0.012224) (xy 0.226139 0.016669) (xy 0.189468 0.028893) (xy 0.187801 0.048895) (xy 0.187246 0.070009)
@@ -691,6 +714,7 @@
 		(sheetname "Root")
 		(sheetfile "Mitayi-Pico-RP2040.kicad_sch")
 		(attr smd)
+		(duplicate_pad_numbers_are_jumpers yes)
 		(fp_line
 			(start 0.8 -0.735)
 			(end -1.485 -0.735)
@@ -841,6 +865,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "eaa07796-a714-44bc-81e5-ecfa1f1c57c0")
 		)
 		(pad "2" smd roundrect
@@ -861,6 +889,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "5d104733-555c-4861-87b0-536194dc720a")
 		)
@@ -989,6 +1021,7 @@
 		(sheetname "Root")
 		(sheetfile "Mitayi-Pico-RP2040.kicad_sch")
 		(attr smd)
+		(duplicate_pad_numbers_are_jumpers yes)
 		(fp_line
 			(start -0.107836 0.36)
 			(end 0.107836 0.36)
@@ -1118,6 +1151,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "a18db45d-f3b5-45eb-87f1-44ef8433774a")
 		)
 		(pad "2" smd roundrect
@@ -1137,6 +1174,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "07d6afca-c1a6-4627-baa5-b5e1ce07472f")
 		)
@@ -1208,6 +1249,7 @@
 			)
 		)
 		(attr board_only exclude_from_pos_files exclude_from_bom)
+		(duplicate_pad_numbers_are_jumpers yes)
 		(fp_poly
 			(pts
 				(xy -1.201866 -0.318196) (xy -1.336236 0.221151) (xy -1.060031 0.221151) (xy -1.194401 -0.318196)
@@ -1422,6 +1464,7 @@
 		(sheetname "Root")
 		(sheetfile "Mitayi-Pico-RP2040.kicad_sch")
 		(attr smd)
+		(duplicate_pad_numbers_are_jumpers yes)
 		(fp_line
 			(start -0.107836 0.36)
 			(end 0.107836 0.36)
@@ -1551,6 +1594,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "f79d60e4-2385-41de-9295-604b5a8b17cb")
 		)
 		(pad "2" smd roundrect
@@ -1570,6 +1617,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "38f19abf-fa1a-4fb0-986b-91bc775d5185")
 		)
@@ -1644,6 +1695,7 @@
 			)
 		)
 		(attr board_only exclude_from_pos_files exclude_from_bom)
+		(duplicate_pad_numbers_are_jumpers yes)
 		(fp_poly
 			(pts
 				(xy -0.641191 0.042227) (xy -0.641191 0.228917) (xy -0.609521 0.232251) (xy -0.575627 0.233362)
@@ -1821,6 +1873,7 @@
 		(sheetname "Root")
 		(sheetfile "Mitayi-Pico-RP2040.kicad_sch")
 		(attr smd)
+		(duplicate_pad_numbers_are_jumpers yes)
 		(fp_line
 			(start -0.14058 0.51)
 			(end 0.14058 0.51)
@@ -1950,6 +2003,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "1cb6185b-e959-4940-b4a3-bfd48924d529")
 		)
 		(pad "2" smd roundrect
@@ -1969,6 +2026,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "bfe78e83-9090-4680-90e0-d0477feef68d")
 		)
@@ -2097,6 +2158,7 @@
 		(sheetname "Root")
 		(sheetfile "Mitayi-Pico-RP2040.kicad_sch")
 		(attr smd)
+		(duplicate_pad_numbers_are_jumpers yes)
 		(fp_line
 			(start -0.107836 0.36)
 			(end 0.107836 0.36)
@@ -2226,6 +2288,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "c768b18c-1a3b-4122-aea6-d985b7092174")
 		)
 		(pad "2" smd roundrect
@@ -2245,6 +2311,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "1241f453-f10e-4fde-929a-94e3b56ae4d4")
 		)
@@ -2373,6 +2443,7 @@
 		(sheetname "Root")
 		(sheetfile "Mitayi-Pico-RP2040.kicad_sch")
 		(attr smd)
+		(duplicate_pad_numbers_are_jumpers yes)
 		(fp_line
 			(start -0.107836 0.36)
 			(end 0.107836 0.36)
@@ -2502,6 +2573,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "cfcf9c3b-9d0d-4af8-8722-f2e6e16bbc73")
 		)
 		(pad "2" smd roundrect
@@ -2521,6 +2596,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "8e0a5197-85f7-4536-a77a-e93169de9ae4")
 		)
@@ -2595,6 +2674,7 @@
 			)
 		)
 		(attr exclude_from_pos_files exclude_from_bom)
+		(duplicate_pad_numbers_are_jumpers yes)
 		(fp_poly
 			(pts
 				(xy 0.93599 -0.281305) (xy 0.864235 -0.258445) (xy 0.83312 -0.191135) (xy 0.86233 -0.118745) (xy 0.902653 -0.09017)
@@ -2730,6 +2810,7 @@
 			)
 		)
 		(attr exclude_from_pos_files exclude_from_bom)
+		(duplicate_pad_numbers_are_jumpers yes)
 		(fp_poly
 			(pts
 				(xy 0.984885 -0.19685) (xy 0.937895 -0.13462) (xy 0.89027 -0.065405) (xy 0.845185 0.00762) (xy 0.807085 0.08001)
@@ -2971,6 +3052,7 @@
 		(sheetname "Root")
 		(sheetfile "Mitayi-Pico-RP2040.kicad_sch")
 		(attr smd)
+		(duplicate_pad_numbers_are_jumpers yes)
 		(fp_line
 			(start -0.107836 0.36)
 			(end 0.107836 0.36)
@@ -3100,6 +3182,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "4ad37302-8da4-4ffe-843c-07e9044417a0")
 		)
 		(pad "2" smd roundrect
@@ -3119,6 +3205,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "3432b666-8183-4c77-b691-33590b5bdca2")
 		)
@@ -3247,6 +3337,7 @@
 		(sheetname "Root")
 		(sheetfile "Mitayi-Pico-RP2040.kicad_sch")
 		(attr smd)
+		(duplicate_pad_numbers_are_jumpers yes)
 		(fp_line
 			(start -0.153641 0.38)
 			(end 0.153641 0.38)
@@ -3376,6 +3467,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "b1c56c1f-78e9-42b4-bd24-1bff796d37db")
 		)
 		(pad "2" smd roundrect
@@ -3395,6 +3490,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "1b083272-8ff8-4398-93c4-4c8995d45518")
 		)
@@ -3523,6 +3622,7 @@
 		(sheetname "Root")
 		(sheetfile "Mitayi-Pico-RP2040.kicad_sch")
 		(attr smd)
+		(duplicate_pad_numbers_are_jumpers yes)
 		(fp_line
 			(start -0.153641 0.38)
 			(end 0.153641 0.38)
@@ -3652,6 +3752,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "c4641b2d-9f3d-42e4-9d7c-d304f18aa906")
 		)
 		(pad "2" smd roundrect
@@ -3671,6 +3775,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "8f8b4f4c-20d6-4af1-a0fa-7410debc9e2f")
 		)
@@ -3800,6 +3908,7 @@
 		(sheetname "Root")
 		(sheetfile "Mitayi-Pico-RP2040.kicad_sch")
 		(attr exclude_from_pos_files)
+		(duplicate_pad_numbers_are_jumpers yes)
 		(fp_circle
 			(center 0 0)
 			(end 1.1 0)
@@ -3838,6 +3947,10 @@
 			(size 1.5 1.5)
 			(drill 1.5)
 			(layers "*.Cu" "*.Mask")
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "37856bb9-fba8-4cf1-9f79-5b24800b8f10")
 		)
 		(embedded_fonts no)
@@ -3954,6 +4067,7 @@
 		(sheetname "Root")
 		(sheetfile "Mitayi-Pico-RP2040.kicad_sch")
 		(attr smd)
+		(duplicate_pad_numbers_are_jumpers yes)
 		(fp_line
 			(start -0.153641 -0.38)
 			(end 0.153641 -0.38)
@@ -4083,6 +4197,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "f5c2c01d-d83f-4514-a16d-0fa0d3a9a41a")
 		)
 		(pad "2" smd roundrect
@@ -4102,6 +4220,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "d6c8909f-f4a4-49a1-80e9-9509d884e316")
 		)
@@ -4176,6 +4298,7 @@
 			)
 		)
 		(attr exclude_from_pos_files exclude_from_bom)
+		(duplicate_pad_numbers_are_jumpers yes)
 		(fp_poly
 			(pts
 				(xy 0.307261 -0.180023) (xy 0.266144 -0.125571) (xy 0.224473 -0.065008) (xy 0.185023 -0.001111)
@@ -4326,6 +4449,7 @@
 		(sheetname "Root")
 		(sheetfile "Mitayi-Pico-RP2040.kicad_sch")
 		(attr smd)
+		(duplicate_pad_numbers_are_jumpers yes)
 		(fp_line
 			(start -0.107836 -0.36)
 			(end 0.107836 -0.36)
@@ -4455,6 +4579,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "c4a5ce2a-937b-40b5-a9d6-2eeeb9dade08")
 		)
 		(pad "2" smd roundrect
@@ -4474,6 +4602,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "42e09ecd-ce1a-41dc-a459-05eab61c0c2f")
 		)
@@ -4603,6 +4735,7 @@
 		(sheetfile "Mitayi-Pico-RP2040.kicad_sch")
 		(zone_connect 2)
 		(attr smd)
+		(duplicate_pad_numbers_are_jumpers yes)
 		(fp_line
 			(start 3.61 -3.61)
 			(end 3.61 -2.96)
@@ -4791,6 +4924,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "2b4998b7-996b-4c36-a5e1-dab6a376dbea")
 		)
 		(pad "" smd roundrect
@@ -4809,6 +4946,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "defb615a-d63d-4600-8e06-4fe642415073")
 		)
@@ -4829,6 +4970,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "d6fa74ce-2dfc-4493-aa02-b089d37dadf0")
 		)
 		(pad "" smd roundrect
@@ -4847,6 +4992,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "abc6e232-9929-4507-b1e7-e45dc30f3e90")
 		)
@@ -4870,6 +5019,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "bfa0a789-4abb-47fc-bf0a-c6a9f8be5ea1")
 		)
 		(pad "2" smd roundrect
@@ -4891,6 +5044,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "58d1c5ca-479e-4a09-a9e9-f8892b1e7289")
 		)
@@ -4914,6 +5071,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "dbc05fc3-b115-4fab-931f-9833040a7420")
 		)
 		(pad "4" smd roundrect
@@ -4935,6 +5096,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "4689bd79-c8e8-42e8-a920-4331e1ed0dcc")
 		)
@@ -4958,6 +5123,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "15ba9350-c424-4fa5-a3f7-92f2c3fa1a95")
 		)
 		(pad "6" smd roundrect
@@ -4979,6 +5148,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "16183f48-e3f1-4414-a3b8-2969b3250682")
 		)
@@ -5002,6 +5175,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "467bedd9-c2d8-42c6-8ca9-8f60492b672d")
 		)
 		(pad "8" smd roundrect
@@ -5023,6 +5200,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "06e3f982-307e-47e8-a4a8-3082f8423a1f")
 		)
@@ -5046,6 +5227,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "8a81bebf-c159-4b80-86c3-1b3e171b9503")
 		)
 		(pad "10" smd roundrect
@@ -5067,6 +5252,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "41298f2a-d5f1-4af5-a8a1-7d85ab351ade")
 		)
@@ -5090,6 +5279,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "b75ce001-171a-4aec-8fbd-c24d1aaccc35")
 		)
 		(pad "12" smd roundrect
@@ -5111,6 +5304,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "6bf2ef1a-d67e-431b-9996-b30f9629dde8")
 		)
@@ -5134,6 +5331,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "dc335f77-f328-4d99-8d5d-294f4e74c977")
 		)
 		(pad "14" smd roundrect
@@ -5155,6 +5356,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "e4837ee2-5ab9-49c3-bfd4-58d73c5b7def")
 		)
@@ -5178,6 +5383,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "9d750372-54b1-4c5c-926b-07828d2085d4")
 		)
 		(pad "16" smd roundrect
@@ -5199,6 +5408,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "0fb3b8a3-d12a-4cbc-84c8-df5cb0501ed3")
 		)
@@ -5222,6 +5435,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "4276dff6-5e35-4b69-93de-140fce1f59bf")
 		)
 		(pad "18" smd roundrect
@@ -5243,6 +5460,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "bd63fa7f-832c-4f5c-968a-a4c6a19f0a34")
 		)
@@ -5266,6 +5487,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "e1dadb06-7852-4e90-86da-62d37062dac4")
 		)
 		(pad "20" smd roundrect
@@ -5287,6 +5512,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "0bf4e11d-4399-4c40-85e4-fe8da0a0776b")
 		)
@@ -5310,6 +5539,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "5f338d2e-c744-4666-8659-5a270fc37213")
 		)
 		(pad "22" smd roundrect
@@ -5331,6 +5564,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "4dd18e2d-a319-4cce-a757-d7e33522ee60")
 		)
@@ -5354,6 +5591,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "09d03771-9948-4820-9f35-8d6d02f93912")
 		)
 		(pad "24" smd roundrect
@@ -5375,6 +5616,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "3d145dce-48c8-4e2a-82db-7ecc43868a8c")
 		)
@@ -5398,6 +5643,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "879f5dd2-80ab-4c73-b858-ed2a81c2a42d")
 		)
 		(pad "26" smd roundrect
@@ -5419,6 +5668,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "a9001365-0f10-4405-a175-65569d254340")
 		)
@@ -5442,6 +5695,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "fea1039d-f778-47c7-9466-9b7499390023")
 		)
 		(pad "28" smd roundrect
@@ -5463,6 +5720,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "1f061c74-62ed-4a9b-a359-6adf4b7d676d")
 		)
@@ -5486,6 +5747,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "79680d25-f796-4912-8da2-1f2a029248e5")
 		)
 		(pad "30" smd roundrect
@@ -5507,6 +5772,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "9a18b203-68d2-42ba-b7ea-03016dcfd4dd")
 		)
@@ -5530,6 +5799,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "d4fdb02d-a584-4831-85fc-5bc1ede0d11f")
 		)
 		(pad "32" smd roundrect
@@ -5551,6 +5824,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "6815c771-26cb-4b6a-a542-fb7c7e8ce0a4")
 		)
@@ -5574,6 +5851,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "4edf015b-2aca-4e8d-96cf-e1fad79f9f08")
 		)
 		(pad "34" smd roundrect
@@ -5595,6 +5876,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "f5137307-34f2-40af-978f-8eaee44377dc")
 		)
@@ -5618,6 +5903,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "765fe4be-9922-492b-bec8-5cd79720c699")
 		)
 		(pad "36" smd roundrect
@@ -5639,6 +5928,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "482f5634-e66b-4242-93ef-923073414ec2")
 		)
@@ -5662,6 +5955,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "4d9e9bf7-705a-48f3-b350-b5239b0a4547")
 		)
 		(pad "38" smd roundrect
@@ -5683,6 +5980,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "ed32ec9e-7abe-4a0c-af44-60227740a3cb")
 		)
@@ -5706,6 +6007,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "14ae9277-488a-4ed5-8930-7c4e1cf58f71")
 		)
 		(pad "40" smd roundrect
@@ -5727,6 +6032,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "7b409e7e-c882-4da2-abac-07c497fa25e3")
 		)
@@ -5750,6 +6059,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "6013f3a2-9702-4626-962b-aaf08cc74a08")
 		)
 		(pad "42" smd roundrect
@@ -5771,6 +6084,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "934ad662-4ee9-46af-93d6-8c94d9048982")
 		)
@@ -5794,6 +6111,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "b5e031d2-10ae-4df7-ba1b-4fc5fd6900ce")
 		)
 		(pad "44" smd roundrect
@@ -5815,6 +6136,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "ad4b01fd-1774-4ae8-ba7b-fdf71305b169")
 		)
@@ -5838,6 +6163,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "3dc180f7-83e6-450c-aa8f-856577829527")
 		)
 		(pad "46" smd roundrect
@@ -5859,6 +6188,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "68045ae0-dfd6-4bd3-8766-122a826a22b2")
 		)
@@ -5882,6 +6215,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "ffcfa5f4-6b8d-4b4b-8ea4-8905a3b2cdd0")
 		)
 		(pad "48" smd roundrect
@@ -5903,6 +6240,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "5f43016e-afa2-4705-aa86-fd403d11ef73")
 		)
@@ -5926,6 +6267,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "3bdd5c72-4b12-4fd5-994d-051b3384c56a")
 		)
 		(pad "50" smd roundrect
@@ -5947,6 +6292,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "e2746c43-c809-4437-892e-a3025eb949bb")
 		)
@@ -5970,6 +6319,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "bdbed15f-7c99-4390-8918-b785724346fd")
 		)
 		(pad "52" smd roundrect
@@ -5991,6 +6344,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "6e986c0a-1e8e-4f1f-8c2c-50984d1ceff6")
 		)
@@ -6014,6 +6371,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "d59b0e9a-6b8e-47ff-8030-5689d3a8f32f")
 		)
 		(pad "54" smd roundrect
@@ -6035,6 +6396,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "15358504-9774-4688-b442-3988e932f620")
 		)
@@ -6058,6 +6423,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "8960ce71-7970-4729-af51-14136cd0fe3a")
 		)
 		(pad "56" smd roundrect
@@ -6079,6 +6448,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "a540c6e2-3a2d-4968-9b1f-2b3081decc16")
 		)
@@ -6103,6 +6476,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "c735653c-07aa-44a4-988e-974c9d07cc24")
 		)
 		(pad "57" thru_hole circle
@@ -6125,6 +6502,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "4a181583-b5c0-477a-9a86-f212a7056d3d")
 		)
@@ -6149,6 +6530,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "b23bdc2f-3656-453d-b433-30065e18ed76")
 		)
 		(pad "57" thru_hole circle
@@ -6171,6 +6556,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "1279db48-be0c-4c3a-812d-246cc81f1b39")
 		)
@@ -6195,6 +6584,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "23a7cc48-cf09-4001-b4f4-e15346e97a3d")
 		)
 		(pad "57" smd roundrect
@@ -6216,6 +6609,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "8b7fca07-f20e-4773-9e74-19974d5d7823")
 		)
@@ -6240,6 +6637,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "30d99386-7df8-41d4-928c-dbbc0bb3be5c")
 		)
 		(pad "57" thru_hole circle
@@ -6262,6 +6663,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "1cc100f4-f0af-4e2e-a576-6badf8fffb3e")
 		)
@@ -6286,6 +6691,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "7df64db4-9ff3-49d7-afa9-3159df7bc812")
 		)
 		(pad "57" thru_hole circle
@@ -6308,6 +6717,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "e9897bf5-8ff8-4b2e-aebb-c861384f468c")
 		)
@@ -6436,6 +6849,7 @@
 		(sheetname "Root")
 		(sheetfile "Mitayi-Pico-RP2040.kicad_sch")
 		(attr smd)
+		(duplicate_pad_numbers_are_jumpers yes)
 		(fp_line
 			(start -0.153641 -0.38)
 			(end 0.153641 -0.38)
@@ -6565,6 +6979,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "7a02cb46-abc8-4969-944c-619ac8b17fd9")
 		)
 		(pad "2" smd roundrect
@@ -6584,6 +7002,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "6a6cbc57-44b3-4315-819a-c7e7590cbe4d")
 		)
@@ -6712,6 +7134,7 @@
 		(sheetname "Root")
 		(sheetfile "Mitayi-Pico-RP2040.kicad_sch")
 		(attr smd)
+		(duplicate_pad_numbers_are_jumpers yes)
 		(fp_line
 			(start -0.107836 -0.36)
 			(end 0.107836 -0.36)
@@ -6841,6 +7264,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "0e0fb9ba-3ca1-41cc-bd88-f807e140633f")
 		)
 		(pad "2" smd roundrect
@@ -6860,6 +7287,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "b57d717b-2ba1-42b1-a59d-55c6097b6ae8")
 		)
@@ -6989,6 +7420,7 @@
 		(sheetname "Root")
 		(sheetfile "Mitayi-Pico-RP2040.kicad_sch")
 		(attr smd)
+		(duplicate_pad_numbers_are_jumpers yes)
 		(fp_line
 			(start 2.725 2.725)
 			(end 2.725 2.465)
@@ -7199,6 +7631,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "95e41c50-b0b5-4468-bb62-9b9d9d999bca")
 		)
 		(pad "2" smd roundrect
@@ -7219,6 +7655,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "c6f164e7-69b0-4298-b0dd-fa8742885f75")
 		)
@@ -7241,6 +7681,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "e14d0d82-aeca-43f5-b3d8-c20c04df49e3")
 		)
 		(pad "4" smd roundrect
@@ -7261,6 +7705,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "23fadad0-29b2-43fa-a4a3-0dd69a0c7ede")
 		)
@@ -7283,6 +7731,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "0e88236b-a316-48d7-9c11-3dbd24f8c0c7")
 		)
 		(pad "6" smd roundrect
@@ -7303,6 +7755,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "a1d5fa93-600e-4b53-9fc6-8f95f48aaf10")
 		)
@@ -7325,6 +7781,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "9bdc0ef0-d88f-4cd1-bf50-421011d6e1eb")
 		)
 		(pad "8" smd roundrect
@@ -7345,6 +7805,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "f23aefe8-5e41-42bb-b65e-cc92ad7af0cf")
 		)
@@ -7473,6 +7937,7 @@
 		(sheetname "Root")
 		(sheetfile "Mitayi-Pico-RP2040.kicad_sch")
 		(attr smd)
+		(duplicate_pad_numbers_are_jumpers yes)
 		(fp_line
 			(start -0.107836 0.36)
 			(end 0.107836 0.36)
@@ -7602,6 +8067,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "1abb7d58-3c61-4dda-baad-4794fdeea05c")
 		)
 		(pad "2" smd roundrect
@@ -7621,6 +8090,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "fde6f18b-8b95-4eef-8c35-0293e5a16bbf")
 		)
@@ -7749,6 +8222,7 @@
 		(sheetname "Root")
 		(sheetfile "Mitayi-Pico-RP2040.kicad_sch")
 		(attr smd dnp)
+		(duplicate_pad_numbers_are_jumpers yes)
 		(fp_line
 			(start -0.153641 0.38)
 			(end 0.153641 0.38)
@@ -7878,6 +8352,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "e5181493-568d-4625-bf5c-bbae9080d8f8")
 		)
 		(pad "2" smd roundrect
@@ -7897,6 +8375,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "5704002c-029d-44e7-870e-8c81b21af233")
 		)
@@ -8025,6 +8507,7 @@
 		(sheetname "Root")
 		(sheetfile "Mitayi-Pico-RP2040.kicad_sch")
 		(attr smd)
+		(duplicate_pad_numbers_are_jumpers yes)
 		(fp_line
 			(start -0.107836 0.36)
 			(end 0.107836 0.36)
@@ -8154,6 +8637,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "06c02969-b84a-480a-b676-20bcd0734c07")
 		)
 		(pad "2" smd roundrect
@@ -8173,6 +8660,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "92d2ae26-81ea-40bb-a24e-9cc0fe15627a")
 		)
@@ -8301,6 +8792,7 @@
 		(sheetname "Root")
 		(sheetfile "Mitayi-Pico-RP2040.kicad_sch")
 		(attr smd)
+		(duplicate_pad_numbers_are_jumpers yes)
 		(fp_line
 			(start -0.107836 -0.36)
 			(end 0.107836 -0.36)
@@ -8430,6 +8922,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "46d47df2-1b8f-4dfc-8617-2b43ba898655")
 		)
 		(pad "2" smd roundrect
@@ -8449,6 +8945,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "ec037807-b85d-40ed-b94c-e909ad0ef802")
 		)
@@ -8578,6 +9078,7 @@
 		(sheetname "Root")
 		(sheetfile "Mitayi-Pico-RP2040.kicad_sch")
 		(attr through_hole)
+		(duplicate_pad_numbers_are_jumpers no)
 		(fp_line
 			(start -1.23 -1.33)
 			(end 0.7 -1.33)
@@ -8709,6 +9210,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "10a4d11d-a9d5-497b-a1ea-20651f5a19af")
 		)
 		(pad "1" thru_hole oval
@@ -8730,6 +9235,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "0963637c-89f6-4e70-a51d-c4de63ce6ce3")
 		)
@@ -8753,6 +9262,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "65bacb04-9ffd-4161-88c7-047eacf299e4")
 		)
 		(pad "2" thru_hole oval
@@ -8774,6 +9287,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "2851e03d-54d1-4849-8bd4-ea14739b86b9")
 		)
@@ -8797,6 +9314,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "aa132429-1672-42df-892c-3e73bd5cdfd0")
 		)
 		(pad "3" thru_hole oval
@@ -8818,6 +9339,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "6a386be4-52b0-4675-8808-05a5353a59a0")
 		)
@@ -8958,6 +9483,7 @@
 		(sheetname "Root")
 		(sheetfile "Mitayi-Pico-RP2040.kicad_sch")
 		(attr smd)
+		(duplicate_pad_numbers_are_jumpers no)
 		(fp_line
 			(start -0.167621 0.38)
 			(end 0.167621 0.38)
@@ -9088,6 +9614,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "4f7a11a6-692a-465b-975a-5f0e68ffbab1")
 		)
 		(pad "2" smd roundrect
@@ -9108,6 +9638,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "3fb2b430-1e8f-492e-9bc1-3c4db42aa473")
 		)
@@ -9236,6 +9770,7 @@
 		(sheetname "Root")
 		(sheetfile "Mitayi-Pico-RP2040.kicad_sch")
 		(attr smd)
+		(duplicate_pad_numbers_are_jumpers yes)
 		(fp_line
 			(start -0.153641 -0.38)
 			(end 0.153641 -0.38)
@@ -9365,6 +9900,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "386c5e82-d90e-47c2-ab39-84176e1f6359")
 		)
 		(pad "2" smd roundrect
@@ -9384,6 +9923,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "2dcb1264-5473-4036-ac1b-896311a56c85")
 		)
@@ -9512,6 +10055,7 @@
 		(sheetname "Root")
 		(sheetfile "Mitayi-Pico-RP2040.kicad_sch")
 		(attr smd)
+		(duplicate_pad_numbers_are_jumpers yes)
 		(fp_line
 			(start -0.107836 0.36)
 			(end 0.107836 0.36)
@@ -9641,6 +10185,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "68cfc532-f537-447b-a4a3-4a5d2cb1758c")
 		)
 		(pad "2" smd roundrect
@@ -9660,6 +10208,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "ffa08517-95cf-4216-b6f4-15afaee2733b")
 		)
@@ -9788,6 +10340,7 @@
 		(sheetname "Root")
 		(sheetfile "Mitayi-Pico-RP2040.kicad_sch")
 		(attr smd)
+		(duplicate_pad_numbers_are_jumpers yes)
 		(fp_line
 			(start -0.107836 -0.36)
 			(end 0.107836 -0.36)
@@ -9917,6 +10470,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "41727077-4b95-4599-b19f-eb7eaf65ced5")
 		)
 		(pad "2" smd roundrect
@@ -9936,6 +10493,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "d4ea5a34-c4f4-492a-93f6-ed0112477b8e")
 		)
@@ -10065,6 +10626,7 @@
 		(sheetname "Root")
 		(sheetfile "Mitayi-Pico-RP2040.kicad_sch")
 		(attr smd)
+		(duplicate_pad_numbers_are_jumpers yes)
 		(fp_line
 			(start -0.14058 -0.51)
 			(end 0.14058 -0.51)
@@ -10194,6 +10756,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "8cba06cd-574c-40ee-9038-96cbf30ac4b8")
 		)
 		(pad "2" smd roundrect
@@ -10213,6 +10779,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "60c2a0de-669d-4188-9a1a-8aaebb13dcfe")
 		)
@@ -10342,6 +10912,7 @@
 		(sheetname "Root")
 		(sheetfile "Mitayi-Pico-RP2040.kicad_sch")
 		(attr exclude_from_pos_files)
+		(duplicate_pad_numbers_are_jumpers yes)
 		(fp_circle
 			(center 0 0)
 			(end 1.1 0)
@@ -10380,6 +10951,10 @@
 			(size 1.5 1.5)
 			(drill 1.5)
 			(layers "*.Cu" "*.Mask")
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "9c29b255-bcea-41a5-b886-b30126501ee3")
 		)
 		(embedded_fonts no)
@@ -10498,6 +11073,7 @@
 		(sheetname "Root")
 		(sheetfile "Mitayi-Pico-RP2040.kicad_sch")
 		(attr smd)
+		(duplicate_pad_numbers_are_jumpers yes)
 		(fp_line
 			(start -4.7 3.9)
 			(end 4.7 3.9)
@@ -10689,6 +11265,10 @@
 			(size 0.65 0.65)
 			(drill 0.65)
 			(layers "*.Cu" "*.Mask")
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "0862a4bd-a6ca-40ef-863a-dce385f43fce")
 		)
 		(pad "" np_thru_hole circle
@@ -10696,6 +11276,10 @@
 			(size 0.65 0.65)
 			(drill 0.65)
 			(layers "*.Cu" "*.Mask")
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "625abb2f-0448-4da0-81f3-2d5c5cb5f2a8")
 		)
 		(pad "A1" smd rect
@@ -10705,6 +11289,10 @@
 			(net 2 "GND")
 			(pinfunction "GND")
 			(pintype "passive")
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "5c859452-685b-4775-830f-3b9b9fc8d540")
 		)
 		(pad "A4" smd rect
@@ -10714,6 +11302,10 @@
 			(net 4 "VBUS")
 			(pinfunction "VBUS")
 			(pintype "passive")
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "00090349-2d5c-4b98-9b2d-4fdb0ee6f228")
 		)
 		(pad "A5" smd rect
@@ -10723,6 +11315,10 @@
 			(net 56 "Net-(J2-CC1)")
 			(pinfunction "CC1")
 			(pintype "bidirectional")
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "d1397f68-2919-4ea3-b3d0-5b195ee76317")
 		)
 		(pad "A6" smd rect
@@ -10732,6 +11328,10 @@
 			(net 8 "/USB_D+")
 			(pinfunction "D+")
 			(pintype "bidirectional")
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "b01971af-edf7-4e8b-9e54-7cae91021369")
 		)
 		(pad "A7" smd rect
@@ -10741,6 +11341,10 @@
 			(net 9 "/USB_D-")
 			(pinfunction "D-")
 			(pintype "bidirectional")
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "079ccfb2-cade-4704-aa03-65bfe22b7b64")
 		)
 		(pad "A8" smd rect
@@ -10750,6 +11354,10 @@
 			(net 60 "unconnected-(J2-SBU1-PadA8)")
 			(pinfunction "SBU1")
 			(pintype "bidirectional+no_connect")
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "4a257fef-fc78-485f-b2b5-6d449111100e")
 		)
 		(pad "A9" smd rect
@@ -10759,6 +11367,10 @@
 			(net 4 "VBUS")
 			(pinfunction "VBUS")
 			(pintype "passive")
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "56e00c30-49aa-4326-8238-d7fcedeb2347")
 		)
 		(pad "A12" smd rect
@@ -10768,6 +11380,10 @@
 			(net 2 "GND")
 			(pinfunction "GND")
 			(pintype "passive")
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "9a27b9c5-372e-42b7-b44b-879d657f4311")
 		)
 		(pad "B1" smd rect
@@ -10777,6 +11393,10 @@
 			(net 2 "GND")
 			(pinfunction "GND")
 			(pintype "passive")
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "a12ec71b-d29f-4412-bfe7-b3acd671c011")
 		)
 		(pad "B4" smd rect
@@ -10786,6 +11406,10 @@
 			(net 4 "VBUS")
 			(pinfunction "VBUS")
 			(pintype "passive")
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "d38ecdde-cb28-40bb-8aa0-f2a34ecd22fc")
 		)
 		(pad "B5" smd rect
@@ -10795,6 +11419,10 @@
 			(net 58 "Net-(J2-CC2)")
 			(pinfunction "CC2")
 			(pintype "bidirectional")
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "8df92a61-20e2-4e9e-9caa-17d0e6bca466")
 		)
 		(pad "B6" smd rect
@@ -10804,6 +11432,10 @@
 			(net 8 "/USB_D+")
 			(pinfunction "D+")
 			(pintype "bidirectional")
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "ad760477-941b-43d7-a885-426f17694f6b")
 		)
 		(pad "B7" smd rect
@@ -10813,6 +11445,10 @@
 			(net 9 "/USB_D-")
 			(pinfunction "D-")
 			(pintype "bidirectional")
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "0e7460a1-fed7-470d-9ada-f1cb5ba31379")
 		)
 		(pad "B8" smd rect
@@ -10822,6 +11458,10 @@
 			(net 57 "unconnected-(J2-SBU2-PadB8)")
 			(pinfunction "SBU2")
 			(pintype "bidirectional+no_connect")
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "e6eac917-2007-4e2b-a921-a1ee0bf4b460")
 		)
 		(pad "B9" smd rect
@@ -10831,6 +11471,10 @@
 			(net 4 "VBUS")
 			(pinfunction "VBUS")
 			(pintype "passive")
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "249728fa-0b1c-4424-b18b-2b6c0a4f5477")
 		)
 		(pad "B12" smd rect
@@ -10840,6 +11484,10 @@
 			(net 2 "GND")
 			(pinfunction "GND")
 			(pintype "passive")
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "ad9e8801-a7a1-49d4-bda1-8a27fcf79241")
 		)
 		(pad "S1" thru_hole oval
@@ -10851,6 +11499,10 @@
 			(net 2 "GND")
 			(pinfunction "SHIELD")
 			(pintype "passive")
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "172dd3a3-20d2-4e98-b28a-52c5e7307b38")
 		)
 		(pad "S1" thru_hole oval
@@ -10862,6 +11514,10 @@
 			(net 2 "GND")
 			(pinfunction "SHIELD")
 			(pintype "passive")
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "2eb6b3f1-e6c6-4af7-8ed1-ee347d92b5fe")
 		)
 		(pad "S1" thru_hole oval
@@ -10873,6 +11529,10 @@
 			(net 2 "GND")
 			(pinfunction "SHIELD")
 			(pintype "passive")
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "2d0cc2f0-39a2-4cee-8e54-cfbff91041bb")
 		)
 		(pad "S1" thru_hole oval
@@ -10884,6 +11544,10 @@
 			(net 2 "GND")
 			(pinfunction "SHIELD")
 			(pintype "passive")
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "ba6c2d14-6ccc-41c7-bd7d-7be5d3370589")
 		)
 		(embedded_fonts no)
@@ -11011,6 +11675,7 @@
 		(sheetname "Root")
 		(sheetfile "Mitayi-Pico-RP2040.kicad_sch")
 		(attr exclude_from_pos_files)
+		(duplicate_pad_numbers_are_jumpers yes)
 		(fp_line
 			(start 0.995 0.7)
 			(end -1.005 0.7)
@@ -11376,6 +12041,10 @@
 			(net 32 "/~{USB_BOOT}")
 			(pinfunction "A")
 			(pintype "passive")
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "855810c0-223d-4f5c-81ab-83c54dddca2e")
 		)
 		(pad "2" smd rect
@@ -11385,6 +12054,10 @@
 			(net 61 "Net-(JP6-C)")
 			(pinfunction "C")
 			(pintype "input")
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "84acda1d-b17d-4bd3-aec9-2fe3ccee65bf")
 		)
 		(pad "3" smd roundrect
@@ -11397,6 +12070,10 @@
 			(net 14 "/GPIO2")
 			(pinfunction "B")
 			(pintype "passive")
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "d81c66fc-66ed-407a-b52a-256198a6fd72")
 		)
 		(group ""
@@ -11535,6 +12212,7 @@
 		(sheetname "Root")
 		(sheetfile "Mitayi-Pico-RP2040.kicad_sch")
 		(attr smd)
+		(duplicate_pad_numbers_are_jumpers yes)
 		(fp_line
 			(start -0.107836 0.36)
 			(end 0.107836 0.36)
@@ -11664,6 +12342,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "86a1cfe9-cc70-4743-892e-467465861793")
 		)
 		(pad "2" smd roundrect
@@ -11683,6 +12365,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "e40d6376-efca-4055-a0ea-6e2199ffee24")
 		)
@@ -11811,6 +12497,7 @@
 		(sheetname "Root")
 		(sheetfile "Mitayi-Pico-RP2040.kicad_sch")
 		(attr smd)
+		(duplicate_pad_numbers_are_jumpers yes)
 		(fp_line
 			(start -0.167621 -0.38)
 			(end 0.167621 -0.38)
@@ -11941,6 +12628,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "21eb120a-0d45-4466-9295-ab0ea383b27a")
 		)
 		(pad "2" smd roundrect
@@ -11961,6 +12652,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "a01b860a-e27c-4e8d-b73d-f27c2c089335")
 		)
@@ -12089,6 +12784,7 @@
 		(sheetname "Root")
 		(sheetfile "Mitayi-Pico-RP2040.kicad_sch")
 		(attr smd)
+		(duplicate_pad_numbers_are_jumpers no)
 		(fp_line
 			(start -0.153641 0.38)
 			(end 0.153641 0.38)
@@ -12218,6 +12914,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "257f1667-ab28-46dd-800e-70ab1c99e916")
 		)
 		(pad "2" smd roundrect
@@ -12237,6 +12937,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "a48083cc-9038-49aa-bb8e-6ba09cc37b6c")
 		)
@@ -12365,6 +13069,7 @@
 		(sheetname "Root")
 		(sheetfile "Mitayi-Pico-RP2040.kicad_sch")
 		(attr smd)
+		(duplicate_pad_numbers_are_jumpers yes)
 		(fp_line
 			(start -2 -1.65)
 			(end -2 1.65)
@@ -12504,6 +13209,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "655aef24-8b7e-4899-89c7-92675d9bd40a")
 		)
 		(pad "2" smd rect
@@ -12523,6 +13232,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "fb2b2315-24c3-4a69-a6ed-bd74ba463f20")
 		)
@@ -12544,6 +13257,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "e1527a03-ae66-415f-a6ff-135e340db98b")
 		)
 		(pad "4" smd rect
@@ -12563,6 +13280,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "a5274302-e9a8-4923-a83f-3fc1594107a0")
 		)
@@ -12691,6 +13412,7 @@
 		(sheetname "Root")
 		(sheetfile "Mitayi-Pico-RP2040.kicad_sch")
 		(attr smd)
+		(duplicate_pad_numbers_are_jumpers yes)
 		(fp_line
 			(start -0.153641 0.38)
 			(end 0.153641 0.38)
@@ -12820,6 +13542,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "2e45803f-c574-4e26-a0b4-6174ea3990b5")
 		)
 		(pad "2" smd roundrect
@@ -12839,6 +13565,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "ca290370-14ac-461f-9c91-ef5f484b4cd7")
 		)
@@ -12967,6 +13697,7 @@
 		(sheetname "Root")
 		(sheetfile "Mitayi-Pico-RP2040.kicad_sch")
 		(attr smd)
+		(duplicate_pad_numbers_are_jumpers yes)
 		(fp_line
 			(start -1.9 0.85)
 			(end 1.25 0.85)
@@ -13166,6 +13897,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "e5f37493-f8de-4e54-ad0a-6594f2f221a5")
 		)
 		(pad "2" smd rect
@@ -13185,6 +13920,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "af846574-c0ba-49fd-8fa0-136a75a60fcc")
 		)
@@ -13313,6 +14052,7 @@
 		(sheetname "Root")
 		(sheetfile "Mitayi-Pico-RP2040.kicad_sch")
 		(attr smd)
+		(duplicate_pad_numbers_are_jumpers yes)
 		(fp_line
 			(start 0.8 -0.735)
 			(end -1.485 -0.735)
@@ -13463,6 +14203,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "84c45562-9cee-4e7b-a421-5e0110477b96")
 		)
 		(pad "2" smd roundrect
@@ -13483,6 +14227,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "111a1b35-926e-4958-a3ed-aa1111139f88")
 		)
@@ -13612,6 +14360,7 @@
 		(sheetname "Root")
 		(sheetfile "Mitayi-Pico-RP2040.kicad_sch")
 		(attr exclude_from_pos_files)
+		(duplicate_pad_numbers_are_jumpers yes)
 		(fp_circle
 			(center 0 0)
 			(end 1.1 0)
@@ -13650,6 +14399,10 @@
 			(size 1.5 1.5)
 			(drill 1.5)
 			(layers "*.Cu" "*.Mask")
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "7cdd8820-1c03-4b2d-8a3d-2ed3667d0c36")
 		)
 		(embedded_fonts no)
@@ -13712,6 +14465,7 @@
 			)
 		)
 		(attr exclude_from_pos_files exclude_from_bom)
+		(duplicate_pad_numbers_are_jumpers yes)
 		(fp_poly
 			(pts
 				(xy -0.502841 -0.46691) (xy -0.430609 -0.351155) (xy -0.062786 -0.351155) (xy -0.062786 0.10668)
@@ -13854,6 +14608,7 @@
 		(sheetname "Root")
 		(sheetfile "Mitayi-Pico-RP2040.kicad_sch")
 		(attr exclude_from_pos_files)
+		(duplicate_pad_numbers_are_jumpers yes)
 		(fp_circle
 			(center 0 0)
 			(end 1.1 0)
@@ -13892,6 +14647,10 @@
 			(size 1.5 1.5)
 			(drill 1.5)
 			(layers "*.Cu" "*.Mask")
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "08ce27a4-f71a-4cc0-92bb-9cb3e091a586")
 		)
 		(embedded_fonts no)
@@ -14007,6 +14766,7 @@
 		(sheetname "Root")
 		(sheetfile "Mitayi-Pico-RP2040.kicad_sch")
 		(attr smd)
+		(duplicate_pad_numbers_are_jumpers yes)
 		(fp_line
 			(start -2.95 -0.6)
 			(end -2.95 0.6)
@@ -14227,6 +14987,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "a85026d7-25e1-45da-8260-b41510651b0c")
 		)
 		(pad "2" smd rect
@@ -14246,6 +15010,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "19be6c1c-4ac0-4792-a629-68a028cd7f3c")
 		)
@@ -14374,6 +15142,7 @@
 		(sheetname "Root")
 		(sheetfile "Mitayi-Pico-RP2040.kicad_sch")
 		(attr smd)
+		(duplicate_pad_numbers_are_jumpers yes)
 		(fp_line
 			(start -0.107836 -0.36)
 			(end 0.107836 -0.36)
@@ -14503,6 +15272,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "7ea6de9f-a8a6-4e65-a064-5718aace9db7")
 		)
 		(pad "2" smd roundrect
@@ -14522,6 +15295,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "ae20887e-0618-406a-8846-cf92a0ce7426")
 		)
@@ -14596,6 +15373,7 @@
 			)
 		)
 		(attr exclude_from_pos_files exclude_from_bom)
+		(duplicate_pad_numbers_are_jumpers yes)
 		(fp_poly
 			(pts
 				(xy -0.490617 -0.126683) (xy -0.498951 -0.173911) (xy -0.523954 -0.206693) (xy -0.56257 -0.225862)
@@ -14764,6 +15542,7 @@
 		(sheetname "Root")
 		(sheetfile "Mitayi-Pico-RP2040.kicad_sch")
 		(attr smd)
+		(duplicate_pad_numbers_are_jumpers yes)
 		(fp_line
 			(start -0.107836 0.36)
 			(end 0.107836 0.36)
@@ -14893,6 +15672,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "c0cdd0ae-11f3-446a-8677-5fc9e65c5546")
 		)
 		(pad "2" smd roundrect
@@ -14912,6 +15695,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "150ebc0d-b2fd-40b3-8aff-2258f708b2dc")
 		)
@@ -15040,6 +15827,7 @@
 		(sheetname "Root")
 		(sheetfile "Mitayi-Pico-RP2040.kicad_sch")
 		(attr smd)
+		(duplicate_pad_numbers_are_jumpers yes)
 		(fp_line
 			(start -0.153641 -0.38)
 			(end 0.153641 -0.38)
@@ -15169,6 +15957,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "2a4cfefa-d12d-410f-a807-bc1aff99136a")
 		)
 		(pad "2" smd roundrect
@@ -15188,6 +15980,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "10910c60-4470-43c8-80a3-16b9ab091ebe")
 		)
@@ -15262,6 +16058,7 @@
 			)
 		)
 		(attr exclude_from_pos_files exclude_from_bom)
+		(duplicate_pad_numbers_are_jumpers yes)
 		(fp_poly
 			(pts
 				(xy -0.929561 0.232251) (xy -0.917337 0.233363) (xy -0.905113 0.233363) (xy -0.82677 0.215583) (xy -0.775652 0.166688)
@@ -15384,6 +16181,7 @@
 			)
 		)
 		(attr board_only exclude_from_pos_files exclude_from_bom)
+		(duplicate_pad_numbers_are_jumpers yes)
 		(fp_poly
 			(pts
 				(xy -2.041213 0.328927) (xy -1.871695 0.328927) (xy -1.800933 0.307932) (xy -1.779938 0.23717) (xy -1.779938 -0.23717)
@@ -15596,6 +16394,7 @@
 		(sheetname "Root")
 		(sheetfile "Mitayi-Pico-RP2040.kicad_sch")
 		(attr through_hole)
+		(duplicate_pad_numbers_are_jumpers yes)
 		(fp_line
 			(start 1.8 -1.8)
 			(end -1.8 -1.8)
@@ -15717,6 +16516,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "1c317e53-f4b7-485f-bacb-c8f0b137a43b")
 		)
 		(pad "1" thru_hole oval
@@ -15738,6 +16541,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "5df6d07c-a5d8-4539-9ee6-eba2069d4d7a")
 		)
@@ -15761,6 +16568,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "275914f5-d95c-4c64-adb7-3a42b845fea0")
 		)
 		(pad "2" thru_hole oval
@@ -15782,6 +16593,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "5bca3e97-d618-480f-8b08-8a1ebb7bb758")
 		)
@@ -15805,6 +16620,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "2003ff7c-6d23-4f35-8043-debb5588f9db")
 		)
 		(pad "3" thru_hole oval
@@ -15826,6 +16645,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "82111350-320c-4231-8219-53c3e08a7c76")
 		)
@@ -15849,6 +16672,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "09b2106a-2d2a-4306-8ae8-19f3ce072baf")
 		)
 		(pad "4" thru_hole oval
@@ -15870,6 +16697,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "5efdfbe4-ca56-4771-b266-cf633bf61249")
 		)
@@ -15893,6 +16724,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "7674c86a-6394-42f6-b2c9-64c8b7f69b93")
 		)
 		(pad "5" thru_hole oval
@@ -15914,6 +16749,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "0a200d9a-cff5-4759-987a-20f41df21078")
 		)
@@ -15937,6 +16776,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "b74ad73d-9f0c-4082-84f4-39e27bd28852")
 		)
 		(pad "6" thru_hole oval
@@ -15958,6 +16801,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "49812b66-8c03-4873-a981-85b7b876ab64")
 		)
@@ -15981,6 +16828,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "248423b2-b2c7-4c2d-bce6-9563e04bd463")
 		)
 		(pad "7" thru_hole oval
@@ -16002,6 +16853,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "74b08e4e-12c8-4000-b85e-53dab6c45232")
 		)
@@ -16025,6 +16880,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "5412fb09-d83f-478f-8d3d-2ffd7c561356")
 		)
 		(pad "8" thru_hole oval
@@ -16046,6 +16905,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "633c7ed4-c28a-417d-b413-6a255cc672fa")
 		)
@@ -16069,6 +16932,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "bf3f1c4f-d4e0-43eb-9ed1-76593bbb2fab")
 		)
 		(pad "9" thru_hole oval
@@ -16090,6 +16957,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "8423e2ad-4765-4fc5-b971-1066cda33991")
 		)
@@ -16113,6 +16984,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "aeeb9ed9-ffbe-4440-893e-da3bef17bc16")
 		)
 		(pad "10" thru_hole oval
@@ -16134,6 +17009,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "c898193e-357c-4f5c-a29b-932a7d4aade6")
 		)
@@ -16157,6 +17036,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "0337e059-8d6c-4713-89c3-1b3c2a60ee14")
 		)
 		(pad "11" thru_hole oval
@@ -16178,6 +17061,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "31430eec-418e-4ea3-83b7-74785fb1ed05")
 		)
@@ -16201,6 +17088,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "4ac117ba-b3ae-422c-aade-4051d32c2fab")
 		)
 		(pad "12" thru_hole oval
@@ -16222,6 +17113,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "546434ef-e2f5-40e0-9fa0-3510db53f503")
 		)
@@ -16245,6 +17140,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "a45a2184-3514-461a-ad52-341159bbfea1")
 		)
 		(pad "13" thru_hole oval
@@ -16266,6 +17165,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "a94ad475-9520-4e0f-a18d-23c7b2c75708")
 		)
@@ -16289,6 +17192,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "81676d60-e472-4657-892f-070929d3ef5d")
 		)
 		(pad "14" thru_hole oval
@@ -16310,6 +17217,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "e6432619-c9b9-4dcc-8871-22e30d3111ac")
 		)
@@ -16333,6 +17244,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "d8945ff9-1dd1-4d1b-a68f-f6de3d0540f6")
 		)
 		(pad "15" thru_hole oval
@@ -16354,6 +17269,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "f15372f1-295d-445e-a912-0016a27a1bba")
 		)
@@ -16377,6 +17296,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "42c273af-c326-41fb-8e60-1f725b131ca7")
 		)
 		(pad "16" thru_hole oval
@@ -16398,6 +17321,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "abd36a16-cc1a-4919-b9da-a188605655c7")
 		)
@@ -16421,6 +17348,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "e2106892-2bec-47b2-a658-4095e263ccc4")
 		)
 		(pad "17" thru_hole oval
@@ -16442,6 +17373,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "5e5eb673-82ca-426d-b2cc-7050f8184f45")
 		)
@@ -16465,6 +17400,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "c4092d72-81ae-426f-8ee3-3fecd82bd4c1")
 		)
 		(pad "18" thru_hole oval
@@ -16486,6 +17425,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "eba91f31-0942-4d60-af70-0086b5c39bc0")
 		)
@@ -16509,6 +17452,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "4d7bdfd6-21a8-4067-b29f-075fcce1413c")
 		)
 		(pad "19" thru_hole oval
@@ -16530,6 +17477,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "85f263b8-3668-4c93-87a4-9cef60074005")
 		)
@@ -16553,6 +17504,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "0b592896-9646-4b4d-abc3-7e0af1300495")
 		)
 		(pad "20" thru_hole rect
@@ -16574,6 +17529,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "1980da6a-744b-41f5-b310-cf762f4bdcf3")
 		)
@@ -16703,6 +17662,7 @@
 		(sheetname "Root")
 		(sheetfile "Mitayi-Pico-RP2040.kicad_sch")
 		(attr smd)
+		(duplicate_pad_numbers_are_jumpers yes)
 		(fp_line
 			(start 1 -0.785)
 			(end -1.71 -0.785)
@@ -16852,6 +17812,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "281bfaed-5da3-4e35-a16a-3996338d3e58")
 		)
 		(pad "2" smd roundrect
@@ -16871,6 +17835,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "a6bee9e9-edb3-448a-9a93-622e7d54b7ed")
 		)
@@ -16999,6 +17967,7 @@
 		(sheetname "Root")
 		(sheetfile "Mitayi-Pico-RP2040.kicad_sch")
 		(attr smd)
+		(duplicate_pad_numbers_are_jumpers yes)
 		(fp_line
 			(start -0.153641 -0.38)
 			(end 0.153641 -0.38)
@@ -17128,6 +18097,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "30155c47-afbe-4073-a4ed-b9a0ad9bb14e")
 		)
 		(pad "2" smd roundrect
@@ -17147,6 +18120,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "0dad39ff-d0dc-4004-95b8-4a15ed6468c4")
 		)
@@ -17276,6 +18253,7 @@
 		(sheetname "Root")
 		(sheetfile "Mitayi-Pico-RP2040.kicad_sch")
 		(attr smd)
+		(duplicate_pad_numbers_are_jumpers no)
 		(fp_line
 			(start 0 1.56)
 			(end -0.8 1.56)
@@ -17436,6 +18414,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "e8b87d18-a536-4b28-a7ff-b3b2aa996f4b")
 		)
 		(pad "2" smd roundrect
@@ -17456,6 +18438,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "f2beac6a-b995-495f-9ba3-86dcc87addac")
 		)
@@ -17478,6 +18464,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "acd4feb1-1591-49c0-9d83-a829c859ae3e")
 		)
 		(pad "4" smd roundrect
@@ -17499,6 +18489,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "b97962e8-bdc3-4223-9790-33986debab0c")
 		)
 		(pad "5" smd roundrect
@@ -17519,6 +18513,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "5aaef073-9bf2-42a7-a3c3-2d77c2d3a008")
 		)
@@ -17647,6 +18645,7 @@
 		(sheetname "Root")
 		(sheetfile "Mitayi-Pico-RP2040.kicad_sch")
 		(attr smd)
+		(duplicate_pad_numbers_are_jumpers yes)
 		(fp_line
 			(start -0.153641 -0.38)
 			(end 0.153641 -0.38)
@@ -17776,6 +18775,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "9b89087c-22b3-4f6d-b537-f3208c9c4cd2")
 		)
 		(pad "2" smd roundrect
@@ -17795,6 +18798,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "557c7f55-a770-4301-affc-b65d24d41c4a")
 		)
@@ -17922,6 +18929,7 @@
 		(sheetname "Root")
 		(sheetfile "Mitayi-Pico-RP2040.kicad_sch")
 		(attr smd)
+		(duplicate_pad_numbers_are_jumpers no)
 		(fp_line
 			(start 2.1 1.6)
 			(end 2.1 1.05)
@@ -18142,6 +19150,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "2457d20f-2ca7-4260-94ec-d624faed517c")
 		)
 		(pad "2" smd rect
@@ -18161,6 +19173,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "8149d718-54f1-40b7-b59b-150f02a8b55a")
 		)
@@ -18235,6 +19251,7 @@
 			)
 		)
 		(attr exclude_from_pos_files exclude_from_bom)
+		(duplicate_pad_numbers_are_jumpers no)
 		(fp_poly
 			(pts
 				(xy -0.509508 -0.46691) (xy -0.437277 -0.351155) (xy -0.069453 -0.351155) (xy -0.069453 0.10668)
@@ -18319,6 +19336,7 @@
 			)
 		)
 		(attr exclude_from_pos_files exclude_from_bom)
+		(duplicate_pad_numbers_are_jumpers yes)
 		(fp_poly
 			(pts
 				(xy 0.467281 -0.233363) (xy 0.479504 -0.234474) (xy 0.491728 -0.234474) (xy 0.570071 -0.216694)
@@ -18441,6 +19459,7 @@
 			)
 		)
 		(attr board_only exclude_from_pos_files exclude_from_bom)
+		(duplicate_pad_numbers_are_jumpers yes)
 		(fp_poly
 			(pts
 				(xy -0.588645 0.621877) (xy -0.853228 0.621877) (xy -0.853228 -0.621877) (xy -0.588645 -0.621877)
@@ -18577,6 +19596,7 @@
 		(sheetname "Root")
 		(sheetfile "Mitayi-Pico-RP2040.kicad_sch")
 		(attr smd)
+		(duplicate_pad_numbers_are_jumpers no)
 		(fp_rect
 			(start 0.45 -0.7)
 			(end -0.45 0.7)
@@ -18617,6 +19637,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "9f2994d7-ad44-4e55-bc29-ec0eb22baecf")
 		)
@@ -18741,6 +19765,7 @@
 		(sheetname "Root")
 		(sheetfile "Mitayi-Pico-RP2040.kicad_sch")
 		(attr through_hole)
+		(duplicate_pad_numbers_are_jumpers no)
 		(fp_line
 			(start -1.8 -9.4)
 			(end 4.35 -9.4)
@@ -18863,6 +19888,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "839e55c0-c729-425b-837a-68d32cc524c4")
 		)
 		(pad "2" thru_hole oval
@@ -18884,6 +19913,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "7be82770-2de8-4f27-ad32-353e175890b8")
 		)
@@ -18907,6 +19940,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "ef75ff4f-5067-4077-bb05-01f86770f359")
 		)
 		(pad "4" thru_hole oval
@@ -18928,6 +19965,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "2e009945-6ff1-4f81-a6b5-201506319932")
 		)
@@ -18951,6 +19992,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "8cbc748b-8f26-4544-9495-1820e1d85753")
 		)
 		(pad "6" thru_hole oval
@@ -18972,6 +20017,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "6ae6287f-d22d-41a9-be31-9dcb3372265a")
 		)
@@ -18995,6 +20044,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "830efd34-a073-48a0-a3c8-4c55b7b23606")
 		)
 		(pad "8" thru_hole oval
@@ -19016,6 +20069,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "e1dff107-3e94-4f9d-9927-df8ef1a37639")
 		)
@@ -19130,6 +20187,7 @@
 			)
 		)
 		(attr board_only exclude_from_pos_files exclude_from_bom)
+		(duplicate_pad_numbers_are_jumpers yes)
 		(fp_poly
 			(pts
 				(xy 0.28575 0.2667) (xy 0.247015 0.266065) (xy 0.20828 0.26289) (xy 0.20828 0.00889) (xy 0.27178 0.00889)
@@ -19245,6 +20303,7 @@
 			)
 		)
 		(attr board_only exclude_from_pos_files exclude_from_bom)
+		(duplicate_pad_numbers_are_jumpers yes)
 		(fp_poly
 			(pts
 				(xy 0.29718 0.08128) (xy 0.38735 0.107315) (xy 0.41783 0.179069) (xy 0.408941 0.224155) (xy 0.38481 0.250825)
@@ -19361,6 +20420,7 @@
 			)
 		)
 		(attr board_only exclude_from_pos_files exclude_from_bom)
+		(duplicate_pad_numbers_are_jumpers yes)
 		(fp_poly
 			(pts
 				(xy 1.481671 1.168967) (xy 1.524607 1.168887) (xy 1.559158 1.168693) (xy 1.586339 1.168338) (xy 1.607163 1.167773)
@@ -20440,6 +21500,7 @@
 			)
 		)
 		(attr board_only exclude_from_pos_files exclude_from_bom)
+		(duplicate_pad_numbers_are_jumpers yes)
 		(fp_poly
 			(pts
 				(xy 0.017883 1.518193) (xy 0.060369 1.517856) (xy 0.100551 1.51724) (xy 0.136956 1.516347) (xy 0.168112 1.515179)
@@ -20688,6 +21749,7 @@
 		(sheetname "Root")
 		(sheetfile "Mitayi-Pico-RP2040.kicad_sch")
 		(attr through_hole)
+		(duplicate_pad_numbers_are_jumpers yes)
 		(fp_line
 			(start -1.8 1.8)
 			(end -1.8 -50.05)
@@ -20810,6 +21872,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "48ab6691-ab59-484e-871e-7a3184ba5560")
 		)
 		(pad "1" thru_hole oval
@@ -20831,6 +21897,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "c76781b9-aa9e-474a-88cb-bf9c99c7df15")
 		)
@@ -20854,6 +21924,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "4f2a06e1-316d-4a36-95ea-a42ab2b1a758")
 		)
 		(pad "2" thru_hole oval
@@ -20875,6 +21949,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "611fa7eb-4ca1-408f-9ec1-7b894ad6fee5")
 		)
@@ -20898,6 +21976,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "4829c5bc-85b6-4f48-87d7-00763a829d27")
 		)
 		(pad "3" thru_hole rect
@@ -20919,6 +22001,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "a313c5f3-f182-4e87-b3b0-f43dd9932894")
 		)
@@ -20942,6 +22028,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "c1881450-e189-4282-8917-ab0c763d5bec")
 		)
 		(pad "4" thru_hole oval
@@ -20963,6 +22053,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "2ed73520-3a22-4fde-933f-3617a4e1a7c1")
 		)
@@ -20986,6 +22080,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "9d6be223-0c31-4b8e-ab3d-1bf9b0aef5f5")
 		)
 		(pad "5" thru_hole oval
@@ -21007,6 +22105,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "0c6d6207-b07b-49c6-bf34-2a2b5792ccf3")
 		)
@@ -21030,6 +22132,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "142f7571-e453-4e25-8d08-aa801c5d2557")
 		)
 		(pad "6" thru_hole oval
@@ -21051,6 +22157,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "511ec759-f5d1-4ad9-95e5-ce7d2e561734")
 		)
@@ -21074,6 +22184,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "51cd7685-d4de-4165-9ac8-2ae2e9df80b6")
 		)
 		(pad "7" thru_hole oval
@@ -21095,6 +22209,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "a258015a-d4b7-4d8e-b49c-d7abb70bf327")
 		)
@@ -21118,6 +22236,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "ad776283-78be-42cc-8c47-d43a763e666d")
 		)
 		(pad "8" thru_hole oval
@@ -21139,6 +22261,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "8fe8f91e-bad4-4a42-8ac9-6218fd457495")
 		)
@@ -21162,6 +22288,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "0c9b1bba-daf5-407b-8ecd-2f08475651a6")
 		)
 		(pad "9" thru_hole oval
@@ -21183,6 +22313,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "7c67a1e5-a184-42bf-a9b3-632795f00617")
 		)
@@ -21206,6 +22340,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "41b93b9c-7d3f-4e06-b1f7-9d13b770abf3")
 		)
 		(pad "10" thru_hole oval
@@ -21227,6 +22365,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "793d1bb1-5ef3-401e-b5a1-5a7f5cdb8134")
 		)
@@ -21250,6 +22392,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "44f547d3-62e3-41b6-9a52-6f581be2a6e9")
 		)
 		(pad "11" thru_hole oval
@@ -21271,6 +22417,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "aeb2d89a-4c7c-4a00-9e40-1abf12c0782a")
 		)
@@ -21294,6 +22444,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "27647396-51a6-49c8-bc07-e3c5602784ba")
 		)
 		(pad "12" thru_hole rect
@@ -21315,6 +22469,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "69423018-153b-49b9-9ad1-d694b1d4e268")
 		)
@@ -21338,6 +22496,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "a3ab76d8-d477-43f0-abd2-689e7ead347f")
 		)
 		(pad "13" thru_hole oval
@@ -21359,6 +22521,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "782ee23d-a239-44d6-93ec-f7a7a1ebcb32")
 		)
@@ -21382,6 +22548,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "dadc9f07-0088-49bf-9f28-437f9f23106d")
 		)
 		(pad "14" thru_hole oval
@@ -21403,6 +22573,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "414408c0-ea81-4aa2-813c-690b31b9acdc")
 		)
@@ -21426,6 +22600,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "b098727b-23fd-4d55-94fd-7f0f7d6428a4")
 		)
 		(pad "15" thru_hole oval
@@ -21447,6 +22625,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "ff543416-8659-404c-b77d-bec87d063c31")
 		)
@@ -21470,6 +22652,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "6398856c-dc70-4c4b-80f6-b23c6f61adbb")
 		)
 		(pad "16" thru_hole oval
@@ -21491,6 +22677,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "3f33ef47-938a-4cc9-8c29-450888c9dba0")
 		)
@@ -21514,6 +22704,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "0268651c-4572-4842-82a2-c89ee3b5942d")
 		)
 		(pad "17" thru_hole oval
@@ -21535,6 +22729,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "782d7945-6866-4467-8d10-95ee71a99873")
 		)
@@ -21558,6 +22756,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "7ba741d0-18f8-486b-8e36-a52430dd4b53")
 		)
 		(pad "18" thru_hole oval
@@ -21579,6 +22781,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "01627803-3314-457f-b41f-a34caeeb1517")
 		)
@@ -21602,6 +22808,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "09e83e87-d086-4763-af07-608c9397742e")
 		)
 		(pad "19" thru_hole oval
@@ -21623,6 +22833,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "39523e02-0466-4127-8a90-6baaa32ce1f4")
 		)
@@ -21646,6 +22860,10 @@
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
 			)
+			(tenting
+				(front none)
+				(back none)
+			)
 			(uuid "58c56f68-7554-423f-aa6c-0d82e86deae9")
 		)
 		(pad "20" thru_hole rect
@@ -21667,6 +22885,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "baefd8b0-4d1a-42d4-9e14-77e572f51a2e")
 		)
@@ -21789,6 +23011,7 @@
 		(sheetname "Root")
 		(sheetfile "Mitayi-Pico-RP2040.kicad_sch")
 		(attr smd)
+		(duplicate_pad_numbers_are_jumpers yes)
 		(fp_rect
 			(start 0.45 -0.7)
 			(end -0.45 0.7)
@@ -21829,6 +23052,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "a3733542-aa3a-45dc-b475-41d214647a5b")
 		)
@@ -21896,6 +23123,7 @@
 			)
 		)
 		(attr board_only exclude_from_pos_files exclude_from_bom)
+		(duplicate_pad_numbers_are_jumpers yes)
 		(fp_poly
 			(pts
 				(xy -0.429895 -0.26543) (xy -0.415925 -0.2667) (xy -0.401955 -0.2667) (xy -0.31242 -0.24638) (xy -0.254 -0.1905)
@@ -22044,6 +23272,7 @@
 		(sheetname "Root")
 		(sheetfile "Mitayi-Pico-RP2040.kicad_sch")
 		(attr smd)
+		(duplicate_pad_numbers_are_jumpers yes)
 		(fp_rect
 			(start 0.45 -0.7)
 			(end -0.45 0.7)
@@ -22084,6 +23313,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "30b139d5-217d-4260-b125-cd4569fefb86")
 		)
@@ -22195,6 +23428,7 @@
 		(sheetname "Root")
 		(sheetfile "Mitayi-Pico-RP2040.kicad_sch")
 		(attr smd)
+		(duplicate_pad_numbers_are_jumpers no)
 		(fp_rect
 			(start 0.45 -0.7)
 			(end -0.45 0.7)
@@ -22276,6 +23510,10 @@
 				(enabled yes)
 				(allow_two_segments yes)
 				(prefer_zone_connections yes)
+			)
+			(tenting
+				(front none)
+				(back none)
 			)
 			(uuid "97814830-18f1-4b93-a390-220c4d032934")
 		)
@@ -24551,6 +25789,20 @@
 		(size 0.4)
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -24570,6 +25822,20 @@
 		(size 0.4)
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -24774,6 +26040,20 @@
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
 		(free yes)
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -24794,6 +26074,20 @@
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
 		(free yes)
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -24814,6 +26108,20 @@
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
 		(free yes)
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -24834,6 +26142,20 @@
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
 		(free yes)
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -24854,6 +26176,20 @@
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
 		(free yes)
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -24874,6 +26210,20 @@
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
 		(free yes)
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -24894,6 +26244,20 @@
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
 		(free yes)
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -24914,6 +26278,20 @@
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
 		(free yes)
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -24934,6 +26312,20 @@
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
 		(free yes)
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -24954,6 +26346,20 @@
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
 		(free yes)
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -24974,6 +26380,20 @@
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
 		(free yes)
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -24994,6 +26414,20 @@
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
 		(free yes)
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -25014,6 +26448,20 @@
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
 		(free yes)
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -25034,6 +26482,20 @@
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
 		(free yes)
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -25054,6 +26516,20 @@
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
 		(free yes)
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -25074,6 +26550,20 @@
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
 		(free yes)
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -25094,6 +26584,20 @@
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
 		(free yes)
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -25114,6 +26618,20 @@
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
 		(free yes)
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -25134,6 +26652,20 @@
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
 		(free yes)
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -25154,6 +26686,20 @@
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
 		(free yes)
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -25174,6 +26720,20 @@
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
 		(free yes)
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -25194,6 +26754,20 @@
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
 		(free yes)
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -25214,6 +26788,20 @@
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
 		(free yes)
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -25234,6 +26822,20 @@
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
 		(free yes)
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -25254,6 +26856,20 @@
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
 		(free yes)
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -25274,6 +26890,20 @@
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
 		(free yes)
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -25294,6 +26924,20 @@
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
 		(free yes)
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -25313,6 +26957,20 @@
 		(size 0.4)
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -25333,6 +26991,20 @@
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
 		(free yes)
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -25353,6 +27025,20 @@
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
 		(free yes)
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -25373,6 +27059,20 @@
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
 		(free yes)
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -25393,6 +27093,20 @@
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
 		(free yes)
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -25413,6 +27127,20 @@
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
 		(free yes)
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -25433,6 +27161,20 @@
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
 		(free yes)
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -25453,6 +27195,20 @@
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
 		(free yes)
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -25473,6 +27229,20 @@
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
 		(free yes)
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -25493,6 +27263,20 @@
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
 		(free yes)
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -25513,6 +27297,20 @@
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
 		(free yes)
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -25533,6 +27331,20 @@
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
 		(free yes)
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -25553,6 +27365,20 @@
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
 		(free yes)
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -25573,6 +27399,20 @@
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
 		(free yes)
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -25593,6 +27433,20 @@
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
 		(free yes)
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -25613,6 +27467,20 @@
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
 		(free yes)
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -25633,6 +27501,20 @@
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
 		(free yes)
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -25653,6 +27535,20 @@
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
 		(free yes)
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -25673,6 +27569,20 @@
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
 		(free yes)
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -25693,6 +27603,20 @@
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
 		(free yes)
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -25713,6 +27637,20 @@
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
 		(free yes)
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -25733,6 +27671,20 @@
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
 		(free yes)
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -25753,6 +27705,20 @@
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
 		(free yes)
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -25773,6 +27739,20 @@
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
 		(free yes)
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -25793,6 +27773,20 @@
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
 		(free yes)
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -25813,6 +27807,20 @@
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
 		(free yes)
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -25833,6 +27841,20 @@
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
 		(free yes)
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -25853,6 +27875,20 @@
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
 		(free yes)
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -25873,6 +27909,20 @@
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
 		(free yes)
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -26684,6 +28734,20 @@
 		(size 0.4)
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -26703,6 +28767,20 @@
 		(size 0.4)
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -26722,6 +28800,20 @@
 		(size 0.508)
 		(drill 0.254)
 		(layers "F.Cu" "B.Cu")
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -26741,6 +28833,20 @@
 		(size 0.4)
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -26760,6 +28866,20 @@
 		(size 0.508)
 		(drill 0.254)
 		(layers "F.Cu" "B.Cu")
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -27019,6 +29139,20 @@
 		(size 0.4)
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -27038,6 +29172,20 @@
 		(size 0.4)
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -27177,6 +29325,20 @@
 		(size 0.4)
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -27196,6 +29358,20 @@
 		(size 0.4)
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -27487,6 +29663,20 @@
 		(size 0.4)
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -27594,6 +29784,20 @@
 		(size 0.4)
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -27717,6 +29921,20 @@
 		(size 0.4)
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -27792,6 +30010,20 @@
 		(size 0.4)
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -27907,6 +30139,20 @@
 		(size 0.4)
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -27926,6 +30172,20 @@
 		(size 0.4)
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -27945,6 +30205,20 @@
 		(size 0.4)
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -28028,6 +30302,20 @@
 		(size 0.4)
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -28095,6 +30383,20 @@
 		(size 0.4)
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -28154,6 +30456,20 @@
 		(size 0.4)
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -28221,6 +30537,20 @@
 		(size 0.4)
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -28424,6 +30754,20 @@
 		(size 0.4)
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -28443,6 +30787,20 @@
 		(size 0.4)
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -28566,6 +30924,20 @@
 		(size 0.4)
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -28737,6 +31109,20 @@
 		(size 0.4)
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -28844,6 +31230,20 @@
 		(size 0.4)
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -28983,6 +31383,20 @@
 		(size 0.4)
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -29002,6 +31416,20 @@
 		(size 0.4)
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -29133,6 +31561,20 @@
 		(size 0.4)
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -29200,6 +31642,20 @@
 		(size 0.4)
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -29275,6 +31731,20 @@
 		(size 0.4)
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -29478,6 +31948,20 @@
 		(size 0.4)
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -29497,6 +31981,20 @@
 		(size 0.4)
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -29676,6 +32174,20 @@
 		(size 0.4)
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -29735,6 +32247,20 @@
 		(size 0.4)
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -29802,6 +32328,20 @@
 		(size 0.4)
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -29877,6 +32417,20 @@
 		(size 0.4)
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -29944,6 +32498,20 @@
 		(size 0.4)
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -30027,6 +32595,20 @@
 		(size 0.4)
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -30110,6 +32692,20 @@
 		(size 0.4)
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -30193,6 +32789,20 @@
 		(size 0.4)
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -30292,6 +32902,20 @@
 		(size 0.4)
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -30471,6 +33095,20 @@
 		(size 0.4)
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -30490,6 +33128,20 @@
 		(size 0.4)
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -30573,6 +33225,20 @@
 		(size 0.4)
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -30592,6 +33258,20 @@
 		(size 0.4)
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -30667,6 +33347,20 @@
 		(size 0.4)
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -30686,6 +33380,20 @@
 		(size 0.4)
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -30769,6 +33477,20 @@
 		(size 0.4)
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -30788,6 +33510,20 @@
 		(size 0.4)
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -30879,6 +33615,20 @@
 		(size 0.4)
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -30898,6 +33648,20 @@
 		(size 0.4)
 		(drill 0.2)
 		(layers "F.Cu" "B.Cu")
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -31117,6 +33881,20 @@
 		(size 0.508)
 		(drill 0.254)
 		(layers "F.Cu" "B.Cu")
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
@@ -31136,6 +33914,20 @@
 		(size 0.508)
 		(drill 0.254)
 		(layers "F.Cu" "B.Cu")
+		(tenting
+			(front none)
+			(back none)
+		)
+		(capping none)
+		(covering
+			(front none)
+			(back none)
+		)
+		(plugging
+			(front none)
+			(back none)
+		)
+		(filling none)
 		(teardrops
 			(best_length_ratio 0.5)
 			(max_length 1)
