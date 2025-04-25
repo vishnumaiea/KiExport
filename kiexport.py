@@ -26,7 +26,7 @@ import sys
 #=============================================================================================#
 
 APP_NAME = "KiExport"
-APP_VERSION = "0.0.35"
+APP_VERSION = "0.0.36"
 APP_DESCRIPTION = "Tool to export manufacturing files from KiCad PCB projects."
 APP_AUTHOR = "Vishnu Mohanan (@vishnumaiea, @vizmohanan)"
 
@@ -34,6 +34,9 @@ SAMPLE_PCB_FILE = "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb"
 
 current_config = None
 default_config = None
+
+logger = None  # Logger instance
+logPath = None  # Path to the log file
 
 command_exec_status = {}  # Command execution status
 
@@ -448,11 +451,12 @@ DEFAULT_CONFIG_JSON = '''
 class Logger:
   def __init__ (self, log_file):
     self.terminal = sys.stdout
-    self.log = open (log_file, "w", encoding = "utf-8")
+    self.buffer = []
+    # self.log = open (log_file, "w", encoding = "utf-8")
     self.ansi_escape = re.compile (r'\x1B[@-_][0-?]*[ -/]*[@-~]')  # Regex to remove ANSI codes
 
     # Write timestamp at the beginning of the log session
-    self.log.write (self._get_timestamp_header() + "\n")
+    self.buffer.append (self._get_timestamp_header() + "\n")
   
   def _get_timestamp_header (self):
     now = datetime.now()
@@ -463,12 +467,18 @@ class Logger:
 
   def write (self, message):
     self.terminal.write (message)
-    self.log.write (self.ansi_escape.sub ('', message))    # Strip them for the file
+    self.buffer.append (self.ansi_escape.sub ('', message))    # Strip them for the file
 
   def flush (self):
     # For compatibility with Python's standard streams
     self.terminal.flush()
-    self.log.flush()
+    # self.log.flush()
+  
+  def save_to_file (self, filepath):
+    with open (filepath, 'w', encoding = 'utf-8') as f:
+      f.writelines (self.buffer)
+      print()
+      print (f"KiExport [INFO]: Log saved to '{color.blue (filepath)}'")
 
 #=============================================================================================#
 
@@ -601,7 +611,7 @@ def generateiBoM (output_dir = None, pcb_filename = None, extra_args = None):
   
   # Ensure PCB file exists.
   if not os.path.isfile (pcb_filename):
-    print (color.red (f"generateiBoM() [ERROR]: The PCB file '{pcb_filename}' does not exist. The command will be skipped."))
+    print (color.red (f"generateiBoM [ERROR]: The PCB file '{pcb_filename}' does not exist. The command will be skipped."))
     command_exec_status ["ibom"] = False
     return
   
@@ -613,7 +623,7 @@ def generateiBoM (output_dir = None, pcb_filename = None, extra_args = None):
   project_name = extract_project_name (file_name)
   info = extract_info_from_pcb (pcb_filename)
   
-  print (f"generateiBoM() [INFO]: Project name is '{color.magenta (project_name)}' and revision is {color.magenta ('R')}{color.magenta (info ['rev'])}.")
+  print (f"generateiBoM [INFO]: Project name is '{color.magenta (project_name)}' and revision is {color.magenta ('R')}{color.magenta (info ['rev'])}.")
   # ibom_filename = f"{project_name}-R{info ['rev']}-HTML-BoM-{filename_date}.html"
 
   #---------------------------------------------------------------------------------------------#
@@ -700,18 +710,18 @@ def generateiBoM (output_dir = None, pcb_filename = None, extra_args = None):
   try:
     full_command = ' '.join (full_command) # Convert the list to a string
     subprocess.run (full_command, check = True)
-    print (color.green (f"generateiBoM() [INFO]: Interactive HTML BoM generated successfully."))
+    print (color.green (f"generateiBoM [INFO]: Interactive HTML BoM generated successfully."))
     print()
     command_exec_status ["ibom"] = True
 
   except subprocess.CalledProcessError as e:
-    print (color.red (f"generateiBoM() [ERROR]: Error during HTML BoM generation: {e}"))
-    print (color.red (f"generateiBoM() [INFO]: Make sure the 'Interactive HTML BoM' application is installed and available on the PATH."))
+    print (color.red (f"generateiBoM [ERROR]: Error during HTML BoM generation: {e}"))
+    print (color.red (f"generateiBoM [INFO]: Make sure the 'Interactive HTML BoM' application is installed and available on the PATH."))
     print()
     command_exec_status ["ibom"] = False
 
   except Exception as e:
-    print (color.red (f" generateiBoM() [ERROR]: An unexpected error occurred: {e}"))
+    print (color.red (f" generateiBoM [ERROR]: An unexpected error occurred: {e}"))
     print()
     command_exec_status ["ibom"] = False
 
@@ -2672,7 +2682,6 @@ def run (config_file, command_list = None):
         generatePcbRenders (output_dir = output_dir, pcb_filename = pcb_file_path, preset = preset)
   
   # Once the command execution is complete, print the statuses from command_exec_status.
-  print()
   print (f"run [INFO]: Command execution completed. Statuses:")
   for cmd in command_exec_status:
     if (command_exec_status [cmd] == True):
@@ -2802,7 +2811,7 @@ def parseArguments():
     # Check if the paramter ends with ".json"
     if args.config_file.endswith (".json") or args.config_file.endswith (".json\""):
       run (config_file = args.config_file, command_list = args.command_list)
-    return
+    # return
 
   else:
     # Load the standard config file for other commands.
@@ -2813,10 +2822,41 @@ def parseArguments():
       load_config (config_file = "kiexport.json")
   
   #---------------------------------------------------------------------------------------------#
+  # Create the path for the log file.
+
+  global logPath
+
+  # Check if the loaded configuration has a log file path.
+  path_from_config = current_config.get ("kiexport_log_path", lambda: default_config ["kiexport_log_path"])
+
+  if path_from_config is not None:
+    if path_from_config.endswith (".log") or path_from_config.endswith (".txt"): # Check if the path ends with a file extension.
+      pass
+    else:
+      path_from_config = path_from_config + ".log"
+
+    if os.path.isabs (path_from_config): # Check if the path is an absolute path.
+      logPath = path_from_config
+    else: # If it is not absolute, we will add the project directory to it.
+      if args.command == "run":
+        file_path = os.path.abspath (args.config_file) # Get the absolute path of the file.
+      elif args.config_file is not None:
+        file_path = os.path.abspath (args.input_filename) # Get the absolute path of the file.
+      # Get the directory path of the file and save it as the project directory.
+      # All other export directories will be relative to the project directory.
+      project_dir = os.path.dirname (file_path)
+      logPath = project_dir + "\\" + path_from_config
+
+  # if args.output_dir is not None:
+  #   logPath = os.path.join (os.path.dirname (args.input_filename), "kiexport.log")
+
+  #---------------------------------------------------------------------------------------------#
   
   # Check the command and run it.
-  
-  if args.command == "gerbers":
+  if args.command == "run":
+    pass
+
+  elif args.command == "gerbers":
     generateGerbers (args.output_dir, args.input_filename)
 
   elif args.command == "drills":
@@ -2864,10 +2904,21 @@ def printInfo():
 
 #=============================================================================================#
 
-def main():
-  sys.stdout = Logger ("Export/kiexport.log")
-  parseArguments()
+def initLogger():
+  global logger
+  # sys.stdout = Logger ("Export/kiexport.log")
+  logger = Logger ("Export/kiexport.log")
+  sys.stdout = logger
+  return logger
 
+#=============================================================================================#
+
+def main():
+  global logger
+  initLogger()
+  parseArguments()
+  logger.save_to_file (logPath)
+  
 #=============================================================================================#
 
 if __name__ == "__main__":
