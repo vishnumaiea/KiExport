@@ -4,8 +4,8 @@
 # KiExport
 # Tool to export manufacturing files from KiCad PCB projects.
 # Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)
-# Version: 0.0.35
-# Last Modified: +05:30 04:02:50 PM 22-04-2025, Tuesday
+# Version: 0.0.36
+# Last Modified: +05:30 12:24:18 PM 25-04-2025, Friday
 # GitHub: https://github.com/vishnumaiea/KiExport
 # License: MIT
 
@@ -21,11 +21,12 @@ import zipfile
 import json
 import pymupdf
 import ast
+import sys
 
 #=============================================================================================#
 
 APP_NAME = "KiExport"
-APP_VERSION = "0.0.35"
+APP_VERSION = "0.0.36"
 APP_DESCRIPTION = "Tool to export manufacturing files from KiCad PCB projects."
 APP_AUTHOR = "Vishnu Mohanan (@vishnumaiea, @vizmohanan)"
 
@@ -33,6 +34,9 @@ SAMPLE_PCB_FILE = "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb"
 
 current_config = None
 default_config = None
+
+logger = None  # Logger instance
+logPath = None  # Path to the log file
 
 command_exec_status = {}  # Command execution status
 
@@ -444,6 +448,40 @@ DEFAULT_CONFIG_JSON = '''
 
 #=============================================================================================#
 
+class Logger:
+  def __init__ (self, log_file):
+    self.terminal = sys.stdout
+    self.buffer = []
+    # self.log = open (log_file, "w", encoding = "utf-8")
+    self.ansi_escape = re.compile (r'\x1B[@-_][0-?]*[ -/]*[@-~]')  # Regex to remove ANSI codes
+
+    # Write timestamp at the beginning of the log session
+    self.buffer.append (self._get_timestamp_header() + "\n")
+  
+  def _get_timestamp_header (self):
+    now = datetime.now()
+    offset = now.astimezone().strftime ('%z')  # e.g., +0530
+    formatted_offset = offset [:3] + ':' + offset [3:]  # +05:30
+    timestamp = now.strftime ('%I:%M:%S %p %d-%m-%Y, %A')
+    return f"{formatted_offset} {timestamp}"
+
+  def write (self, message):
+    self.terminal.write (message)
+    self.buffer.append (self.ansi_escape.sub ('', message))    # Strip them for the file
+
+  def flush (self):
+    # For compatibility with Python's standard streams
+    self.terminal.flush()
+    # self.log.flush()
+  
+  def save_to_file (self, filepath):
+    with open (filepath, 'w', encoding = 'utf-8') as f:
+      f.writelines (self.buffer)
+      print()
+      print (f"KiExport [INFO]: Log saved to '{color.blue (filepath)}'")
+
+#=============================================================================================#
+
 class Colorize:
     def __init__(self, text):
         self.text = text
@@ -552,7 +590,7 @@ def generateiBoM (output_dir = None, pcb_filename = None, extra_args = None):
 
   # Check if the KiCad Python path exists.
   if not os.path.isfile (kicad_python_path):
-    print (color.red (f"generateiBoM() [ERROR]: The KiCad Python path '{kicad_python_path}' does not exist. This command will be skipped."))
+    print (color.red (f"generateiBoM [ERROR]: The KiCad Python path '{kicad_python_path}' does not exist. This command will be skipped."))
     command_exec_status ["ibom"] = False
     return
 
@@ -560,7 +598,7 @@ def generateiBoM (output_dir = None, pcb_filename = None, extra_args = None):
   ibom_path = ibom_path.strip()
   ibom_path = os.path.normpath (ibom_path)
   if not os.path.isfile (ibom_path):
-    print (color.red (f"generateiBoM() [ERROR]: The iBOM path '{ibom_path}' does not exist. This command will be skipped."))
+    print (color.red (f"generateiBoM [ERROR]: The iBOM path '{ibom_path}' does not exist. This command will be skipped."))
     # st = os.stat (ibom_path)
     # print(f"Permissions: {oct(st.st_mode)}")
     command_exec_status ["ibom"] = False
@@ -573,7 +611,7 @@ def generateiBoM (output_dir = None, pcb_filename = None, extra_args = None):
   
   # Ensure PCB file exists.
   if not os.path.isfile (pcb_filename):
-    print (color.red (f"generateiBoM() [ERROR]: The PCB file '{pcb_filename}' does not exist. The command will be skipped."))
+    print (color.red (f"generateiBoM [ERROR]: The PCB file '{pcb_filename}' does not exist. The command will be skipped."))
     command_exec_status ["ibom"] = False
     return
   
@@ -585,7 +623,7 @@ def generateiBoM (output_dir = None, pcb_filename = None, extra_args = None):
   project_name = extract_project_name (file_name)
   info = extract_info_from_pcb (pcb_filename)
   
-  print (f"generateiBoM() [INFO]: Project name is '{color.magenta (project_name)}' and revision is {color.magenta ('R')}{color.magenta (info ['rev'])}.")
+  print (f"generateiBoM [INFO]: Project name is '{color.magenta (project_name)}' and revision is {color.magenta ('R')}{color.magenta (info ['rev'])}.")
   # ibom_filename = f"{project_name}-R{info ['rev']}-HTML-BoM-{filename_date}.html"
 
   #---------------------------------------------------------------------------------------------#
@@ -672,16 +710,19 @@ def generateiBoM (output_dir = None, pcb_filename = None, extra_args = None):
   try:
     full_command = ' '.join (full_command) # Convert the list to a string
     subprocess.run (full_command, check = True)
-    print (color.green (f"generateiBoM() [INFO]: Interactive HTML BoM generated successfully."))
+    print (color.green (f"generateiBoM [INFO]: Interactive HTML BoM generated successfully."))
+    print()
     command_exec_status ["ibom"] = True
 
   except subprocess.CalledProcessError as e:
-    print (color.red (f"generateiBoM() [ERROR]: Error during HTML BoM generation: {e}"))
-    print (color.red (f"generateiBoM() [INFO]: Make sure the 'Interactive HTML BoM' application is installed and available on the PATH."))
+    print (color.red (f"generateiBoM [ERROR]: Error during HTML BoM generation: {e}"))
+    print (color.red (f"generateiBoM [INFO]: Make sure the 'Interactive HTML BoM' application is installed and available on the PATH."))
+    print()
     command_exec_status ["ibom"] = False
 
   except Exception as e:
-    print (color.red (f" generateiBoM() [ERROR]: An unexpected error occurred: {e}"))
+    print (color.red (f" generateiBoM [ERROR]: An unexpected error occurred: {e}"))
+    print()
     command_exec_status ["ibom"] = False
 
 #=============================================================================================#
@@ -1149,6 +1190,7 @@ def generatePositions (output_dir, pcb_filename, to_overwrite = True):
       # zip_all_files (final_directory, f"{final_directory}/{zip_file_name}")
       zip_all_files_2 (final_directory, files_to_include, zip_file_name)
       print (f"generatePositions [OK]: ZIP file '{color.magenta (zip_file_name)}' created successfully.")
+      print()
       not_completed = False
 
 #=============================================================================================#
@@ -1464,6 +1506,7 @@ def generatePcbRenders (output_dir, pcb_filename, preset = None, to_overwrite = 
       return
 
     print (color.green (f"generatePcbRenders [OK]: Render files using preset '{preset}' exported successfully."))
+    print()
     command_exec_status ["pcb_render"] = True
 
 #=============================================================================================#
@@ -1570,10 +1613,12 @@ def generateSchPdf (output_dir, sch_filename, to_overwrite = True):
   
   except subprocess.CalledProcessError as e:
     print (color.red (f"generateSchPdf [ERROR]: Error occurred: {e}"))
+    print()
     command_exec_status ["sch_pdf"] = False
     return
 
   print (color.green ("generateSchPdf [OK]: Schematic PDF file exported successfully."))
+  print()
   command_exec_status ["sch_pdf"] = True
 
 #=============================================================================================#
@@ -1685,10 +1730,12 @@ def generate3D (output_dir, pcb_filename, type = "STEP", to_overwrite = True):
   
   except subprocess.CalledProcessError as e:
     print (color.red (f"generate3D [ERROR]: Error occurred: {e}"))
+    print()
     command_exec_status ["ddd" + "_" + type] = False
     return
 
   print (color.green (f"generate3D [OK]: {type} file exported successfully."))
+  print()
   command_exec_status ["ddd" + "_" + type] = True
 
 #=============================================================================================#
@@ -1794,10 +1841,12 @@ def generateBom (output_dir, sch_filename, type, to_overwrite = True):
   
   except subprocess.CalledProcessError as e:
     print (color.red (f"generateBom [ERROR]: Error occurred: {e}"))
+    print()
     command_exec_status ["bom"] = False
     return
 
   print (color.green ("generateBom [OK]: BoM file exported successfully."))
+  print()
   command_exec_status ["bom"] = True
 
 #=============================================================================================#
@@ -2633,7 +2682,6 @@ def run (config_file, command_list = None):
         generatePcbRenders (output_dir = output_dir, pcb_filename = pcb_file_path, preset = preset)
   
   # Once the command execution is complete, print the statuses from command_exec_status.
-  print()
   print (f"run [INFO]: Command execution completed. Statuses:")
   for cmd in command_exec_status:
     if (command_exec_status [cmd] == True):
@@ -2763,7 +2811,7 @@ def parseArguments():
     # Check if the paramter ends with ".json"
     if args.config_file.endswith (".json") or args.config_file.endswith (".json\""):
       run (config_file = args.config_file, command_list = args.command_list)
-    return
+    # return
 
   else:
     # Load the standard config file for other commands.
@@ -2774,10 +2822,41 @@ def parseArguments():
       load_config (config_file = "kiexport.json")
   
   #---------------------------------------------------------------------------------------------#
+  # Create the path for the log file.
+
+  global logPath
+
+  # Check if the loaded configuration has a log file path.
+  path_from_config = current_config.get ("kiexport_log_path", lambda: default_config ["kiexport_log_path"])
+
+  if path_from_config is not None:
+    if path_from_config.endswith (".log") or path_from_config.endswith (".txt"): # Check if the path ends with a file extension.
+      pass
+    else:
+      path_from_config = path_from_config + ".log"
+
+    if os.path.isabs (path_from_config): # Check if the path is an absolute path.
+      logPath = path_from_config
+    else: # If it is not absolute, we will add the project directory to it.
+      if args.command == "run":
+        file_path = os.path.abspath (args.config_file) # Get the absolute path of the file.
+      elif args.config_file is not None:
+        file_path = os.path.abspath (args.input_filename) # Get the absolute path of the file.
+      # Get the directory path of the file and save it as the project directory.
+      # All other export directories will be relative to the project directory.
+      project_dir = os.path.dirname (file_path)
+      logPath = project_dir + "\\" + path_from_config
+
+  # if args.output_dir is not None:
+  #   logPath = os.path.join (os.path.dirname (args.input_filename), "kiexport.log")
+
+  #---------------------------------------------------------------------------------------------#
   
   # Check the command and run it.
-  
-  if args.command == "gerbers":
+  if args.command == "run":
+    pass
+
+  elif args.command == "gerbers":
     generateGerbers (args.output_dir, args.input_filename)
 
   elif args.command == "drills":
@@ -2825,9 +2904,21 @@ def printInfo():
 
 #=============================================================================================#
 
-def main():
-  parseArguments()
+def initLogger():
+  global logger
+  # sys.stdout = Logger ("Export/kiexport.log")
+  logger = Logger ("Export/kiexport.log")
+  sys.stdout = logger
+  return logger
 
+#=============================================================================================#
+
+def main():
+  global logger
+  initLogger()
+  parseArguments()
+  logger.save_to_file (logPath)
+  
 #=============================================================================================#
 
 if __name__ == "__main__":

@@ -1,0 +1,117 @@
+{
+  "jobs": [
+    {
+      "description": "Export Drill Files",
+      "id": "768fa48b-f21a-4ca9-8a3f-1d53306eee6e",
+      "settings": {
+        "description": "",
+        "drill_origin": "plot",
+        "excellon.combine_pth_npth": false,
+        "excellon.minimal_header": false,
+        "excellon.mirror_y": false,
+        "excellon.oval_drill_route": false,
+        "format": "excellon",
+        "generate_map": true,
+        "generate_tenting": false,
+        "gerber_precision": 5,
+        "map_format": "pdf",
+        "output_dir": "R${REVISION}/${CURRENT_DATE}/Gerber",
+        "units": "mm",
+        "zero_format": "decimal"
+      },
+      "type": "pcb_export_drill"
+    },
+    {
+      "description": "",
+      "id": "aae17e1c-a8d6-476e-9b21-bd2d906b8d88",
+      "settings": {
+        "black_and_white": true,
+        "create_gerber_job_file": true,
+        "crossout_dnp_footprints_on_fab_layers": true,
+        "description": "",
+        "disable_aperture_macros": false,
+        "drawing_sheet": "",
+        "drill_shape": "full",
+        "hide_dnp_footprints_on_fab_layers": false,
+        "include_netlist_attributes": true,
+        "layers": [
+          "B.Cu",
+          "B.Mask",
+          "B.Paste",
+          "B.SilkS",
+          "B.CrtYd",
+          "B.Fab",
+          "In30.Cu",
+          "In29.Cu",
+          "In28.Cu",
+          "In27.Cu",
+          "In26.Cu",
+          "In25.Cu",
+          "In24.Cu",
+          "In23.Cu",
+          "In22.Cu",
+          "In21.Cu",
+          "In20.Cu",
+          "In19.Cu",
+          "In18.Cu",
+          "In17.Cu",
+          "In16.Cu",
+          "In15.Cu",
+          "In14.Cu",
+          "In13.Cu",
+          "In12.Cu",
+          "In11.Cu",
+          "In10.Cu",
+          "In9.Cu",
+          "In8.Cu",
+          "In7.Cu",
+          "In6.Cu",
+          "In5.Cu",
+          "In4.Cu",
+          "In3.Cu",
+          "In2.Cu",
+          "In1.Cu",
+          "F.Cu",
+          "F.Mask",
+          "F.Paste",
+          "F.SilkS",
+          "F.CrtYd",
+          "F.Fab",
+          "Dwgs.User",
+          "Cmts.User",
+          "Edge.Cuts"
+        ],
+        "layers_to_include_on_all_layers": [],
+        "mirror": false,
+        "negative": false,
+        "output_filename": "R${REVISION}/${CURRENT_DATE}/Gerber",
+        "plot_drawing_sheet": false,
+        "plot_footprint_values": true,
+        "plot_pad_numbers": false,
+        "plot_ref_des": true,
+        "precision": 5,
+        "sketch_dnp_footprints_on_fab_layers": true,
+        "sketch_pads_on_fab_layers": false,
+        "subtract_solder_mask_from_silk": false,
+        "use_drill_origin": true,
+        "use_protel_file_extension": true,
+        "use_x2_format": true
+      },
+      "type": "pcb_export_gerbers"
+    }
+  ],
+  "meta": {
+    "version": 1
+  },
+  "outputs": [
+    {
+      "description": "Gerber & Drill",
+      "id": "c05befd4-f0b4-4fff-b3fd-cdd773a91305",
+      "only": [],
+      "settings": {
+        "output_path": "Jobsets/Jobset-1"
+      },
+      "type": "folder"
+    }
+  ]
+}

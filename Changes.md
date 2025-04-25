@@ -1,6 +1,24 @@
 
 # Changes
 
+
+#
+### **+05:30 03:02:56 PM 25-04-2025, Friday**
+
+  - Improved logging.
+    - The log file is now saved after all of the commands are executed.
+    - Added `kiexport_log_path` to the configuration file.
+      - The user can now pass the log file path and name through the configuration file.
+  - Bumped up the KiExport configuration version to `1.5`.
+
+#
+### **+05:30 12:24:37 PM 25-04-2025, Friday**
+
+  - Added support for generating log file.
+    - Added `Logger` class.
+    - The log is saved as `kiexport.log`.
+  - New Version 🆕 `0.0.36`.
+
 #
 ### **+05:30 05:10:36 PM 22-04-2025, Tuesday**
 

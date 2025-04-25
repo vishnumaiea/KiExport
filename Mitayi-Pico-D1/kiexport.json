@@ -2,15 +2,16 @@
   "name": "KiExport.JSON",
   "description": "Configuration file for KiExport",
   "filetype": "json",
-  "version": "1.4",
+  "version": "1.5",
   "project_name": "Mitayi-Pico-RP2040",
   "commands": [
     "gerbers",
-    "drills",
     "sch_pdf",
     "bom",
     "ibom",
     "pcb_pdf",
+    "positions",
+    "svg",
     ["pcb_render", "PCB-Front"],
     ["pcb_render", "PCB-Back"],
     ["pcb_render", "PCB-Left"],
@@ -21,13 +22,13 @@
     ["pcb_render", "PCB-Pads-Back"],
     ["pcb_render", "PCB-Paste-Front"],
     ["pcb_render", "PCB-Paste-Back"],
-    "positions", "svg",
     ["ddd", "STEP"],
     ["ddd", "VRML"]
   ],
   "kicad_cli_path": "C:\\Program Files\\KiCad\\9.99\\bin\\kicad-cli.exe",
   "kicad_python_path": "C:\\Program Files\\KiCad\\9.99\\bin\\python.exe",
   "ibom_path": "%USERPROFILE%\\Documents\\KiCad\\9.99\\3rdparty\\plugins\\org_openscopeproject_InteractiveHtmlBom\\generate_interactive_bom.py",
+  "kiexport_log_path": "Export\\kiexport.log",
   "data": {
     "gerbers": {
       "--output_dir": "Export",
