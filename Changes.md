@@ -1,6 +1,15 @@
 
 # Changes
 
+
+#
+### **+05:30 12:24:37 PM 25-04-2025, Friday**
+
+  - Added support for generating log file.
+    - Added `Logger` class.
+    - The log is saved as `kiexport.log`.
+  - New Version 🆕 `0.0.36`.
+
 #
 ### **+05:30 05:10:36 PM 22-04-2025, Tuesday**
 

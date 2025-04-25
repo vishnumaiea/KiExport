@@ -259,8 +259,8 @@
       "dist": "",
       "distpn": "",
       "internal_id": "",
-      "mfg": "",
-      "mpn": ""
+      "mfg": "MFR",
+      "mpn": "MPN"
     },
     "layer_pairs": [],
     "layer_presets": [],

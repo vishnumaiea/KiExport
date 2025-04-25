@@ -6,11 +6,12 @@
   "project_name": "Mitayi-Pico-RP2040",
   "commands": [
     "gerbers",
-    "drills",
     "sch_pdf",
     "bom",
     "ibom",
     "pcb_pdf",
+    "positions",
+    "svg",
     ["pcb_render", "PCB-Front"],
     ["pcb_render", "PCB-Back"],
     ["pcb_render", "PCB-Left"],
@@ -21,7 +22,6 @@
     ["pcb_render", "PCB-Pads-Back"],
     ["pcb_render", "PCB-Paste-Front"],
     ["pcb_render", "PCB-Paste-Back"],
-    "positions", "svg",
     ["ddd", "STEP"],
     ["ddd", "VRML"]
   ],
