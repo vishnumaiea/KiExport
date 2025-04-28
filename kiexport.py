@@ -4,8 +4,8 @@
 # KiExport
 # Tool to export manufacturing files from KiCad PCB projects.
 # Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)
-# Version: 0.0.37
-# Last Modified: +05:30 04:05:41 PM 28-04-2025, Monday
+# Version: 0.0.38
+# Last Modified: +05:30 04:21:02 PM 28-04-2025, Monday
 # GitHub: https://github.com/vishnumaiea/KiExport
 # License: MIT
 
@@ -26,7 +26,7 @@ import sys
 #=============================================================================================#
 
 APP_NAME = "KiExport"
-APP_VERSION = "0.0.37"
+APP_VERSION = "0.0.38"
 APP_DESCRIPTION = "Tool to export manufacturing files from KiCad PCB projects."
 APP_AUTHOR = "Vishnu Mohanan (@vishnumaiea, @vizmohanan)"
 
@@ -693,6 +693,10 @@ def generateiBoM (output_dir = None, pcb_filename = None, extra_args = None):
 
         elif key == "--name-format": # Skip the --name-format argument
           continue
+
+        elif key == "--extra-data-file": # Check for the extra data file key
+          full_command.append (key)
+          full_command.append (f'"{file_path}"') # Add the PCB source file. This helps to populate the custom BoM fields.
         
         else:
           # Check if the value is empty

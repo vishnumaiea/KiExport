@@ -1,6 +1,15 @@
 
 # Changes
 
+#
+### **+05:30 04:21:13 PM 28-04-2025, Monday**
+
+  - Fixed HTML BoM not populating the custom BoM fields.
+    - This was due to the missing `--extra-data-file` field.
+    - This field should have been provided with the source PCB file.
+    - `generateiBoM()` now checks for this field and replaced the value with the source PCB file name.
+    - Tested and working correctly.
+  - New Version 🆕 `0.0.38`.
 
 #
 ### **+05:30 04:03:16 PM 28-04-2025, Monday**
