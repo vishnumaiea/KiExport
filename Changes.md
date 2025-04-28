@@ -3,6 +3,12 @@
 
 
 #
+### **+05:30 04:03:16 PM 28-04-2025, Monday**
+
+  - The log file now also saves the KiCad version at the end of the file.
+  - New Version 🆕 `0.0.37`.
+
+#
 ### **+05:30 03:02:56 PM 25-04-2025, Friday**
 
   - Improved logging.

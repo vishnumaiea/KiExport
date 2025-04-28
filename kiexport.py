@@ -4,8 +4,8 @@
 # KiExport
 # Tool to export manufacturing files from KiCad PCB projects.
 # Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)
-# Version: 0.0.36
-# Last Modified: +05:30 12:24:18 PM 25-04-2025, Friday
+# Version: 0.0.37
+# Last Modified: +05:30 04:05:41 PM 28-04-2025, Monday
 # GitHub: https://github.com/vishnumaiea/KiExport
 # License: MIT
 
@@ -26,7 +26,7 @@ import sys
 #=============================================================================================#
 
 APP_NAME = "KiExport"
-APP_VERSION = "0.0.36"
+APP_VERSION = "0.0.37"
 APP_DESCRIPTION = "Tool to export manufacturing files from KiCad PCB projects."
 APP_AUTHOR = "Vishnu Mohanan (@vishnumaiea, @vizmohanan)"
 
@@ -475,6 +475,18 @@ class Logger:
     # self.log.flush()
   
   def save_to_file (self, filepath):
+    self.buffer.append ("\n")
+
+    # Get the version information from KiCad CLI and save that to the log file
+    try:
+      global current_config, default_config
+      kicad_cli_path = f'{current_config.get ("kicad_cli_path", lambda: default_config ["kicad_cli_path"])}'
+      # print (f"Running command: {color.blue (f'& \"{kicad_cli_path}\" version --format about')}")
+      version_info = subprocess.run ([kicad_cli_path, "version", "--format", "about"], check = True, capture_output = True, text = True)
+      self.buffer.append(f"\n{version_info.stdout.strip()}\n")
+    except Exception as e:
+      self.buffer.append (f"Error fetching KiCad CLI version: {e}\n")
+
     with open (filepath, 'w', encoding = 'utf-8') as f:
       f.writelines (self.buffer)
       print()

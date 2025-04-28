@@ -6,6 +6,7 @@
   "project_name": "Mitayi-Pico-RP2040",
   "commands": [
     "gerbers",
+    "_drills",
     "sch_pdf",
     "bom",
     "ibom",
@@ -106,7 +107,7 @@
         "--netlist-file": false,
         "--extra-data-file": false,
         "--extra-fields": false,
-        "--show-fields": "Value,Footprint,Name,MPN,MFR,,Alt MPN",
+        "--show-fields": "Value,Footprint,Name,MPN,MFR,Alt MPN",
         "--group-fields": "Value,Footprint,MPN",
         "--normalize-field-case": false,
         "--variant-fields": false,
