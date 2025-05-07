@@ -2,6 +2,35 @@
 # Changes
 
 #
+### **+05:30 05:05:12 PM 07-05-2025, Wednesday**
+
+  - Added support for generating XLS BoM.
+    - Added `generateBomXls()`.
+      - This function is dummy for now.
+      - But the overall command processing logic has been implemented.
+    - Unified all BoM generation commands under `bom`.
+      - Removed the `ibom` command.
+        - User can now specify the type of BoM using `--type`, `-t` argument.
+        - Supported types are `CSV`, `HTML`, `XLS`.
+        - If no type is specified, the default type will be `CSV`.
+  - Renamed `generateiBoM()` to `generateBomHtml()`.
+  - Renamed `generateBom()` to `generateBomCsv()`.
+  - `generateBomCsv()` now returns the generated CSV file name upon success.
+    - This file name can be used to generate XLS BoM file.
+  - Updated `bom` command logic in `parseArguments()`.
+  - Updated all `command_exec_status` types.
+  - Updated `valid_commands` list.
+  - Updated command execution logic in `run()`.
+  - Updated `DEFAULT_CONFIG_JSON`.
+  - Bumped up the `kiexport.json` version to `1.6`.
+    - `bom` command can now be passed as a list. For example, `["bom", "CSV"]`.
+    - Renamed `iBoM` section to `HTML`.
+    - Added `XLS` data under `bom`.
+  - New Version 🆕 `0.1.0`.
+    - This version introduces breaking changes.
+    - Configuration file version <=1.5 can fail.
+
+#
 ### **+05:30 04:21:13 PM 28-04-2025, Monday**
 
   - Fixed HTML BoM not populating the custom BoM fields.
