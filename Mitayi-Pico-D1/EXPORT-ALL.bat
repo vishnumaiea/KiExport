@@ -7,8 +7,9 @@ set PCB_FILE=Mitayi-Pico-RP2040.kicad_pcb
 
 :: Execute commands
 @REM kiexport sch_pdf -od "%OUTPUT_DIR%" -if "%SCH_FILE%"
-@REM kiexport bom -od "%OUTPUT_DIR%" -if "%SCH_FILE%"
-@REM kiexport ibom -od "%OUTPUT_DIR%" -if "%PCB_FILE%"
+@REM kiexport bom -od "%OUTPUT_DIR%" -if "%SCH_FILE%" -t "CSV"
+@REM kiexport bom -od "%OUTPUT_DIR%" -if "%SCH_FILE%" -t "XLS"
+@REM kiexport bom -od "%OUTPUT_DIR%" -if "%PCB_FILE%" -t "HTML"
 @REM kiexport pcb_pdf -od "%OUTPUT_DIR%" -if "%PCB_FILE%"
 @REM kiexport pcb_render -od "%OUTPUT_DIR%" -if "%PCB_FILE%"
 @REM kiexport gerbers -od "%OUTPUT_DIR%" -if "%PCB_FILE%"

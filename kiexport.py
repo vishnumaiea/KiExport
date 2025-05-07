@@ -4,8 +4,8 @@
 # KiExport
 # Tool to export manufacturing files from KiCad PCB projects.
 # Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)
-# Version: 0.0.38
-# Last Modified: +05:30 04:21:02 PM 28-04-2025, Monday
+# Version: 0.1.0
+# Last Modified: +05:30 05:04:57 PM 07-05-2025, Wednesday
 # GitHub: https://github.com/vishnumaiea/KiExport
 # License: MIT
 
@@ -26,7 +26,7 @@ import sys
 #=============================================================================================#
 
 APP_NAME = "KiExport"
-APP_VERSION = "0.0.38"
+APP_VERSION = "0.1.0"
 APP_DESCRIPTION = "Tool to export manufacturing files from KiCad PCB projects."
 APP_AUTHOR = "Vishnu Mohanan (@vishnumaiea, @vizmohanan)"
 
@@ -45,15 +45,17 @@ DEFAULT_CONFIG_JSON = '''
   "name": "KiExport.JSON",
   "description": "Configuration file for KiExport",
   "filetype": "json",
-  "version": "1.4",
+  "version": "1.6",
   "project_name": "Mitayi-Pico-RP2040",
   "commands": [
     "gerbers",
-    "drills",
     "sch_pdf",
-    "bom",
-    "ibom",
+    ["bom", "CSV"],
+    ["bom", "XLS"],
+    ["bom", "HTML"],
     "pcb_pdf",
+    "positions",
+    "svg",
     ["pcb_render", "PCB-Front"],
     ["pcb_render", "PCB-Back"],
     ["pcb_render", "PCB-Left"],
@@ -62,17 +64,35 @@ DEFAULT_CONFIG_JSON = '''
     ["pcb_render", "PCB-Parts-Back"],
     ["pcb_render", "PCB-Pads-Front"],
     ["pcb_render", "PCB-Pads-Back"],
-    "positions", "svg",
+    ["pcb_render", "PCB-Paste-Front"],
+    ["pcb_render", "PCB-Paste-Back"],
     ["ddd", "STEP"],
     ["ddd", "VRML"]
   ],
-  "kicad_cli_path": "C:\\\\Program Files\\\\KiCad\\\\9.0\\\\bin\\\\kicad-cli.exe",
-  "kicad_python_path": "C:\\\\Program Files\\\\KiCad\\\\9.0\\\\bin\\\\python.exe",
-  "ibom_path": "%USERPROFILE%\\\\Documents\\\\KiCad\\\\9.0\\\\3rdparty\\\\plugins\\\\org_openscopeproject_InteractiveHtmlBom\\\\generate_interactive_bom.py",
+  "kicad_cli_path": "C:\\\\Program Files\\\\KiCad\\\\9.99\\bin\\\\kicad-cli.exe",
+  "kicad_python_path": "C:\\\\Program Files\\\\KiCad\\\\9.99\\\\bin\\\\python.exe",
+  "ibom_path": "%USERPROFILE%\\\\Documents\\\\KiCad\\\\9.99\\\\3rdparty\\\\plugins\\\\org_openscopeproject_InteractiveHtmlBom\\\\generate_interactive_bom.py",
+  "kiexport_log_path": "Export\\\\kiexport.log",
   "data": {
     "gerbers": {
       "--output_dir": "Export",
-      "--layers": ["F.Cu","B.Cu","F.Paste","B.Paste","F.Silkscreen","B.Silkscreen","F.Mask","B.Mask","User.Drawings","User.Comments","Edge.Cuts","F.Courtyard","B.Courtyard","F.Fab","B.Fab"],
+      "--layers": [
+        "F.Cu",
+        "B.Cu",
+        "F.Paste",
+        "B.Paste",
+        "F.Silkscreen",
+        "B.Silkscreen",
+        "F.Mask",
+        "B.Mask",
+        "User.Drawings",
+        "User.Comments",
+        "Edge.Cuts",
+        "F.Courtyard",
+        "B.Courtyard",
+        "F.Fab",
+        "B.Fab"
+      ],
       "--drawing-sheet": false,
       "--exclude-refdes": false,
       "--exclude-value": false,
@@ -121,7 +141,10 @@ DEFAULT_CONFIG_JSON = '''
         "--keep-tabs": false,
         "--keep-line-breaks": false
       },
-      "iBoM": {
+      "XLS": {
+        "--output_dir": "Export"
+      },
+      "HTML": {
         "--output_dir": "Export",
         "--show-dialog": false,
         "--dark-mode": true,
@@ -144,10 +167,10 @@ DEFAULT_CONFIG_JSON = '''
         "--no-blacklist-virtual": false,
         "--blacklist-empty-value": false,
         "--netlist-file": false,
-        "--extra-data-file": false,
+        "--extra-data-file": true,
         "--extra-fields": false,
-        "--show-fields": "Value,Footprint",
-        "--group-fields": "Value,Footprint",
+        "--show-fields": "Value,Footprint,Name,MPN,MFR,Alt MPN",
+        "--group-fields": "Value,Footprint,MPN",
         "--normalize-field-case": false,
         "--variant-fields": false,
         "--variants-whitelist": false,
@@ -166,7 +189,23 @@ DEFAULT_CONFIG_JSON = '''
     },
     "pcb_pdf": {
       "--output_dir": "Export",
-      "--layers": ["F.Cu","B.Cu","F.Paste","B.Paste","F.Silkscreen","B.Silkscreen","F.Mask","B.Mask","User.Drawings","User.Comments","Edge.Cuts","F.Courtyard","B.Courtyard","F.Fab","B.Fab"],
+      "--layers": [
+        "F.Cu",
+        "B.Cu",
+        "F.Paste",
+        "B.Paste",
+        "F.Silkscreen",
+        "B.Silkscreen",
+        "F.Mask",
+        "B.Mask",
+        "User.Drawings",
+        "User.Comments",
+        "Edge.Cuts",
+        "F.Courtyard",
+        "B.Courtyard",
+        "F.Fab",
+        "B.Fab"
+      ],
       "kie_common_layers": ["Edge.Cuts"],
       "--drawing-sheet": false,
       "--mirror": false,
@@ -193,7 +232,23 @@ DEFAULT_CONFIG_JSON = '''
     },
     "svg": {
       "--output_dir": "Export",
-      "--layers": ["F.Cu","B.Cu","F.Paste","B.Paste","F.Silkscreen","B.Silkscreen","F.Mask","B.Mask","User.Drawings","User.Comments","Edge.Cuts","F.Courtyard","B.Courtyard","F.Fab","B.Fab"],
+      "--layers": [
+        "F.Cu",
+        "B.Cu",
+        "F.Paste",
+        "B.Paste",
+        "F.Silkscreen",
+        "B.Silkscreen",
+        "F.Mask",
+        "B.Mask",
+        "User.Drawings",
+        "User.Comments",
+        "Edge.Cuts",
+        "F.Courtyard",
+        "B.Courtyard",
+        "F.Fab",
+        "B.Fab"
+      ],
       "kie_common_layers": [""],
       "--drawing-sheet": false,
       "--mirror": false,
@@ -254,7 +309,7 @@ DEFAULT_CONFIG_JSON = '''
       },
       "PCB-Back": {
         "kie_type": "png",
-        "kie_name_stub": "Back",
+        "kie_name_stub": "PCB-Back",
         "--width": 8000,
         "--height": 6000,
         "--side": "back",
@@ -275,7 +330,7 @@ DEFAULT_CONFIG_JSON = '''
       },
       "PCB-Left": {
         "kie_type": "png",
-        "kie_name_stub": "Left",
+        "kie_name_stub": "PCB-Left",
         "--width": 8000,
         "--height": 6000,
         "--side": "left",
@@ -296,7 +351,7 @@ DEFAULT_CONFIG_JSON = '''
       },
       "PCB-Right": {
         "kie_type": "png",
-        "kie_name_stub": "Right",
+        "kie_name_stub": "PCB-Right",
         "--width": 8000,
         "--height": 6000,
         "--side": "right",
@@ -581,7 +636,7 @@ def to_lazy_dict (d):
 
 #=============================================================================================#
 
-def generateiBoM (output_dir = None, pcb_filename = None, extra_args = None):
+def generateBomHtml (output_dir = None, pcb_filename = None, extra_args = None):
   """
   Runs the KiCad iBOM Python script on a specified PCB file.
 
@@ -602,18 +657,18 @@ def generateiBoM (output_dir = None, pcb_filename = None, extra_args = None):
 
   # Check if the KiCad Python path exists.
   if not os.path.isfile (kicad_python_path):
-    print (color.red (f"generateiBoM [ERROR]: The KiCad Python path '{kicad_python_path}' does not exist. This command will be skipped."))
-    command_exec_status ["ibom"] = False
+    print (color.red (f"generateBomHtml [ERROR]: The KiCad Python path '{kicad_python_path}' does not exist. This command will be skipped."))
+    command_exec_status ["bom_html"] = False
     return
 
   # Check if the iBOM script path exists.
   ibom_path = ibom_path.strip()
   ibom_path = os.path.normpath (ibom_path)
   if not os.path.isfile (ibom_path):
-    print (color.red (f"generateiBoM [ERROR]: The iBOM path '{ibom_path}' does not exist. This command will be skipped."))
+    print (color.red (f"generateBomHtml [ERROR]: The iBOM path '{ibom_path}' does not exist. This command will be skipped."))
     # st = os.stat (ibom_path)
     # print(f"Permissions: {oct(st.st_mode)}")
-    command_exec_status ["ibom"] = False
+    command_exec_status ["bom_html"] = False
     return
   
   # Construct the iBOM command.
@@ -623,8 +678,8 @@ def generateiBoM (output_dir = None, pcb_filename = None, extra_args = None):
   
   # Ensure PCB file exists.
   if not os.path.isfile (pcb_filename):
-    print (color.red (f"generateiBoM [ERROR]: The PCB file '{pcb_filename}' does not exist. The command will be skipped."))
-    command_exec_status ["ibom"] = False
+    print (color.red (f"generateBomHtml [ERROR]: The PCB file '{pcb_filename}' does not exist. The command will be skipped."))
+    command_exec_status ["bom_html"] = False
     return
   
   #---------------------------------------------------------------------------------------------#
@@ -635,7 +690,7 @@ def generateiBoM (output_dir = None, pcb_filename = None, extra_args = None):
   project_name = extract_project_name (file_name)
   info = extract_info_from_pcb (pcb_filename)
   
-  print (f"generateiBoM [INFO]: Project name is '{color.magenta (project_name)}' and revision is {color.magenta ('R')}{color.magenta (info ['rev'])}.")
+  print (f"generateBomHtml [INFO]: Project name is '{color.magenta (project_name)}' and revision is {color.magenta ('R')}{color.magenta (info ['rev'])}.")
   # ibom_filename = f"{project_name}-R{info ['rev']}-HTML-BoM-{filename_date}.html"
 
   #---------------------------------------------------------------------------------------------#
@@ -647,11 +702,11 @@ def generateiBoM (output_dir = None, pcb_filename = None, extra_args = None):
   project_dir = os.path.dirname (file_path)
   
   # Read the output directory name from the config file.
-  od_from_config = project_dir + "/" + current_config.get ("data", {}).get ("bom", {}).get ("iBoM").get ("--output_dir", lambda: default_config ["data"]["bom"]["iBoM"]["--output_dir"])
+  od_from_config = project_dir + "/" + current_config.get ("data", {}).get ("bom", {}).get ("HTML").get ("--output_dir", lambda: default_config ["data"]["bom"]["HTML"]["--output_dir"])
   od_from_cli = output_dir  # The directory specified by the command line argument
 
   # Get the final directory path
-  final_directory, filename_date = create_final_directory (od_from_config, od_from_cli, "BoM", info ["rev"], "generateiBoM")
+  final_directory, filename_date = create_final_directory (od_from_config, od_from_cli, "BoM", info ["rev"], "generateBomHtml")
 
   #---------------------------------------------------------------------------------------------#
 
@@ -681,7 +736,7 @@ def generateiBoM (output_dir = None, pcb_filename = None, extra_args = None):
   #---------------------------------------------------------------------------------------------#
 
   # Get the argument list from the config file.
-  arg_list = current_config.get ("data", {}).get ("bom", {}).get ("iBoM")
+  arg_list = current_config.get ("data", {}).get ("bom", {}).get ("HTML")
 
   # Add the remaining arguments.
   # Check if the argument list is not an empty dictionary.
@@ -718,7 +773,7 @@ def generateiBoM (output_dir = None, pcb_filename = None, extra_args = None):
 
   # Finally add the input file
   full_command.append (f'"{pcb_filename}"')
-  print ("generateBom [INFO]: Running command: ", color.blue (' '.join (full_command)))
+  print ("generateBomHtml [INFO]: Running command: ", color.blue (' '.join (full_command)))
 
   #---------------------------------------------------------------------------------------------#
 
@@ -726,20 +781,20 @@ def generateiBoM (output_dir = None, pcb_filename = None, extra_args = None):
   try:
     full_command = ' '.join (full_command) # Convert the list to a string
     subprocess.run (full_command, check = True)
-    print (color.green (f"generateiBoM [INFO]: Interactive HTML BoM generated successfully."))
+    print (color.green (f"generateBomHtml [INFO]: Interactive HTML BoM generated successfully."))
     print()
-    command_exec_status ["ibom"] = True
+    command_exec_status ["bom_html"] = True
 
   except subprocess.CalledProcessError as e:
-    print (color.red (f"generateiBoM [ERROR]: Error during HTML BoM generation: {e}"))
-    print (color.red (f"generateiBoM [INFO]: Make sure the 'Interactive HTML BoM' application is installed and available on the PATH."))
+    print (color.red (f"generateBomHtml [ERROR]: Error during HTML BoM generation: {e}"))
+    print (color.red (f"generateBomHtml [INFO]: Make sure the 'Interactive HTML BoM' application is installed and available on the PATH."))
     print()
-    command_exec_status ["ibom"] = False
+    command_exec_status ["bom_html"] = False
 
   except Exception as e:
-    print (color.red (f" generateiBoM [ERROR]: An unexpected error occurred: {e}"))
+    print (color.red (f" generateBomHtml [ERROR]: An unexpected error occurred: {e}"))
     print()
-    command_exec_status ["ibom"] = False
+    command_exec_status ["bom_html"] = False
 
 #=============================================================================================#
 
@@ -1756,7 +1811,7 @@ def generate3D (output_dir, pcb_filename, type = "STEP", to_overwrite = True):
 
 #=============================================================================================#
 
-def generateBom (output_dir, sch_filename, type, to_overwrite = True):
+def generateBomCsv (output_dir, sch_filename, to_overwrite = True):
   # Get the KiCad CLI path.
   kicad_cli_path = f'{current_config.get ("kicad_cli_path", lambda: default_config ["kicad_cli_path"])}'
 
@@ -1765,9 +1820,9 @@ def generateBom (output_dir, sch_filename, type, to_overwrite = True):
 
   # Check if the input file exists
   if not check_file_exists (sch_filename):
-    print (color.red (f"generateBom [ERROR]: '{sch_filename}' does not exist."))
-    command_exec_status ["bom"] = False
-    return
+    print (color.red (f"generateBomCsv [ERROR]: '{sch_filename}' does not exist."))
+    command_exec_status ["bom_csv"] = False
+    return False
 
   #---------------------------------------------------------------------------------------------#
   
@@ -1777,7 +1832,7 @@ def generateBom (output_dir, sch_filename, type, to_overwrite = True):
   project_name = extract_project_name (file_name)
   info = extract_info_from_pcb (sch_filename)
   
-  print (f"generateBom [INFO]: Project name is '{color.magenta (project_name)}' and revision is {color.magenta ('R')}{color.magenta (info ['rev'])}.")
+  print (f"generateBomCsv [INFO]: Project name is '{color.magenta (project_name)}' and revision is {color.magenta ('R')}{color.magenta (info ['rev'])}.")
 
   #---------------------------------------------------------------------------------------------#
   
@@ -1792,7 +1847,7 @@ def generateBom (output_dir, sch_filename, type, to_overwrite = True):
   od_from_cli = output_dir  # The output directory specified by the command line argument
 
   # Get the final directory path.
-  final_directory, filename_date = create_final_directory (od_from_config, od_from_cli, "BoM", info ["rev"], "generateBom")
+  final_directory, filename_date = create_final_directory (od_from_config, od_from_cli, "BoM", info ["rev"], "generateBomCsv")
   
   #---------------------------------------------------------------------------------------------#
   
@@ -1838,15 +1893,15 @@ def generateBom (output_dir, sch_filename, type, to_overwrite = True):
             else:
               # Check if the value is a string and not a numeral
               if isinstance (value, str) and not value.isdigit():
-                  full_command.append (key)
-                  full_command.append (f'"{value}"') # Add as a double-quoted string
+                full_command.append (key)
+                full_command.append (f'"{value}"') # Add as a double-quoted string
               elif isinstance (value, (int, float)):
-                  full_command.append (key)
-                  full_command.append (str (value))  # Append the numeric value as string
+                full_command.append (key)
+                full_command.append (str (value))  # Append the numeric value as string
   
   # Finally add the input file
   full_command.append (f'"{sch_filename}"')
-  print ("generateBom [INFO]: Running command: ", color.blue (' '.join (full_command)))
+  print ("generateBomCsv [INFO]: Running command: ", color.blue (' '.join (full_command)))
 
   #---------------------------------------------------------------------------------------------#
   
@@ -1856,14 +1911,27 @@ def generateBom (output_dir, sch_filename, type, to_overwrite = True):
     subprocess.run (full_command, check = True)
   
   except subprocess.CalledProcessError as e:
-    print (color.red (f"generateBom [ERROR]: Error occurred: {e}"))
+    print (color.red (f"generateBomCsv [ERROR]: Error occurred: {e}"))
     print()
-    command_exec_status ["bom"] = False
-    return
+    command_exec_status ["bom_csv"] = False
+    return False
 
-  print (color.green ("generateBom [OK]: BoM file exported successfully."))
+  print (color.green ("generateBomCsv [OK]: BoM file exported successfully."))
   print()
-  command_exec_status ["bom"] = True
+  command_exec_status ["bom_csv"] = True
+  return file_name # Return the file name of the generated BoM file
+
+#=============================================================================================#
+
+def generateBomXls (output_dir, csv_file, to_overwrite = True):
+  # Check if the input file exists
+  if not check_file_exists (csv_file):
+    print (color.red (f"generateBomXls [ERROR]: The supplied CSV file '{csv_file}' does not exist."))
+    command_exec_status ["bom_xls"] = False
+    return False
+
+  print (color.green ("generateBomXls [OK]: XLS BoM file exported successfully."))
+  print()
 
 #=============================================================================================#
 
@@ -2453,7 +2521,7 @@ def run (config_file, command_list = None):
   Fetches command list and configuration from the JSON file and runs the commands.
 
   Args:
-      `config_file` (str): Path to the configuration file. Can be relative or absolute.
+    `config_file` (str): Path to the configuration file. Can be relative or absolute.
   """
 
   print (f"run [INFO]: Running KiExport with configuration file '{color.magenta (config_file)}'.")
@@ -2466,7 +2534,7 @@ def run (config_file, command_list = None):
   #---------------------------------------------------------------------------------------------#
 
   # List of top-level commands.
-  valid_commands = ["gerbers", "drills", "sch_pdf", "bom", "ibom", "pcb_pdf", "positions", "ddd", "svg", "pcb_render"]
+  valid_commands = ["gerbers", "drills", "sch_pdf", "bom", "pcb_pdf", "positions", "ddd", "svg", "pcb_render"]
 
   #---------------------------------------------------------------------------------------------#
 
@@ -2580,115 +2648,115 @@ def run (config_file, command_list = None):
 
   #---------------------------------------------------------------------------------------------#
 
-  # Process the commands without any arguments or modifiers.
+  # Process the commands without any arguments or modifiers. eg. "gerbers", "drills", "sch_pdf", etc.
   for cmd in cmd_strings:
     if cmd == "gerbers":
       output_dir = current_config.get ("data", {}).get ("gerbers", {}).get ("--output_dir", lambda: default_config ["data"]["gerbers"]["--output_dir"])
       output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
-      generateGerbers (output_dir, pcb_file_path)
+      generateGerbers (output_dir = output_dir, pcb_filename = pcb_file_path)
 
     elif cmd == "drills":
       output_dir = current_config.get ("data", {}).get ("drills", {}).get ("--output_dir", lambda: default_config ["data"]["drills"]["--output_dir"])
       output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
-      generateDrills (output_dir, pcb_file_path)
+      generateDrills (output_dir = output_dir, pcb_filename = pcb_file_path)
 
     elif cmd == "sch_pdf":
       output_dir = current_config.get ("data", {}).get ("sch_pdf", {}).get ("--output_dir", lambda: default_config ["data"]["sch_pdf"]["--output_dir"])
       output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
-      generateSchPdf (output_dir, sch_file_path)
+      generateSchPdf (output_dir = output_dir, sch_filename = sch_file_path)
 
     elif cmd == "bom":
+      # Default is CSV
       output_dir = current_config.get ("data", {}).get ("bom", {}).get ("CSV", {}).get ("--output_dir", lambda: default_config ["data"]["bom"]["CSV"]["--output_dir"])
       output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
-      generateBom (output_dir, sch_file_path, "CSV")
-
-    elif cmd == "ibom":
-      output_dir = current_config.get ("data", {}).get ("bom", {}).get ("iBoM", {}).get ("--output_dir", lambda: default_config ["data"]["bom"]["iBoM"]["--output_dir"])
-      output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
-      generateiBoM (output_dir, pcb_file_path)
+      generateBomCsv (output_dir = output_dir, sch_filename = sch_file_path)
 
     elif cmd == "pcb_pdf":
       output_dir = current_config.get ("data", {}).get ("pcb_pdf", {}).get ("--output_dir", lambda: default_config ["data"]["pcb_pdf"]["--output_dir"])
       output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
-      generatePcbPdf (output_dir, pcb_file_path)
+      generatePcbPdf (output_dir = output_dir, pcb_filename = pcb_file_path)
 
     elif cmd == "positions":
       output_dir = current_config.get ("data", {}).get ("positions", {}).get ("--output_dir", lambda: default_config ["data"]["positions"]["--output_dir"])
       output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
-      generatePositions (output_dir, pcb_file_path)
+      generatePositions (output_dir = output_dir, pcb_filename = pcb_file_path)
 
     elif cmd == "ddd":
+      # Default is STEP
       output_dir = current_config.get ("data", {}).get ("ddd", {}).get ("STEP", {}).get ("--output_dir", lambda: default_config ["data"]["ddd"]["STEP"]["--output_dir"])
       output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
-      generate3D (output_dir, pcb_file_path, "STEP")
+      generate3D (output_dir = output_dir, pcb_filename = pcb_file_path, type = "STEP")
     
     elif cmd == "svg":
       output_dir = current_config.get ("data", {}).get ("svg", {}).get ("--output_dir", lambda: default_config ["data"]["svg"]["--output_dir"])
       output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
-      generateSvg (output_dir, pcb_file_path)
+      generateSvg (output_dir = output_dir, pcb_filename = pcb_file_path)
 
     elif cmd == "pcb_render":
       output_dir = current_config.get ("data", {}).get ("pcb_render", {}).get ("--output_dir", lambda: default_config ["data"]["pcb_render"]["--output_dir"])
       output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
-      generatePcbRenders (output_dir, pcb_file_path)
+      generatePcbRenders (output_dir = output_dir, pcb_filename = pcb_file_path)
 
   #---------------------------------------------------------------------------------------------#
 
-  # Process the commands with arguments or modifiers.
+  # Process the commands with arguments or modifiers. eg. "["ddd", "STEP"]", "[ddd, VRML]"
   for cmd in cmd_lists:
     if cmd [0] == "gerbers":
       output_dir = current_config.get ("data", {}).get ("gerbers", {}).get ("--output_dir", lambda: default_config ["data"]["gerbers"]["--output_dir"])
       output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
-      generateGerbers (output_dir, pcb_file_path)
+      generateGerbers (output_dir = output_dir, pcb_filename = pcb_file_path)
     
     elif cmd [0] == "drills":
       output_dir = current_config.get ("data", {}).get ("drills", {}).get ("--output_dir", lambda: default_config ["data"]["drills"]["--output_dir"])
       output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
-      generateDrills (output_dir, pcb_file_path)
+      generateDrills (output_dir = output_dir, pcb_filename = pcb_file_path)
 
     elif cmd [0] == "sch_pdf":
       output_dir = current_config.get ("data", {}).get ("sch_pdf", {}).get ("--output_dir", lambda: default_config ["data"]["sch_pdf"]["--output_dir"])
       output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
-      generateSchPdf (output_dir, sch_file_path)
+      generateSchPdf (output_dir = output_dir, sch_filename = sch_file_path)
     
     elif cmd [0] == "bom":
-      if cmd [1] == "XLS":
-        pass
-      else: # Default is CSV
+      if (cmd [1] == "CSV") or (cmd [1] == "XLS"):
         output_dir = current_config.get ("data", {}).get ("bom", {}).get ("CSV", {}).get ("--output_dir", lambda: default_config ["data"]["bom"]["CSV"]["--output_dir"])
         output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
-        generateBom (output_dir, sch_file_path, "CSV")
+        csv_filename = generateBomCsv (output_dir = output_dir, sch_filename = sch_file_path)
+
+        if cmd [1] == "XLS":
+          output_dir = current_config.get ("data", {}).get ("bom", {}).get ("XLS", {}).get ("--output_dir", lambda: default_config ["data"]["bom"]["XLS"]["--output_dir"])
+          output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
+          generateBomXls (output_dir = output_dir, csv_file = csv_filename)
     
-    elif cmd [0] == "ibom":
-      output_dir = current_config.get ("data", {}).get ("bom", {}).get ("iBoM", {}).get ("--output_dir", lambda: default_config ["data"]["bom"]["iBoM"]["--output_dir"])
-      output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
-      generateiBoM (output_dir, pcb_file_path)
+      elif cmd [1] == "HTML":
+        output_dir = current_config.get ("data", {}).get ("bom", {}).get ("HTML", {}).get ("--output_dir", lambda: default_config ["data"]["bom"]["HTML"]["--output_dir"])
+        output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
+        generateBomHtml (output_dir = output_dir, pcb_filename = pcb_file_path)
     
     elif cmd [0] == "pcb_pdf":
       output_dir = current_config.get ("data", {}).get ("pcb_pdf", {}).get ("--output_dir", lambda: default_config ["data"]["pcb_pdf"]["--output_dir"])
       output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
-      generatePcbPdf (output_dir, pcb_file_path)
+      generatePcbPdf (output_dir = output_dir, pcb_filename = pcb_file_path)
     
     elif cmd [0] == "positions":
       output_dir = current_config.get ("data", {}).get ("positions", {}).get ("--output_dir", lambda: default_config ["data"]["positions"]["--output_dir"])
       output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
-      generatePositions (output_dir, pcb_file_path)
+      generatePositions (output_dir = output_dir, pcb_filename = pcb_file_path)
     
     elif cmd [0] == "ddd":
       if cmd [1] == "VRML":
         output_dir = current_config.get ("data", {}).get ("ddd", {}).get ("VRML", {}).get ("--output_dir", lambda: default_config ["data"]["ddd"]["VRML"]["--output_dir"])
         output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
-        generate3D (output_dir, pcb_file_path, "VRML")
+        generate3D (output_dir = output_dir, pcb_filename = pcb_file_path, type = "VRML")
         
       else: # Default is STEP
         output_dir = current_config.get ("data", {}).get ("ddd", {}).get ("STEP", {}).get ("--output_dir", lambda: default_config ["data"]["ddd"]["STEP"]["--output_dir"])
         output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
-        generate3D (output_dir, pcb_file_path, "STEP")
+        generate3D (output_dir = output_dir, pcb_filename = pcb_file_path, type = "STEP")
     
     elif cmd [0] == "svg":
       output_dir = current_config.get ("data", {}).get ("svg", {}).get ("--output_dir", lambda: default_config ["data"]["svg"]["--output_dir"])
       output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
-      generateSvg (output_dir, pcb_file_path)
+      generateSvg (output_dir = output_dir, pcb_filename = pcb_file_path)
     
     elif cmd [0] == "pcb_render":
       output_dir = current_config.get ("data", {}).get ("pcb_render", {}).get ("--output_dir", lambda: default_config ["data"]["pcb_render"]["--output_dir"])
@@ -2769,17 +2837,17 @@ def parseArguments():
   ddd_parser.add_argument ("-t", "--type", required = True, help = "The type of file to generate. Can be STEP or VRML.")
 
   # Subparser for the BoM file export command.
-  # Example: python .\kiexport.py bom -od "Mitayi-Pico-D1/Export" -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_sch"
+  # Example: python .\kiexport.py bom -od "Mitayi-Pico-D1/Export" -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_sch" -t "CSV"
   bom_parser = subparsers.add_parser ("bom", help = "Export BoM files.")
   bom_parser.add_argument ("-if", "--input_filename", required = True, help = "Path to the .kicad_sch file.")
   bom_parser.add_argument ("-od", "--output_dir", required = True, help = "Directory to save the BoM files to.")
   bom_parser.add_argument ("-t", "--type", help = "The type of file to generate. Default is CSV.")
 
-  # Subparser for the HTML iBoM file export command.
-  # Example: python .\kiexport.py ibom -od "Mitayi-Pico-D1/Export" -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb"
-  ibom_parser = subparsers.add_parser ("ibom", help = "Export HMTL iBoM files. The Kicad iBOM plugin is required")
-  ibom_parser.add_argument ("-if", "--input_filename", required = True, help = "Path to the .kicad_pcb file.")
-  ibom_parser.add_argument ("-od", "--output_dir", required = True, help = "Directory to save the BoM files to.")
+  # # Subparser for the HTML iBoM file export command.
+  # # Example: python .\kiexport.py ibom -od "Mitayi-Pico-D1/Export" -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb"
+  # ibom_parser = subparsers.add_parser ("ibom", help = "Export HMTL iBoM files. The Kicad iBOM plugin is required")
+  # ibom_parser.add_argument ("-if", "--input_filename", required = True, help = "Path to the .kicad_pcb file.")
+  # ibom_parser.add_argument ("-od", "--output_dir", required = True, help = "Directory to save the BoM files to.")
 
   # Subparser for the SVG export command.
   # Example: python .\kiexport.py svg -od "Mitayi-Pico-D1/Export" -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb"
@@ -2873,34 +2941,53 @@ def parseArguments():
     pass
 
   elif args.command == "gerbers":
-    generateGerbers (args.output_dir, args.input_filename)
+    generateGerbers (output_dir = args.output_dir, pcb_filename = args.input_filename)
 
   elif args.command == "drills":
-    generateDrills (args.output_dir, args.input_filename)
+    generateDrills (output_dir = args.output_dir, pcb_filename = args.input_filename)
   
   elif args.command == "positions":
-    generatePositions (args.output_dir, args.input_filename)
+    generatePositions (output_dir = args.output_dir, pcb_filename = args.input_filename)
   
   elif args.command == "pcb_pdf":
-    generatePcbPdf (args.output_dir, args.input_filename)
+    generatePcbPdf (output_dir = args.output_dir, pcb_filename = args.input_filename)
 
   elif args.command == "sch_pdf":
-    generateSchPdf (args.output_dir, args.input_filename)
+    generateSchPdf (output_dir = args.output_dir, sch_filename = args.input_filename)
+  
+  #.............................................................................................#
 
   elif args.command == "bom":
-    generateBom (args.output_dir, args.input_filename, args.type)
+    type = None
+    if args.type is not None:
+      # convert to string to uppercase
+      type = args.type.upper()
+    else:
+      type = "CSV" # Default is CSV
+    
+    if type not in ["CSV", "XLS", "HTML"]:
+      print (color.yellow (f"run [WARNING]: Invalid BoM type '{type}' specified. Defaulting to CSV."))
+      type = "CSV"
+    
+    if (type == "CSV") or (type == "XLS"):
+      # We need to generate the CSV file first.
+      csv_file_name = generateBomCsv (output_dir = args.output_dir, sch_filename = args.input_filename)
+      if type == "XLS":
+        # The CSV file is used to generate the XLS file.
+        generateBomXls (output_dir = args.output_dir, csv_file = csv_file_name)
+    elif type == "HTML":
+      generateBomHtml (output_dir = args.output_dir, pcb_filename = args.input_filename)
   
-  elif args.command == "ddd":
-    generate3D (args.output_dir, args.input_filename, args.type)
+  #.............................................................................................#
 
-  elif args.command == "ibom":
-    generateiBoM (args.output_dir, args.input_filename)
+  elif args.command == "ddd":
+    generate3D (output_dir = args.output_dir, pcb_filename = args.input_filename, type = args.type)
 
   elif args.command == "svg":
-    generateSvg (args.output_dir, args.input_filename)
+    generateSvg (output_dir = args.output_dir, pcb_filename = args.input_filename)
 
   elif args.command == "pcb_render":
-    generatePcbRenders (args.output_dir, args.input_filename, args.preset)
+    generatePcbRenders (output_dir = args.output_dir, pcb_filename = args.input_filename, preset = args.preset)
 
   elif args.command == "test":
     test()
