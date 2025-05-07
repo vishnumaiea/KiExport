@@ -1,11 +1,11 @@
 
 # KiExport
 
-**KiExport** is a Python application for automating manufacturing files generation from KiCad PCB design projects. This is a CLI (Command Line Interface) utility. Commands and arguments can be passed to the script while running or from a JSON configuration file named `kiexport.json`. You should be familiar working with CLI tools and how to execute commands from a terminal.
+[**KiExport**](https://github.com/vishnumaiea/KiExport) is a Python application for automating manufacturing files generation from KiCad PCB design projects. This is a CLI (Command Line Interface) utility. Commands and arguments can be passed to the script while running, or from a JSON configuration file named `kiexport.json`. You should be familiar working with CLI tools and how to execute commands from a terminal.
 
 KiExport generates the manufacturing files based on the options available in the `kiexport.json` file, and saves them in an organized way. It renames the files, folders and create ZIP archive files with proper names date stamps so that you can send them to a manufacturer or client easily. Since the `kiexport.json` configuration file can be edited for any project, you only have to create the file once. You can also create multiple configuration files according to different manufacturing requirements.
 
-The [**Mitayi Pico RP2040**](https://github.com/CIRCUITSTATE/Mitayi-Pico-RP2040) project is added as a sample project to test the script. 
+The [**Mitayi Pico RP2040**](https://github.com/CIRCUITSTATE/Mitayi-Pico-RP2040) project is added as a sample project to test the script. If you are on Windows, you can run the `EXPORT-ALL.bat` batch script to automatically generate the manufacturing files.
 
 - **Author:** [Vishnu Mohanan](https://github.com/vishnumaiea)
 - **Version:** `0.0.38`
@@ -36,7 +36,7 @@ This tool was created with the help of [**ChatGPT**](https://chat.openai.com/cha
     - [`ibom`](#ibom)
     - [`run`](#run)
   - [Configuration File](#configuration-file)
-  - [Limitations](#limitations)
+  - [Log File](#log-file)
   - [License](#license)
   - [References](#references)
 
@@ -59,31 +59,45 @@ KiCad V9 added support for **Jobsets** which allow you to generate manufacturing
 
 This soiftware was developed and tested on Windows 11. It should work on other platforms as well, but it is not tested. The following software should be installed in your system to use this tool.
 
-- Python 3.x
-- KiCad 8.x or later
-- Git
-- Interactive HTML BoM Plugin (if you want to generate HTML BoM)
+- [Python 3.x](https://www.python.org/downloads/)
+- [KiCad 8.x or later](https://www.kicad.org/download/)
+- [Git](https://git-scm.com/downloads)
+- [Interactive HTML BoM Plugin](https://github.com/openscopeproject/InteractiveHtmlBom) (if you want to generate HTML BoM)
 - Recommended:
-  - VS Code
-  - Windows Terminal
+  - [VS Code](https://code.visualstudio.com/download)
+  - [Windows Terminal](https://github.com/microsoft/terminal/releases)
 
 ## Installation
 
-KiExport relies on the [**KiCad-CLI**](https://docs.kicad.org/9.0/en/cli/cli.html) tool to generate the files and therefore supports all the features of KiCad-CLI. You should have a KiCad version installed in your system to use this tool. You can download and install the latest version of KiCad from [here](https://kicad.org/download/). After installation, browse to the installation folder and find the `bin` directory where the `kicad-cli.exe` file is located. Add the `bin` folder to your System Path. If you do not know how to add a new path to the System Path variable, check out any tutorials on the internet.
+KiExport relies on the [**KiCad-CLI**](https://docs.kicad.org/9.0/en/cli/cli.html) tool to generate the files and therefore supports all the features of KiCad-CLI. You should have a KiCad version installed in your system to use this tool. You can download and install the latest version of KiCad from [here](https://kicad.org/download/). After installation, browse to the installation folder and find the `bin` directory where the `kicad-cli.exe` file is located. Add the `bin` folder to your system `Path`. If you do not know how to add a new path to the system `Path` variable, check out any tutorials on the internet.
 
-You can clone/fork the project to obtain a copy of the repository in your system using the following command. Git should be installed and available on the path.
+You can clone/fork the project to obtain a copy of the repository in your system using the following command. [Git](https://git-scm.com/downloads) should be installed and available on the path.
 
-```
+```bash
 git clone https://github.com/vishnumaiea/KiExport.git
 ```
 
-Additionally, you can download the project as a ZIP file from the main page or the Releases page and extract it in your system. After getting the files, you can add the project folder to the System Path. If your system opens Python script files with the Python interpreter by default, you can run any python script directly from the terminal even without using the `.py` extension as shown in the image below.
+Additionally, you can download the project as a ZIP file from the main page or the [Releases](/releases) page and extract it in your system. After getting the files, you can add the project folder to the system `Path` variable. If your system opens Python script files with the Python interpreter by default, you can run any python script directly from the terminal even without using the `.py` extension as shown in the image below.
 
 ![Windows Terminal](/resources/2024-10-12_10-05-04-PM-.png)
 
+If you are going to run the app as a Python script, install the dependencies using the following command.
+
+```bash
+pip install -r requirements.txt
+```
+
+Check if the app is working by checking the version of the tool. Open a terminal and run the following command.
+
+```bash
+kiexport -v
+```
+
+If you see the version printed, the installation is successful. Otherwise, follow the installation procedure again.
+
 ## Example
 
-Following is a tree view of the files generated by KiExport from the **Mitayi Pico RP2040** project. A top level revision folder will be created to store the files for that specific revision. Under that, a date-specific folder will be created to store files generated in a specific day. Inside that, file-specific folders are created to store the different types of files. ZIP archives are created for some type of files that are usually sent as a set of files to the manufacturer, for example Gerbers.
+Following is a tree view of the files generated by KiExport from the **Mitayi-Pico-D1** project. A top level revision folder will be created to store the files for that specific revision. Under that, a date-specific folder will be created to store files generated in a specific day. Inside that, file-specific folders are created to store the different types of files. ZIP archives are created for some type of files that are usually sent as a set of files to the manufacturer, for example Gerbers.
 
 If you generate the files multiple times a day, older files will be overwritten except for any files with a sequence number at the end of the filename. For example, ZIP files have a sequence number at the end of the filename after the date string. A new file with a new sequence number will be created when multiple files are generated.
 
@@ -161,19 +175,19 @@ If you generate the files multiple times a day, older files will be overwritten 
 
 ## Usage
 
-You can run the Python script directly from the source folder with the following command. Python should be installed and available on the path.
+You can run the Python script directly from the source folder with the following command. Python should be installed and available on the `Path`.
 
-```
+```bash
 python kiexport.py <command> <arguments>
 ```
 
-In addition, you can also run the Windows executable `kiexport.exe` with the following command. The `dist` folder should be added to the system Path in order for this to work.
+In addition, you can also run the Windows executable `kiexport.exe` with the following command. The `dist` folder should be added to the system `Path` in order for this to work.
 
-```
+```bash
 kiexport <command> <arguments>
 ```
 
-You can automate running multiple commands with a batch script. Refer to the [`export.bat`](/Mitayi-Pico-D1/export.bat) file for an example. Run the script to see KiExport in action.
+You can automate running multiple commands with a batch script if you are on Windows. Refer to the [`EXPORT-ALL.bat`](/Mitayi-Pico-D1/EXPORT-ALL.bat) file for an example. Run the script to see KiExport in action.
 
 ```bat
 @REM @echo off
@@ -200,7 +214,7 @@ pause
 
 You can also create a batch file for running the `run` command as shown below. You can then double-click on the script every time you want to generate new files, saving you from typing the same commands over and over.
 
-```bat
+```bash
 kiexport run Mitayi-Pico-D1/kiexport.json
 
 pause
@@ -212,11 +226,11 @@ pause
 
 Run the following command to show the version of the tool.
 
-```
+```bash
 kiexport -v
 ```
 
-```
+```bash
 kiexport --version
 ```
 
@@ -224,17 +238,17 @@ kiexport --version
 
 Show the help menu.
 
-```
+```bash
 kiexport -h
 ```
 
-```
+```bash
 kiexport --help
 ```
 
 You can include the command to get the help menu of a specific command. For example,
 
-```
+```bash
 kiexport gerbers -h
 ```
 
@@ -242,7 +256,7 @@ kiexport gerbers -h
 
 Export Gerbers.
 
-```
+```bash
 kiexport gerbers -if <input_file> -od <output_dir>
 ```
 
@@ -253,7 +267,7 @@ kiexport gerbers -if <input_file> -od <output_dir>
 
 Export Position or Centroid files for PCB assembly (PCBA).
 
-```
+```bash
 kiexport positions -if <input_file> -od <output_dir>
 ```
 
@@ -262,7 +276,7 @@ kiexport positions -if <input_file> -od <output_dir>
 
 Example:
 
-```
+```bash
 kiexport positions -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb" -od "Mitayi-Pico-D1/Export"
 ```
 
@@ -270,7 +284,7 @@ kiexport positions -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb" -od "Mitayi
 
 Export the PCB layers as individual PDF.
 
-```
+```bash
 kiexport pcb_pdf -if <input_file> -od <output_dir>
 ```
 
@@ -279,7 +293,7 @@ kiexport pcb_pdf -if <input_file> -od <output_dir>
 
 Example:
 
-```
+```bash
 kiexport pcb_pdf -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb" -od "Mitayi-Pico-D1/Export"
 ```
 
@@ -287,7 +301,7 @@ kiexport pcb_pdf -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb" -od "Mitayi-P
 
 Export the PCB as a rendered image.
 
-```
+```bash
 kiexport pcb_render -if <input_file> -od <output_dir>
 ```
 
@@ -296,7 +310,7 @@ kiexport pcb_render -if <input_file> -od <output_dir>
 
 Example:
 
-```
+```bash
 kiexport pcb_render -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb" -od "Mitayi-Pico-D1/Export"
 ```
 
@@ -304,7 +318,7 @@ kiexport pcb_render -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb" -od "Mitay
 
 Export the schematic as PDF.
 
-```
+```bash
 kiexport sch_pdf -if <input_file> -od <output_dir>
 ```
 
@@ -313,7 +327,7 @@ kiexport sch_pdf -if <input_file> -od <output_dir>
 
 Example:
 
-```
+```bash
 kiexport sch_pdf -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_sch" -od "Mitayi-Pico-D1/Export"
 ```
 
@@ -321,7 +335,7 @@ kiexport sch_pdf -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_sch" -od "Mitayi-P
 
 Export the 3D files. Generating STEP files can take some time when the PCB is large. Wait for the process to complete. VRML file generation is faster.
 
-```
+```bash
 kiexport ddd -if <input_file> -od <output_dir> -t <type>
 ```
 
@@ -331,7 +345,7 @@ kiexport ddd -if <input_file> -od <output_dir> -t <type>
 
 Example:
 
-```
+```bash
 kiexport ddd -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb" -od "Mitayi-Pico-D1/Export" -t STEP
 ```
 
@@ -339,7 +353,7 @@ kiexport ddd -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb" -od "Mitayi-Pico-
 
 Export the PCB as SVG files. The list of layers can be specified in the config file. You can also define common layers to be used when generating each layer. A ZIP file is created at the end while keeping the original files intact. Each run of the command will overwrite the standalone files but will create a new ZIP file with a new sequence number.
 
-```
+```bash
 kiexport svg -if <input_file> -od <output_dir>
 ```
 
@@ -348,7 +362,7 @@ kiexport svg -if <input_file> -od <output_dir>
 
 Example:
 
-```
+```bash
 kiexport svg -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb" -od "Mitayi-Pico-D1/Export"
 ```
 
@@ -356,7 +370,7 @@ kiexport svg -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb" -od "Mitayi-Pico-
 
 Export the bill of materials files.
 
-```
+```bash
 kiexport bom -if <input_file> -od <output_dir> -t <type>
 ```
 
@@ -366,7 +380,7 @@ kiexport bom -if <input_file> -od <output_dir> -t <type>
 
 Example:
 
-```
+```bash
 kiexport bom -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_sch" -od "Mitayi-Pico-D1/Export" -t CSV
 ```
 
@@ -374,7 +388,7 @@ kiexport bom -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_sch" -od "Mitayi-Pico-
 
 Export an HTML BoM with the help of the [Interactive HTML BoM](https://github.com/openscopeproject/InteractiveHtmlBom) plugin for KiCad. The plugin should be available in your PC. You need to add the paths to `generate_interactive_bom.py` script and the KiCad Python path (`"C:\Program Files\KiCad\8.0\bin\python.exe"` for example) to the JSON configuration file. Check the configuration file available in the `Mitayi-Pico-D1` folder for an example.
 
-```
+```bash
 kiexport ibom -od <output_dir> -if <input_file>
 ```
 
@@ -383,7 +397,7 @@ kiexport ibom -od <output_dir> -if <input_file>
 
 Example:
 
-```
+```bash
 kiexport ibom -od "Mitayi-Pico-D1/Export" -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb"
 ```
 
@@ -393,7 +407,7 @@ This command can be used to generate multiple types of files by providing just a
 
 Since the `run` command does not accept any configuration parameters directly, everything needed to generate the manufacturing files should be in the JSON configuration file. Additionally, `run` can also accept a subset of commands to run from the supplied configuration file. This can be useful when you do not want to run commands individually.
 
-```
+```bash
 kiexport run <config_file> <commands>
 ```
 
@@ -402,7 +416,7 @@ kiexport run <config_file> <commands>
 
 Example:
 
-```
+```bash
 kiexport run Mitayi-Pico-D1/kiexport.json
 
 kiexport run Mitayi-Pico-D1/kiexport.json "gerbers, positions"
@@ -412,14 +426,19 @@ kiexport run Mitayi-Pico-D1/kiexport.json "gerbers, [ddd, STEP], [ddd, VRML]"
 
 ## Configuration File
 
-KiExport supports a JSON configuration file called `kiexport.json`. The name of the file should be exact when running the all of the generic commands except `run`. The `run` command will accept a configuration file with any name. The configuration file should be placed in the root folder of your KiCad project where the main `.kicad_sch` and `.kicad_pcb` files are located. Check the `Mitayi-Pico-D1` folder for an example. A copy of the default configuration file is integrated into the script to use as the default one. So if any of the input parameters are missing from your configuration file, the script will use the default values.
+KiExport supports a JSON configuration file called `kiexport.json`. The name of the file should be exact when running the all of the generic commands except `run`. The `run` command will accept a configuration file with any name. The configuration file should be placed in the root folder of your KiCad project where the main `.kicad_sch` and `.kicad_pcb` files are located. Check the `Mitayi-Pico-D1` folder for an example. A copy of tshe default configuration file is integrated into the script to use as the default one. So if any of the input parameters are missing from your configuration file, the script will use the default values.
 
 To create a configuration file for your own project, add the `project_name`, the required commands under `commands`. The commands can be a simple list of strings, or a nested list. You can add any number of instances of the same command. The data for the commands should be added under `data`.  All keys that starts with `--` are directly passed to the KiCad-CLI and anything that starts with `kie_` is a data for the KiExport application.
 
-## Limitations
+If you want to disable any of the commands in the `commnads` list, you can simply prefix or suffix them with, for example `_`, and KiExport will ignore such invalid commands. This is better than deleting the commands.
 
-- KiExport can only do as much as the KiCad CLI can do.
-- Can not generate PCB preview images from the 3D viewer. Currently this is not supported by the KiCad CLI.
+## Log File
+
+KiExport will generate a log file in a directory specified in the configuration file. This log can be used to check what commands were run and what files were created in the last run. The log file can be specified in the configruation file as follows for example:
+
+```json
+"kiexport_log_path": "Export\\kiexport.log"
+```
 
 ## License
 

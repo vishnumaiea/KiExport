@@ -98,6 +98,58 @@
         "use_x2_format": true
       },
       "type": "pcb_export_gerbers"
+    },
+    {
+      "description": "",
+      "id": "b735534e-2763-4eb7-8ee1-3e1d7ce1adb8",
+      "settings": {
+        "anti_alias": true,
+        "bg_style": "default",
+        "description": "",
+        "floor": false,
+        "format": "png",
+        "height": 1440,
+        "light_bottom_intensity": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "light_camera_intensity": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "light_side_elevation": 60,
+        "light_side_intensity": [
+          0.5,
+          0.5,
+          0.5
+        ],
+        "light_top_intensity": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "output_filename": "Render-1",
+        "pan_x": 0.0,
+        "pan_y": 0.0,
+        "pan_z": 0.0,
+        "perspective": false,
+        "pivot_x": 0.0,
+        "pivot_y": 0.0,
+        "pivot_z": 0.0,
+        "post_process": false,
+        "preset": "Pads",
+        "procedural_textures": false,
+        "quality": "basic",
+        "rotation_x": 0.0,
+        "rotation_y": 0.0,
+        "rotation_z": 0.0,
+        "side": "top",
+        "width": 2560,
+        "zoom": 1.0
+      },
+      "type": "pcb_render"
     }
   ],
   "meta": {
@@ -110,6 +162,17 @@
       "only": [],
       "settings": {
         "output_path": "Jobsets/Jobset-1"
+      },
+      "type": "folder"
+    },
+    {
+      "description": "Render",
+      "id": "cd840993-661a-4dea-becb-1bcd9df565c8",
+      "only": [
+        "b735534e-2763-4eb7-8ee1-3e1d7ce1adb8"
+      ],
+      "settings": {
+        "output_path": "Renders"
       },
       "type": "folder"
     }
