@@ -57,7 +57,7 @@ KiCad V9 added support for **Jobsets** which allow you to generate manufacturing
 
 ## Requirements
 
-This soiftware was developed and tested on Windows 11. It should work on other platforms as well, but it is not tested. The following software should be installed in your system to use this tool.
+This software was developed and tested on Windows 11. It should work on other platforms as well, but it is not tested. The following software should be installed in your system to use this tool.
 
 - [Python 3.x](https://www.python.org/downloads/)
 - [KiCad 8.x or later](https://www.kicad.org/download/)
@@ -401,7 +401,7 @@ kiexport bom -if <input_file> -od <output_dir> -t <type>
 - `-if`: Path to the input `.kicad_sch`/`kicad_pcb` file. Required.
 - `-od`: Path to the output directory. Required.
 - `-t`: The type of bill of materials to export. Possible values are `CSV`, `XLS`, and `HTML`. Optional. Defaults to `CSV`.
-  - `CSV` & `XLS` - Requries `.kicad_sch` file.
+  - `CSV` & `XLS` - Requires `.kicad_sch` file.
   - `HTML` - Requires `.kicad_pcb` file.
 
 Example:
@@ -443,7 +443,7 @@ kiexport run Mitayi-Pico-D1/kiexport.json "gerbers, [ddd, STEP], [ddd, VRML]"
 
 ## Configuration File
 
-KiExport supports a JSON configuration file called `kiexport.json`. The name of the file should be exact when running the all of the generic commands except `run`. The `run` command will accept a configuration file with any name. The configuration file should be placed in the root folder of your KiCad project where the main `.kicad_sch` and `.kicad_pcb` files are located. Check the `Mitayi-Pico-D1` folder for an example. A copy of tshe default configuration file is integrated into the script to use as the default one. So if any of the input parameters are missing from your configuration file, the script will use the default values.
+KiExport supports a JSON configuration file called `kiexport.json`. The name of the file should be exact when running the all of the generic commands except `run`. The `run` command will accept a configuration file with any name. The configuration file should be placed in the root folder of your KiCad project where the main `.kicad_sch` and `.kicad_pcb` files are located. Check the `Mitayi-Pico-D1` folder for an example. A copy of the default configuration file is integrated into the script to use as the default one. So if any of the input parameters are missing from your configuration file, the script will use the default values.
 
 To create a configuration file for your own project, add the `project_name`, the required commands under `commands`. The commands can be a simple list of strings, or a nested list. You can add any number of instances of the same command. The data for the commands should be added under `data`.  All keys that starts with `--` are directly passed to the KiCad-CLI and anything that starts with `kie_` is a data for the KiExport application.
 
@@ -451,7 +451,7 @@ If you want to disable any of the commands in the `commands` list, you can simpl
 
 ## Log File
 
-KiExport will generate a log file in a directory specified in the configuration file. This log can be used to check what commands were run and what files were created in the last run. The log file can be specified in the configruation file as follows for example:
+KiExport will generate a log file in a directory specified in the configuration file. This log can be used to check what commands were run and what files were created in the last run. The log file can be specified in the configuration file as follows for example:
 
 ```json
 "kiexport_log_path": "Export\\kiexport.log"
