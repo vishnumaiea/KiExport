@@ -5,7 +5,7 @@
 # Tool to export manufacturing files from KiCad PCB projects.
 # Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)
 # Version: 0.1.1
-# Last Modified: +05:30 12:15:43 PM 08-05-2025, Thursday
+# Last Modified: +05:30 17:59:20 PM 08-05-2025, Thursday
 # GitHub: https://github.com/vishnumaiea/KiExport
 # License: MIT
 
@@ -556,56 +556,56 @@ class Logger:
 #=============================================================================================#
 
 class Colorize:
-    def __init__(self, text):
-        self.text = text
-        self.ansi_code = '\033[0m'  # Default to reset
+  def __init__(self, text):
+    self.text = text
+    self.ansi_code = '\033[0m'  # Default to reset
 
-    def _color_text (self):
-        return f"{self.ansi_code}{self.text}\033[0m"
+  def _color_text (self):
+    return f"{self.ansi_code}{self.text}\033[0m"
 
-    def red (self):
-        self.ansi_code = '\033[31m'
-        return self._color_text()
+  def red (self):
+    self.ansi_code = '\033[31m'
+    return self._color_text()
 
-    def green (self):
-        self.ansi_code = '\033[32m'
-        return self._color_text()
+  def green (self):
+    self.ansi_code = '\033[32m'
+    return self._color_text()
 
-    def yellow (self):
-        self.ansi_code = '\033[33m'
-        return self._color_text()
+  def yellow (self):
+    self.ansi_code = '\033[33m'
+    return self._color_text()
 
-    def blue (self):
-        self.ansi_code = '\033[34m'
-        return self._color_text()
+  def blue (self):
+    self.ansi_code = '\033[34m'
+    return self._color_text()
 
-    def magenta (self):
-        self.ansi_code = '\033[35m'
-        return self._color_text()
+  def magenta (self):
+    self.ansi_code = '\033[35m'
+    return self._color_text()
 
-    def cyan (self):
-        self.ansi_code = '\033[36m'
-        return self._color_text()
+  def cyan (self):
+    self.ansi_code = '\033[36m'
+    return self._color_text()
 
 # Define ANSI escape codes for colors
 COLORS = {
-    'red': '\033[91m',
-    'green': '\033[92m',
-    'yellow': '\033[93m',
-    'blue': '\033[94m',
-    'magenta': '\033[95m',
-    'cyan': '\033[96m',
-    'reset': '\033[0m'
+  'red': '\033[91m',
+  'green': '\033[92m',
+  'yellow': '\033[93m',
+  'blue': '\033[94m',
+  'magenta': '\033[95m',
+  'cyan': '\033[96m',
+  'reset': '\033[0m'
 }
 
 class _color:
-    def __call__ (self, text, color):
-        return f"{COLORS[color]}{text}{COLORS['reset']}"
-    
-    def __getattr__ (self, color):
-        if color in COLORS:
-            return lambda text: self(text, color)
-        raise AttributeError (f"Color '{color}' is not supported.")
+  def __call__ (self, text, color):
+    return f"{COLORS[color]}{text}{COLORS['reset']}"
+  
+  def __getattr__ (self, color):
+    if color in COLORS:
+      return lambda text: self(text, color)
+    raise AttributeError (f"Color '{color}' is not supported.")
 
 # Create an instance of the Colorize class
 color = _color()
@@ -2998,7 +2998,7 @@ def parseArguments():
     print (color.red ("Looks like you forgot to specify any inputs. Time to RTFM."))
     print()
     parser.print_help()
-    return
+    exit()
   
   #---------------------------------------------------------------------------------------------#
 

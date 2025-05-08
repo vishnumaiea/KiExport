@@ -2,6 +2,12 @@
 # Changes
 
 #
+### **+05:30 05:57:36 PM 08-05-2025, Thursday**
+
+  - Fixed app printing errors due to mishandled logging when called without any arguments.
+  - App will now simply exit when the arguments are empty.
+
+#
 ### **+05:30 12:16:14 PM 08-05-2025, Thursday**
 
   - Implemented the XLS BoM export feature.
