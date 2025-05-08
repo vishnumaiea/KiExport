@@ -4,8 +4,8 @@
 # KiExport
 # Tool to export manufacturing files from KiCad PCB projects.
 # Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)
-# Version: 0.1.0
-# Last Modified: +05:30 05:04:57 PM 07-05-2025, Wednesday
+# Version: 0.1.1
+# Last Modified: +05:30 12:15:43 PM 08-05-2025, Thursday
 # GitHub: https://github.com/vishnumaiea/KiExport
 # License: MIT
 
@@ -22,11 +22,17 @@ import json
 import pymupdf
 import ast
 import sys
+import csv
+from openpyxl import Workbook
+from openpyxl.styles import Font, Alignment
+from openpyxl.utils import get_column_letter
+from openpyxl.worksheet.dimensions import ColumnDimension
+from openpyxl.styles import PatternFill
 
 #=============================================================================================#
 
 APP_NAME = "KiExport"
-APP_VERSION = "0.1.0"
+APP_VERSION = "0.1.1"
 APP_DESCRIPTION = "Tool to export manufacturing files from KiCad PCB projects."
 APP_AUTHOR = "Vishnu Mohanan (@vishnumaiea, @vizmohanan)"
 
@@ -1923,15 +1929,129 @@ def generateBomCsv (output_dir, sch_filename, to_overwrite = True):
 
 #=============================================================================================#
 
-def generateBomXls (output_dir, csv_file, to_overwrite = True):
+def generateBomXls (output_dir, csv_file, sch_filename, to_overwrite = True):
+  # Check if the input file exists
+  if not check_file_exists (sch_filename):
+    print (color.red (f"generateBomCsv [ERROR]: '{sch_filename}' does not exist."))
+    command_exec_status ["bom_csv"] = False
+    return False
+  
   # Check if the input file exists
   if not check_file_exists (csv_file):
     print (color.red (f"generateBomXls [ERROR]: The supplied CSV file '{csv_file}' does not exist."))
     command_exec_status ["bom_xls"] = False
     return False
 
+  print (f"generateBomXls [INFO]: CSV BoM file is '{color.magenta (csv_file)}'.")
+
+  #---------------------------------------------------------------------------------------------#
+
+  file_name = extract_pcb_file_name (sch_filename)
+  file_name = file_name.replace (" ", "-") # If there are whitespace characters in the project name, replace them with a hyphen
+  
+  project_name = extract_project_name (file_name)
+  info = extract_info_from_pcb (sch_filename)
+  
+  print (f"generateBomXls [INFO]: Project name is '{color.magenta (project_name)}' and revision is {color.magenta ('R')}{color.magenta (info ['rev'])}.")
+
+  #---------------------------------------------------------------------------------------------#
+
+  file_path = os.path.abspath (sch_filename) # Get the absolute path of the file.
+
+  # Get the directory path of the file and save it as the project directory.
+  # All other export directories will be relative to the project directory.
+  project_dir = os.path.dirname (file_path)
+  
+  # Read the output directory name from the config file.
+  od_from_config = project_dir + "/" + current_config.get ("data", {}).get ("bom", {}).get ("XLS").get ("--output_dir", lambda: default_config ["data"]["bom"]["XLS"]["--output_dir"])
+  od_from_cli = output_dir  # The output directory specified by the command line argument
+
+  # Get the final directory path.
+  final_directory, filename_date = create_final_directory (od_from_config, od_from_cli, "BoM", info ["rev"], "generateBomXls")
+
+  #---------------------------------------------------------------------------------------------#
+
+  seq_number = 1
+  not_completed = True
+  
+  # Create the output file name.
+  while not_completed:
+    file_name = f"{final_directory}/{project_name}-R{info ['rev']}-BoM-XLS-{filename_date}-{seq_number}.xlsx"
+
+    if os.path.exists (file_name):
+      seq_number += 1
+      not_completed = True
+    else:
+      break
+
+  #---------------------------------------------------------------------------------------------#
+
+  # Create workbook and sheet
+  wb = Workbook()
+  ws = wb.active
+  ws.title = "BoM"
+
+  # Define styles
+  header_font = Font (name = "Roboto Mono", bold = True)
+  cell_font = Font (name = "Roboto Mono")
+  alignment = Alignment (horizontal = "center", vertical = "center", wrap_text = True)
+  header_fill = PatternFill (fill_type = "solid", fgColor = "CCE5FF")  # Light blue background
+
+  # Custom width mapping (column header => width in points)
+  custom_widths = {
+    "#": 14,
+    "Reference": 42,
+    "Value": 34,
+    "Name": 32,
+    "Footprint": 62,
+    "Qty": 16,
+    "DNP": 16,
+    "MPN": 31,
+    "MFR": 28,
+    "Alt MPN": 30,
+  }
+  
+  headers = []
+
+  # Read CSV and write to worksheet
+  with open (csv_file, newline = '', encoding = 'utf-8') as csvfile:
+    reader = csv.reader (csvfile)
+    for row_index, row in enumerate (reader, start = 1):
+      for col_index, value in enumerate (row, start = 1):
+        cell = ws.cell (row = row_index, column = col_index, value = value)
+        cell.font = header_font if row_index == 1 else cell_font
+        cell.alignment = alignment
+        if row_index == 1:
+          cell.fill = header_fill
+      
+      # Set minimum row height
+      ws.row_dimensions [row_index].height = 50
+
+      # Store headers for width adjustment
+      if row_index == 1:
+        headers = row
+
+  # Freeze the header row
+  ws.freeze_panes = ws ["A2"]
+
+  # Apply custom or fallback column widths
+  for col_index, header in enumerate (headers, start = 1):
+    col_letter = get_column_letter (col_index)
+    width = custom_widths.get (header, 15)  # Default width if not specified
+    ws.column_dimensions [col_letter].width = width
+
+  # # Auto-adjust column widths
+  # for col_index, column_cells in enumerate (ws.columns, start = 1):
+  #   max_length = max (len (str (cell.value)) if cell.value else 0 for cell in column_cells)
+  #   col_letter = get_column_letter (col_index)
+  #   ws.column_dimensions [col_letter].width = max (10, min (max_length + 2, 40))  # Reasonable bounds
+
+  # Save the styled XLSX
+  wb.save (file_name)
+
   print (color.green ("generateBomXls [OK]: XLS BoM file exported successfully."))
   print()
+  command_exec_status ["bom_xls"] = True
 
 #=============================================================================================#
 
@@ -2725,7 +2845,7 @@ def run (config_file, command_list = None):
         if cmd [1] == "XLS":
           output_dir = current_config.get ("data", {}).get ("bom", {}).get ("XLS", {}).get ("--output_dir", lambda: default_config ["data"]["bom"]["XLS"]["--output_dir"])
           output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
-          generateBomXls (output_dir = output_dir, csv_file = csv_filename)
+          generateBomXls (output_dir = output_dir, csv_file = csv_filename, sch_filename = sch_file_path)
     
       elif cmd [1] == "HTML":
         output_dir = current_config.get ("data", {}).get ("bom", {}).get ("HTML", {}).get ("--output_dir", lambda: default_config ["data"]["bom"]["HTML"]["--output_dir"])

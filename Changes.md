@@ -2,6 +2,17 @@
 # Changes
 
 #
+### **+05:30 12:16:14 PM 08-05-2025, Thursday**
+
+  - Implemented the XLS BoM export feature.
+    - Updated `generateBomXls()`.
+      - It also accepts the schematic file name to get the project info.
+  - When generating XLS BoM file, the user does not need to specify to export the CSV file.
+    - The CSV file is generated automatically for an XLS export.
+    - Adding CSV and XLS export commands at the same time will generate two CSV files.
+  - New Version 🆕 `0.1.1`.
+
+#
 ### **+05:30 05:05:12 PM 07-05-2025, Wednesday**
 
   - Added support for generating XLS BoM.
