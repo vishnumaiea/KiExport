@@ -7,7 +7,7 @@
   "commands": [
     "_gerbers",
     "_sch_pdf",
-    ["bom", "CSV"],
+    ["_bom", "CSV"],
     ["bom", "XLS"],
     ["bom", "HTML"],
     "_pcb_pdf",

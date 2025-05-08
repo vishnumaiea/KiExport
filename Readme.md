@@ -1,14 +1,14 @@
 
 # KiExport
 
-[**KiExport**](https://github.com/vishnumaiea/KiExport) is a Python application for automating manufacturing files generation from KiCad PCB design projects. This is a CLI (Command Line Interface) utility. Commands and arguments can be passed to the script while running, or from a JSON configuration file named `kiexport.json`. You should be familiar working with CLI tools and how to execute commands from a terminal.
+[**KiExport**](https://github.com/vishnumaiea/KiExport) is a Python application for automating the manufacturing files generation process from KiCad PCB design projects. This is a CLI (Command Line Interface) utility. Commands and arguments can be passed to the script while running, or from a JSON configuration file named `kiexport.json`. You should be familiar working with CLI tools and how to execute commands from a terminal.
 
-KiExport generates the manufacturing files based on the options available in the `kiexport.json` file, and saves them in an organized way. It renames the files, folders and create ZIP archive files with proper names date stamps so that you can send them to a manufacturer or client easily. Since the `kiexport.json` configuration file can be edited for any project, you only have to create the file once. You can also create multiple configuration files according to different manufacturing requirements.
+KiExport generates the manufacturing files based on the options available in the `kiexport.json` file, and saves them in an organized way. It renames the files, folders and create ZIP archive files with proper names and date stamps so that you can send them to a manufacturer or client easily. Since the `kiexport.json` configuration file can be edited for any project, you only have to create the file once. You can also create multiple configuration files according to different manufacturing requirements.
 
-The [**Mitayi Pico RP2040**](https://github.com/CIRCUITSTATE/Mitayi-Pico-RP2040) project is added as a sample project to test the script. If you are on Windows, you can run the `EXPORT-ALL.bat` batch script to automatically generate the manufacturing files.
+The [**Mitayi Pico RP2040**](https://github.com/CIRCUITSTATE/Mitayi-Pico-RP2040) project is added as a sample project to test the script. If you are on Windows, you can run the `EXPORT-ALL.bat` batch script to automatically generate the manufacturing files with a double-click.
 
 - **Author:** [Vishnu Mohanan](https://github.com/vishnumaiea)
-- **Version:** `0.1.0`
+- **Version:** `0.1.1`
 - **Contributors:** Dominic Le Blanc ([@domleblanc94](https://github.com/domleblanc94))
 
 This tool was created with the help of [**ChatGPT**](https://chat.openai.com/chat). Thanks to humanity!
@@ -26,6 +26,7 @@ This tool was created with the help of [**ChatGPT**](https://chat.openai.com/cha
     - [`version`](#version)
     - [`help`](#help)
     - [`gerbers`](#gerbers)
+    - [`drills`](#drills)
     - [`positions`](#positions)
     - [`pcb_pdf`](#pcb_pdf)
     - [`pcb_render`](#pcb_render)
@@ -33,7 +34,6 @@ This tool was created with the help of [**ChatGPT**](https://chat.openai.com/cha
     - [`ddd`](#ddd)
     - [`svg`](#svg)
     - [`bom`](#bom)
-    - [`ibom`](#ibom)
     - [`run`](#run)
   - [Configuration File](#configuration-file)
   - [Log File](#log-file)
@@ -47,7 +47,7 @@ This tool was created with the help of [**ChatGPT**](https://chat.openai.com/cha
 - If you make a mistake in choosing the options correctly, you will end up with a "bad" manufacturing file that will waste your time later.
 - ~~KiCad currently has no ability to save the export options as presets and it does not always remember the previously used options.~~
 - Existing plugins available for KiCad only work for specific types of files and specific set of manufacturing options.
-- The number and types of files generated from a KiCad project can be quite many. Renaming, organizing and archiving the files manually can be a tedious task. For example, we generate Gerbers, PCB PDF, Schematic PDF, STEP, VRML, CSV BoM, HTML BoM, Position Files, and Preview Images for a typical project. We have to do this every time we make a change to the project to keep consistency across the set of files generated at a time.
+- The number and types of files generated from a KiCad project can be quite many. Renaming, organizing and archiving the files manually can be a tedious task. For example, we generate Gerbers, PCB PDF, Schematic PDF, STEP, VRML, CSV BoM, HTML BoM, XLS BoM, Position Files, and Preview Images for a typical project. We have to do this every time we make a change to the project to keep consistency across the set of files generated at a time.
 - KiCad CLI can do almost all of what the KiCad UI can.
 - Instead of typing the arguments manually to a terminal all the time, we can save the options as a JSON file and call the KiCad CLI every time we want to generate the files.
 
@@ -116,6 +116,7 @@ If you generate the files multiple times a day, older files will be overwritten 
         |
         +---BoM
         |       Mitayi-Pico-RP2040-R0.6-BoM-CSV-26102024-1.csv
+        |       Mitayi-Pico-RP2040-R0.6-BoM-XLS-26102024-1.xlsx
         |       Mitayi-Pico-RP2040-R0.6-BoM-HTML-26102024-1.html
         |
         +---Gerber
@@ -198,16 +199,16 @@ set SCH_FILE=Mitayi-Pico-RP2040.kicad_sch
 set PCB_FILE=Mitayi-Pico-RP2040.kicad_pcb
 
 :: Execute commands
-kiexport sch_pdf -od "%OUTPUT_DIR%" -if "%SCH_FILE%"
-kiexport bom -od "%OUTPUT_DIR%" -if "%SCH_FILE%"
-kiexport ibom -od "%OUTPUT_DIR%" -if "%PCB_FILE%"
-kiexport pcb_pdf -od "%OUTPUT_DIR%" -if "%PCB_FILE%"
-kiexport pcb_render -od "%OUTPUT_DIR%" -if "%PCB_FILE%"
-kiexport svg -od "%OUTPUT_DIR%" -if "%PCB_FILE%"
-kiexport gerbers -od "%OUTPUT_DIR%" -if "%PCB_FILE%"
-kiexport positions -od "%OUTPUT_DIR%" -if "%PCB_FILE%"
-kiexport ddd -od "%OUTPUT_DIR%" -if "%PCB_FILE%" -t "STEP"
-kiexport ddd -od "%OUTPUT_DIR%" -if "%PCB_FILE%" -t "VRML"
+@REM kiexport sch_pdf -od "%OUTPUT_DIR%" -if "%SCH_FILE%"
+@REM kiexport bom -od "%OUTPUT_DIR%" -if "%SCH_FILE%" -t "CSV"
+@REM kiexport bom -od "%OUTPUT_DIR%" -if "%SCH_FILE%" -t "XLS"
+@REM kiexport bom -od "%OUTPUT_DIR%" -if "%PCB_FILE%" -t "HTML"
+@REM kiexport pcb_pdf -od "%OUTPUT_DIR%" -if "%PCB_FILE%"
+@REM kiexport pcb_render -od "%OUTPUT_DIR%" -if "%PCB_FILE%"
+@REM kiexport gerbers -od "%OUTPUT_DIR%" -if "%PCB_FILE%"
+@REM kiexport positions -od "%OUTPUT_DIR%" -if "%PCB_FILE%"
+@REM kiexport ddd -od "%OUTPUT_DIR%" -if "%PCB_FILE%" -t "STEP"
+@REM kiexport ddd -od "%OUTPUT_DIR%" -if "%PCB_FILE%" -t "VRML"
 
 pause
 ```
@@ -252,9 +253,9 @@ You can include the command to get the help menu of a specific command. For exam
 kiexport gerbers -h
 ```
 
-### `gerbers` 
+### `gerbers`
 
-Export Gerbers.
+Export the Gerber files. Gerber files export does not include the drill files by default. If you want to generate the drill files as well, you can either manually run the `drills` command or enable the drill file generation in the JSON configuration file using the `kie_include_drill` flag.
 
 ```bash
 kiexport gerbers -if <input_file> -od <output_dir>
@@ -263,9 +264,32 @@ kiexport gerbers -if <input_file> -od <output_dir>
 - `-if`: Path to the input `.kicad_pcb` file. Required.
 - `-od`: Path to the output directory. Required.
 
+Example:
+
+```bash
+kiexport gerbers -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb" -od "Mitayi-Pico-D1/Export"
+```
+
+### `drills`
+
+Generate the drill files. If you are generating drill files along with the `gerbers` command, you don't need to run this command again. Otherwise, the drill files will be generated twice.
+
+```bash
+kiexport drills -if <input_file> -od <output_dir>
+```
+
+- `-if`: Path to the input `.kicad_pcb` file. Required.
+- `-od`: Path to the output directory. Required.
+
+Example:
+
+```bash
+kiexport drills -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb" -od "Mitayi-Pico-D1/Export"
+```
+
 ### `positions`
 
-Export Position or Centroid files for PCB assembly (PCBA).
+Export the Position or Centroid files for PCB assembly (PCBA).
 
 ```bash
 kiexport positions -if <input_file> -od <output_dir>
@@ -374,9 +398,11 @@ Export the bill of materials files.
 kiexport bom -if <input_file> -od <output_dir> -t <type>
 ```
 
-- `-if`: Path to the input `.kicad_sch` file. Required.
+- `-if`: Path to the input `.kicad_sch`/`kicad_pcb` file. Required.
 - `-od`: Path to the output directory. Required.
-- `-t`: The type of bill of materials to export. Possible values are `CSV`. Optional.
+- `-t`: The type of bill of materials to export. Possible values are `CSV`, `XLS`, and `HTML`. Optional. Defaults to `CSV`.
+  - `CSV` & `XLS` - Requries `.kicad_sch` file.
+  - `HTML` - Requires `.kicad_pcb` file.
 
 Example:
 
@@ -384,16 +410,7 @@ Example:
 kiexport bom -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_sch" -od "Mitayi-Pico-D1/Export" -t CSV
 ```
 
-### `ibom`
-
-Export an HTML BoM with the help of the [Interactive HTML BoM](https://github.com/openscopeproject/InteractiveHtmlBom) plugin for KiCad. The plugin should be available in your PC. You need to add the paths to `generate_interactive_bom.py` script and the KiCad Python path (`"C:\Program Files\KiCad\8.0\bin\python.exe"` for example) to the JSON configuration file. Check the configuration file available in the `Mitayi-Pico-D1` folder for an example.
-
-```bash
-kiexport ibom -od <output_dir> -if <input_file>
-```
-
-- `-od`: Path to the output directory. Required.
-- `-if`: Path to the input `.kicad_pcb` file. Required.
+Exporting the HTML BoM requires the [Interactive HTML BoM](https://github.com/openscopeproject/InteractiveHtmlBom) plugin for KiCad. The plugin should be available in your PC. You need to add the paths to the `generate_interactive_bom.py` script and the KiCad Python (`"C:\Program Files\KiCad\8.0\bin\python.exe"` for example) to the JSON configuration file. Check the configuration file available in the `Mitayi-Pico-D1` folder for an example.
 
 Example:
 
@@ -405,7 +422,7 @@ kiexport ibom -od "Mitayi-Pico-D1/Export" -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040
 
 This command can be used to generate multiple types of files by providing just a valid JSON configuration file. Unlike other commands which will look specifically for the `kiexport.json` file, this command will accept a JSON file with any name. This is useful when you need different configurations for different manufacturers and use-cases. You can create a configuration file for each manufacturer and use them with the `run` command individually. Check out the [`kiexport.json`](Mitayi-Pico-D1/kiexport.json) file for an example configuration file.
 
-Since the `run` command does not accept any configuration parameters directly, everything needed to generate the manufacturing files should be in the JSON configuration file. Additionally, `run` can also accept a subset of commands to run from the supplied configuration file. This can be useful when you do not want to run commands individually.
+Since the `run` command does not accept any configuration parameters directly, everything needed to generate the manufacturing files should be in the JSON configuration file. Additionally, `run` can also accept a subset of commands to run from the supplied configuration file. This can be useful when you do not want to run the commands individually.
 
 ```bash
 kiexport run <config_file> <commands>
@@ -430,7 +447,7 @@ KiExport supports a JSON configuration file called `kiexport.json`. The name of 
 
 To create a configuration file for your own project, add the `project_name`, the required commands under `commands`. The commands can be a simple list of strings, or a nested list. You can add any number of instances of the same command. The data for the commands should be added under `data`.  All keys that starts with `--` are directly passed to the KiCad-CLI and anything that starts with `kie_` is a data for the KiExport application.
 
-If you want to disable any of the commands in the `commnads` list, you can simply prefix or suffix them with, for example `_`, and KiExport will ignore such invalid commands. This is better than deleting the commands.
+If you want to disable any of the commands in the `commands` list, you can simply prefix or suffix them with, for example `_`, and KiExport will ignore such invalid commands. This is better than deleting the commands.
 
 ## Log File
 
