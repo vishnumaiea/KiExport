@@ -2,6 +2,12 @@
 # Changes
 
 #
+### **+05:30 12:55:23 PM 09-05-2025, Friday**
+
+  - Updated command list in `validate_command_list()`.
+  - New Version 🆕 `0.1.2`.
+
+#
 ### **+05:30 05:57:36 PM 08-05-2025, Thursday**
 
   - Fixed app printing errors due to mishandled logging when called without any arguments.

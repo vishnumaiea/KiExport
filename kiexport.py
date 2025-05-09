@@ -4,8 +4,8 @@
 # KiExport
 # Tool to export manufacturing files from KiCad PCB projects.
 # Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)
-# Version: 0.1.1
-# Last Modified: +05:30 17:59:20 PM 08-05-2025, Thursday
+# Version: 0.1.2
+# Last Modified: +05:30 12:55:41 PM 09-05-2025, Friday
 # GitHub: https://github.com/vishnumaiea/KiExport
 # License: MIT
 
@@ -32,7 +32,7 @@ from openpyxl.styles import PatternFill
 #=============================================================================================#
 
 APP_NAME = "KiExport"
-APP_VERSION = "0.1.1"
+APP_VERSION = "0.1.2"
 APP_DESCRIPTION = "Tool to export manufacturing files from KiCad PCB projects."
 APP_AUTHOR = "Vishnu Mohanan (@vishnumaiea, @vizmohanan)"
 
@@ -2524,8 +2524,7 @@ def validate_command_list (cli_string):
     "gerbers": [],
     "drills": [],
     "sch_pdf": [],
-    "bom": [],
-    "ibom": [],
+    "bom": ["CSV", "XLS", "HTML"],
     "pcb_pdf": [],
     "positions": [],
     "svg": [],
