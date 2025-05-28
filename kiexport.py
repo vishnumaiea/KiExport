@@ -4,8 +4,8 @@
 # KiExport
 # Tool to export manufacturing files from KiCad PCB projects.
 # Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)
-# Version: 0.1.3
-# Last Modified: +05:30 04:38:16 PM 28-05-2025, Wednesday
+# Version: 0.1.4
+# Last Modified: +05:30 05:22:55 PM 28-05-2025, Wednesday
 # GitHub: https://github.com/vishnumaiea/KiExport
 # License: MIT
 
@@ -22,6 +22,7 @@ import json
 import pymupdf
 import ast
 import sys
+import semver
 import csv
 from openpyxl import Workbook
 from openpyxl.styles import Font, Alignment
@@ -32,11 +33,13 @@ from openpyxl.styles import PatternFill
 #=============================================================================================#
 
 APP_NAME = "KiExport"
-APP_VERSION = "0.1.3"
+APP_VERSION = "0.1.4"
 APP_DESCRIPTION = "Tool to export manufacturing files from KiCad PCB projects."
 APP_AUTHOR = "Vishnu Mohanan (@vishnumaiea, @vizmohanan)"
 
 SAMPLE_PCB_FILE = "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb"
+MIN_CONFIG_JSON_VERSION = "1.6"  # Minimum required version of the config JSON file
+MIN_KICAD_VERSION = "8.0"  # Minimum required version of the config JSON file
 
 current_config = None
 default_config = None
@@ -2616,8 +2619,17 @@ def load_config (config_file = None):
       with open (config_file, 'r', encoding = "utf-8") as file:
           current_config = json.load (file)
           current_config = to_lazy_dict (current_config)
-          return True
-          # TODO: Check the JSON configuration file version and warn about consequences.
+          # Compare the configuration JSON versions using semver library.
+          if "version" in current_config:
+            if semver.compare (normalize_version (MIN_CONFIG_JSON_VERSION), normalize_version (current_config ["version"])) == 0:
+              print (f"load_config [INFO]: The configuration file version '{color.magenta (current_config ['version'])}' is the same as the minimum supported version '{MIN_CONFIG_JSON_VERSION}'.")
+              return True
+            elif semver.compare (normalize_version (MIN_CONFIG_JSON_VERSION), normalize_version (current_config ["version"])) < 0:
+              print (color.yellow (f"load_config [WARNING]: The configuration file version '{current_config ['version']}' is newer than the minimum supported version '{MIN_CONFIG_JSON_VERSION}'."))
+              return True
+            elif semver.compare (normalize_version (MIN_CONFIG_JSON_VERSION), normalize_version (current_config ["version"])) > 0:
+              print (color.red (f"load_config [ERROR]: The configuration file version '{current_config ['version']}' is older than the minimum supported version '{MIN_CONFIG_JSON_VERSION}'."))
+              return False
     else:
       print (color.red (f"load_config [ERROR]: The provided configuration file '{config_file}' does not exist."))
       print (color.yellow (f"load_config [WARNING]: Default values will be used. Continue? [Y/N]"))
@@ -2631,6 +2643,21 @@ def load_config (config_file = None):
     print (f"load_config [INFO]: Using default configuration.")
     current_config = default_config
     return True
+
+#=============================================================================================#
+
+def normalize_version (version: str) -> str:
+  """
+  Normalize a version string to full semantic version format (MAJOR.MINOR.PATCH).
+  Examples:
+    "1"     -> "1.0.0"
+    "1.6"   -> "1.6.0"
+    "1.6.2" -> "1.6.2"
+  """
+  parts = version.strip().split ('.')
+  while len (parts) < 3:
+    parts.append ('0')
+  return '.'.join (parts [:3])  # Ensure no more than 3 parts
 
 #=============================================================================================#
 
