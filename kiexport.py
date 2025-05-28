@@ -4,8 +4,8 @@
 # KiExport
 # Tool to export manufacturing files from KiCad PCB projects.
 # Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)
-# Version: 0.1.2
-# Last Modified: +05:30 12:55:41 PM 09-05-2025, Friday
+# Version: 0.1.3
+# Last Modified: +05:30 04:38:16 PM 28-05-2025, Wednesday
 # GitHub: https://github.com/vishnumaiea/KiExport
 # License: MIT
 
@@ -32,7 +32,7 @@ from openpyxl.styles import PatternFill
 #=============================================================================================#
 
 APP_NAME = "KiExport"
-APP_VERSION = "0.1.2"
+APP_VERSION = "0.1.3"
 APP_DESCRIPTION = "Tool to export manufacturing files from KiCad PCB projects."
 APP_AUTHOR = "Vishnu Mohanan (@vishnumaiea, @vizmohanan)"
 
@@ -597,7 +597,6 @@ COLORS = {
   'cyan': '\033[96m',
   'reset': '\033[0m'
 }
-
 class _color:
   def __call__ (self, text, color):
     return f"{COLORS[color]}{text}{COLORS['reset']}"
@@ -1154,7 +1153,7 @@ def generatePositions (output_dir, pcb_filename, to_overwrite = True):
   od_from_cli = output_dir  # The directory specified by the command line argument
 
   # Get the final directory path
-  final_directory, filename_date = create_final_directory (od_from_config, od_from_cli, "Assembly", info ["rev"], "generatePositions")
+  final_directory, filename_date = create_final_directory (od_from_config, od_from_cli, "Position", info ["rev"], "generatePositions")
   
   #---------------------------------------------------------------------------------------------#
   

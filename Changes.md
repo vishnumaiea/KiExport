@@ -2,6 +2,12 @@
 # Changes
 
 #
+### **+05:30 04:37:37 PM 28-05-2025, Wednesday**
+
+  - Renamed the position file target folder to `Position` from `Assembly`.
+  - New Version 🆕 `0.1.3`.
+
+#
 ### **+05:30 12:55:23 PM 09-05-2025, Friday**
 
   - Updated command list in `validate_command_list()`.
