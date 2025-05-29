@@ -2,6 +2,36 @@
 # Changes
 
 #
+### **+05:30 10:09:02 AM 29-05-2025, Thursday**
+
+  - Fixed `generateBomXls()` function call issue in `parseArguments()`.
+  - New Version 🆕 `0.1.5`.
+
+#
+### **+05:30 05:15:30 PM 28-05-2025, Wednesday**
+
+  - Added support for version checking of the confguration JSON files.
+    - Added `semver` library to handle version comparison.
+    - Added `normalize_version()` to convert partial-semver versions to full-semver versions.
+    - Added `MIN_CONFIG_JSON_VERSION` that tells the minimum version required.
+    - When the current version is less than the minimum version, the `load_config()` will return `False` and subsequent operations will fail and exit.
+    - When the current version is greater than or equal to the minimum version, the `load_config()` returns `True` but warns the user about the version mismatch.
+    - When the current version is equal to the minimum version, the `load_config()` returns `True` and no warning is printed.
+  - New Version 🆕 `0.1.4`.
+
+#
+### **+05:30 04:37:37 PM 28-05-2025, Wednesday**
+
+  - Renamed the position file target folder to `Position` from `Assembly`.
+  - New Version 🆕 `0.1.3`.
+
+#
+### **+05:30 12:55:23 PM 09-05-2025, Friday**
+
+  - Updated command list in `validate_command_list()`.
+  - New Version 🆕 `0.1.2`.
+
+#
 ### **+05:30 05:57:36 PM 08-05-2025, Thursday**
 
   - Fixed app printing errors due to mishandled logging when called without any arguments.

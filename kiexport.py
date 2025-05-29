@@ -4,8 +4,8 @@
 # KiExport
 # Tool to export manufacturing files from KiCad PCB projects.
 # Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)
-# Version: 0.1.1
-# Last Modified: +05:30 17:59:20 PM 08-05-2025, Thursday
+# Version: 0.1.5
+# Last Modified: +05:30 10:09:48 AM 29-05-2025, Thursday
 # GitHub: https://github.com/vishnumaiea/KiExport
 # License: MIT
 
@@ -22,6 +22,7 @@ import json
 import pymupdf
 import ast
 import sys
+import semver
 import csv
 from openpyxl import Workbook
 from openpyxl.styles import Font, Alignment
@@ -32,11 +33,13 @@ from openpyxl.styles import PatternFill
 #=============================================================================================#
 
 APP_NAME = "KiExport"
-APP_VERSION = "0.1.1"
+APP_VERSION = "0.1.5"
 APP_DESCRIPTION = "Tool to export manufacturing files from KiCad PCB projects."
 APP_AUTHOR = "Vishnu Mohanan (@vishnumaiea, @vizmohanan)"
 
 SAMPLE_PCB_FILE = "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb"
+MIN_CONFIG_JSON_VERSION = "1.6"  # Minimum required version of the config JSON file
+MIN_KICAD_VERSION = "8.0"  # Minimum required version of the config JSON file
 
 current_config = None
 default_config = None
@@ -597,7 +600,6 @@ COLORS = {
   'cyan': '\033[96m',
   'reset': '\033[0m'
 }
-
 class _color:
   def __call__ (self, text, color):
     return f"{COLORS[color]}{text}{COLORS['reset']}"
@@ -1154,7 +1156,7 @@ def generatePositions (output_dir, pcb_filename, to_overwrite = True):
   od_from_cli = output_dir  # The directory specified by the command line argument
 
   # Get the final directory path
-  final_directory, filename_date = create_final_directory (od_from_config, od_from_cli, "Assembly", info ["rev"], "generatePositions")
+  final_directory, filename_date = create_final_directory (od_from_config, od_from_cli, "Position", info ["rev"], "generatePositions")
   
   #---------------------------------------------------------------------------------------------#
   
@@ -1930,13 +1932,13 @@ def generateBomCsv (output_dir, sch_filename, to_overwrite = True):
 #=============================================================================================#
 
 def generateBomXls (output_dir, csv_file, sch_filename, to_overwrite = True):
-  # Check if the input file exists
+  # Check if the input schematic file exists
   if not check_file_exists (sch_filename):
     print (color.red (f"generateBomCsv [ERROR]: '{sch_filename}' does not exist."))
     command_exec_status ["bom_csv"] = False
     return False
   
-  # Check if the input file exists
+  # Check if the input CSV file exists
   if not check_file_exists (csv_file):
     print (color.red (f"generateBomXls [ERROR]: The supplied CSV file '{csv_file}' does not exist."))
     command_exec_status ["bom_xls"] = False
@@ -2524,8 +2526,7 @@ def validate_command_list (cli_string):
     "gerbers": [],
     "drills": [],
     "sch_pdf": [],
-    "bom": [],
-    "ibom": [],
+    "bom": ["CSV", "XLS", "HTML"],
     "pcb_pdf": [],
     "positions": [],
     "svg": [],
@@ -2618,8 +2619,17 @@ def load_config (config_file = None):
       with open (config_file, 'r', encoding = "utf-8") as file:
           current_config = json.load (file)
           current_config = to_lazy_dict (current_config)
-          return True
-          # TODO: Check the JSON configuration file version and warn about consequences.
+          # Compare the configuration JSON versions using semver library.
+          if "version" in current_config:
+            if semver.compare (normalize_version (MIN_CONFIG_JSON_VERSION), normalize_version (current_config ["version"])) == 0:
+              print (f"load_config [INFO]: The configuration file version '{color.magenta (current_config ['version'])}' is the same as the minimum supported version '{MIN_CONFIG_JSON_VERSION}'.")
+              return True
+            elif semver.compare (normalize_version (MIN_CONFIG_JSON_VERSION), normalize_version (current_config ["version"])) < 0:
+              print (color.yellow (f"load_config [WARNING]: The configuration file version '{current_config ['version']}' is newer than the minimum supported version '{MIN_CONFIG_JSON_VERSION}'."))
+              return True
+            elif semver.compare (normalize_version (MIN_CONFIG_JSON_VERSION), normalize_version (current_config ["version"])) > 0:
+              print (color.red (f"load_config [ERROR]: The configuration file version '{current_config ['version']}' is older than the minimum supported version '{MIN_CONFIG_JSON_VERSION}'."))
+              return False
     else:
       print (color.red (f"load_config [ERROR]: The provided configuration file '{config_file}' does not exist."))
       print (color.yellow (f"load_config [WARNING]: Default values will be used. Continue? [Y/N]"))
@@ -2633,6 +2643,21 @@ def load_config (config_file = None):
     print (f"load_config [INFO]: Using default configuration.")
     current_config = default_config
     return True
+
+#=============================================================================================#
+
+def normalize_version (version: str) -> str:
+  """
+  Normalize a version string to full semantic version format (MAJOR.MINOR.PATCH).
+  Examples:
+    "1"     -> "1.0.0"
+    "1.6"   -> "1.6.0"
+    "1.6.2" -> "1.6.2"
+  """
+  parts = version.strip().split ('.')
+  while len (parts) < 3:
+    parts.append ('0')
+  return '.'.join (parts [:3])  # Ensure no more than 3 parts
 
 #=============================================================================================#
 
@@ -3094,7 +3119,7 @@ def parseArguments():
       csv_file_name = generateBomCsv (output_dir = args.output_dir, sch_filename = args.input_filename)
       if type == "XLS":
         # The CSV file is used to generate the XLS file.
-        generateBomXls (output_dir = args.output_dir, csv_file = csv_file_name)
+        generateBomXls (output_dir = args.output_dir, csv_file = csv_file_name, sch_filename = args.input_filename)
     elif type == "HTML":
       generateBomHtml (output_dir = args.output_dir, pcb_filename = args.input_filename)
   
