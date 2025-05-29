@@ -2,6 +2,12 @@
 # Changes
 
 #
+### **+05:30 10:09:02 AM 29-05-2025, Thursday**
+
+  - Fixed `generateBomXls()` function call issue in `parseArguments()`.
+  - New Version 🆕 `0.1.5`.
+
+#
 ### **+05:30 05:15:30 PM 28-05-2025, Wednesday**
 
   - Added support for version checking of the confguration JSON files.

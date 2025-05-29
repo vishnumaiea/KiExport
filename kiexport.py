@@ -4,8 +4,8 @@
 # KiExport
 # Tool to export manufacturing files from KiCad PCB projects.
 # Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)
-# Version: 0.1.4
-# Last Modified: +05:30 05:22:55 PM 28-05-2025, Wednesday
+# Version: 0.1.5
+# Last Modified: +05:30 10:09:48 AM 29-05-2025, Thursday
 # GitHub: https://github.com/vishnumaiea/KiExport
 # License: MIT
 
@@ -33,7 +33,7 @@ from openpyxl.styles import PatternFill
 #=============================================================================================#
 
 APP_NAME = "KiExport"
-APP_VERSION = "0.1.4"
+APP_VERSION = "0.1.5"
 APP_DESCRIPTION = "Tool to export manufacturing files from KiCad PCB projects."
 APP_AUTHOR = "Vishnu Mohanan (@vishnumaiea, @vizmohanan)"
 
@@ -1932,13 +1932,13 @@ def generateBomCsv (output_dir, sch_filename, to_overwrite = True):
 #=============================================================================================#
 
 def generateBomXls (output_dir, csv_file, sch_filename, to_overwrite = True):
-  # Check if the input file exists
+  # Check if the input schematic file exists
   if not check_file_exists (sch_filename):
     print (color.red (f"generateBomCsv [ERROR]: '{sch_filename}' does not exist."))
     command_exec_status ["bom_csv"] = False
     return False
   
-  # Check if the input file exists
+  # Check if the input CSV file exists
   if not check_file_exists (csv_file):
     print (color.red (f"generateBomXls [ERROR]: The supplied CSV file '{csv_file}' does not exist."))
     command_exec_status ["bom_xls"] = False
@@ -3119,7 +3119,7 @@ def parseArguments():
       csv_file_name = generateBomCsv (output_dir = args.output_dir, sch_filename = args.input_filename)
       if type == "XLS":
         # The CSV file is used to generate the XLS file.
-        generateBomXls (output_dir = args.output_dir, csv_file = csv_file_name)
+        generateBomXls (output_dir = args.output_dir, csv_file = csv_file_name, sch_filename = args.input_filename)
     elif type == "HTML":
       generateBomHtml (output_dir = args.output_dir, pcb_filename = args.input_filename)
   
