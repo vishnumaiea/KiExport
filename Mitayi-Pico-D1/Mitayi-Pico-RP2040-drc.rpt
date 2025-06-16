@@ -1,0 +1,18 @@
+** Drc report for Mitayi-Pico-RP2040.kicad_pcb **
+** Created on 2025-06-11T15:54:27+0530 **
+
+** Found 2 DRC violations **
+[silk_edge_clearance]: Silkscreen clipped by board edge
+    Rule: board setup constraints silk; warning
+    @(121.5000 mm, 99.8000 mm): Segment on Edge.Cuts
+    @(121.9300 mm, 84.5900 mm): Segment of J2 on F.Silkscreen
+[silk_edge_clearance]: Silkscreen clipped by board edge
+    Rule: board setup constraints silk; warning
+    @(121.5000 mm, 99.8000 mm): Segment on Edge.Cuts
+    @(121.9300 mm, 93.9900 mm): Segment of J2 on F.Silkscreen
+
+** Found 0 unconnected pads **
+
+** Found 0 Footprint errors **
+
+** End of Report **

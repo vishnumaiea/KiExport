@@ -2,6 +2,49 @@
 # Changes
 
 #
+### **+05:30 04:51:05 PM 16-06-2025, Monday**
+
+  - Updated Readme.
+    - Added `pcb_drc` command documentation.
+
+#
+### **+05:30 04:26:44 PM 16-06-2025, Monday**
+
+  - Updated `runDRC()`.
+    - Updated the default value of the `type` to `default`.
+    - When `default` type is used, the format from the configuration file will be used.
+    - If the configuration file is missing the correct format value, then the "report" format will be used.
+    - Specifying the file format in CLI command will override the configuration file value.
+    - If no type is specified in the CLI command, then the format specified in the configuration file will be used.
+  - New Version 🆕 `0.1.8`.
+
+#
+### **+05:30 03:16:03 PM 16-06-2025, Monday**
+
+  - Updated `runDRC()`.
+    - It now checks how many voilations were found in the DRC report and print them.
+    - If violations are found, the user will be prompted to continue or exit the app.
+    - The export log won't be saved if the user chooses to exit. The report will still be saved.
+    - `pcb_drc` command execcution will be set to false if the user chooses to continue with DRC errors.
+  - New Version 🆕 `0.1.7`.
+
+#
+### **+05:30 02:14:07 PM 16-06-2025, Monday**
+
+  - Added new command `pcb_drc`.
+    - This will run the DRC on the PCB file and write a report file.
+    - Added new `pcb_drc` configuration under the `data` section in `kiexport.json`.
+    - Updated `valid_commands_json`.
+    - Updated `valid_commands`.
+    - Added the new command in `run()`.
+    - Added new function `runDRC()`.
+    - Added `pcb_drc_parser` in `parseArguments()`.
+  - Updated the `DEFAULT_CONFIG_JSON` with latest command arguments.
+    - Mainly for STEP and VRML export.
+  - Bumped up the `kiexport.json` version to `1.7`.
+  - New Version 🆕 `0.1.6`.
+
+#
 ### **+05:30 10:09:02 AM 29-05-2025, Thursday**
 
   - Fixed `generateBomXls()` function call issue in `parseArguments()`.

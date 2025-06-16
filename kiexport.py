@@ -4,8 +4,8 @@
 # KiExport
 # Tool to export manufacturing files from KiCad PCB projects.
 # Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)
-# Version: 0.1.5
-# Last Modified: +05:30 10:09:48 AM 29-05-2025, Thursday
+# Version: 0.1.8
+# Last Modified: +05:30 04:26:31 PM 16-06-2025, Monday
 # GitHub: https://github.com/vishnumaiea/KiExport
 # License: MIT
 
@@ -33,7 +33,7 @@ from openpyxl.styles import PatternFill
 #=============================================================================================#
 
 APP_NAME = "KiExport"
-APP_VERSION = "0.1.5"
+APP_VERSION = "0.1.8"
 APP_DESCRIPTION = "Tool to export manufacturing files from KiCad PCB projects."
 APP_AUTHOR = "Vishnu Mohanan (@vishnumaiea, @vizmohanan)"
 
@@ -57,6 +57,7 @@ DEFAULT_CONFIG_JSON = '''
   "version": "1.6",
   "project_name": "Mitayi-Pico-RP2040",
   "commands": [
+    "pcb_drc",
     "gerbers",
     "sch_pdf",
     ["bom", "CSV"],
@@ -83,6 +84,18 @@ DEFAULT_CONFIG_JSON = '''
   "ibom_path": "%USERPROFILE%\\\\Documents\\\\KiCad\\\\9.99\\\\3rdparty\\\\plugins\\\\org_openscopeproject_InteractiveHtmlBom\\\\generate_interactive_bom.py",
   "kiexport_log_path": "Export\\\\kiexport.log",
   "data": {
+    "pcb_drc": {
+      "--output_dir": "Export",
+      "--format": "report",
+      "--all-track-errors": false,
+      "--schematic-parity": true,
+      "--units": "mm",
+      "--severity-all": false,
+      "--severity-error": true,
+      "--severity-warning": true,
+      "--severity-exclusions": false,
+      "--exit-code-violations": false
+    },
     "gerbers": {
       "--output_dir": "Export",
       "--layers": [
@@ -272,21 +285,34 @@ DEFAULT_CONFIG_JSON = '''
       "STEP": {
         "--output_dir": "Export",
         "--force": true,
-        "--grid-origin": false,
-        "--drill-origin": false,
         "--no-unspecified": false,
         "--no-dnp": false,
+        "--grid-origin": false,
+        "--drill-origin": false,
         "--subst-models": true,
         "--board-only": false,
+        "--cut-vias-in-body": true,
+        "--no-board-body": false,
+        "--no-components": false,
+        "--component-filter": false,
         "--include-tracks": true,
+        "--include-pads": true,
         "--include-zones": true,
+        "--include-inner-copper": false,
+        "--include-silkscreen": true,
+        "--include-soldermask": true,
+        "--fuse-shapes": false,
+        "--fill-all-vias": false,
         "--min-distance": false,
+        "--net-filter": false,
         "--no-optimize-step": false,
         "--user-origin": false
       },
       "VRML": {
         "--output_dir": "Export",
         "--force": true,
+        "--no-unspecified": false,
+        "--no-dnp": false,
         "--user-origin": false,
         "--units": "mm",
         "--models-dir": false,
@@ -2523,6 +2549,7 @@ def validate_command_list (cli_string):
 
   # Top level commands.
   valid_commands_json = json.dumps ({
+    "pcb_drc": ["report", "json"],
     "gerbers": [],
     "drills": [],
     "sch_pdf": [],
@@ -2679,7 +2706,7 @@ def run (config_file, command_list = None):
   #---------------------------------------------------------------------------------------------#
 
   # List of top-level commands.
-  valid_commands = ["gerbers", "drills", "sch_pdf", "bom", "pcb_pdf", "positions", "ddd", "svg", "pcb_render"]
+  valid_commands = ["pcb_drc", "gerbers", "drills", "sch_pdf", "bom", "pcb_pdf", "positions", "ddd", "svg", "pcb_render"]
 
   #---------------------------------------------------------------------------------------------#
 
@@ -2795,7 +2822,12 @@ def run (config_file, command_list = None):
 
   # Process the commands without any arguments or modifiers. eg. "gerbers", "drills", "sch_pdf", etc.
   for cmd in cmd_strings:
-    if cmd == "gerbers":
+    if cmd == "pcb_drc":
+      output_dir = current_config.get ("data", {}).get ("pcb_drc", {}).get ("--output_dir", lambda: default_config ["data"]["pcb_drc"]["--output_dir"])
+      output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
+      runDRC (output_dir = output_dir, pcb_filename = pcb_file_path, type = "report") # Default is "report"
+
+    elif cmd == "gerbers":
       output_dir = current_config.get ("data", {}).get ("gerbers", {}).get ("--output_dir", lambda: default_config ["data"]["gerbers"]["--output_dir"])
       output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
       generateGerbers (output_dir = output_dir, pcb_filename = pcb_file_path)
@@ -2846,7 +2878,18 @@ def run (config_file, command_list = None):
 
   # Process the commands with arguments or modifiers. eg. "["ddd", "STEP"]", "[ddd, VRML]"
   for cmd in cmd_lists:
-    if cmd [0] == "gerbers":
+    if cmd [0] == "pcb_drc":
+      if cmd [1] == "report":
+        output_dir = current_config.get ("data", {}).get ("pcb_drc", {}).get ("--output_dir", lambda: default_config ["data"]["pcb_drc"]["--output_dir"])
+        output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
+        runDRC (output_dir = output_dir, pcb_filename = pcb_file_path, type = "report")
+      
+      elif cmd [1] == "json":
+        output_dir = current_config.get ("data", {}).get ("pcb_drc", {}).get ("--output_dir", lambda: default_config ["data"]["pcb_drc"]["--output_dir"])
+        output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
+        runDRC (output_dir = output_dir, pcb_filename = pcb_file_path, type = "json")
+
+    elif cmd [0] == "gerbers":
       output_dir = current_config.get ("data", {}).get ("gerbers", {}).get ("--output_dir", lambda: default_config ["data"]["gerbers"]["--output_dir"])
       output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
       generateGerbers (output_dir = output_dir, pcb_filename = pcb_file_path)
@@ -2919,6 +2962,196 @@ def run (config_file, command_list = None):
       print (color.red (f"run [INFO]: {cmd}: {command_exec_status [cmd]}"))
 
   return
+
+#=============================================================================================#
+
+def runDRC (output_dir, pcb_filename, type = "default"):
+  """
+  Runs the DRC (Design Rule Check) on the PCB file.
+  This function is a placeholder and should be implemented with actual DRC logic.
+  """
+  global current_config  # Access the global config
+  global default_config  # Access the global config
+
+  # Get the KiCad CLI path.
+  kicad_cli_path = f'{current_config.get ("kicad_cli_path", lambda: default_config ["kicad_cli_path"])}'
+
+  # Common base command
+  pcb_drc_command = [f'"{kicad_cli_path}"', "pcb", "drc"]
+
+  # Check if the input file exists
+  if not check_file_exists (pcb_filename):
+    print (color.red (f"runDRC [ERROR]: '{pcb_filename}' does not exist."))
+    command_exec_status ["pcb_drc"] = False
+    return
+  
+  #---------------------------------------------------------------------------------------------#
+
+  file_name = extract_pcb_file_name (pcb_filename) # Extract information from the input file
+  file_name = file_name.replace (" ", "-") # If there are whitespace characters in the project name, replace them with a hyphen
+
+  project_name = extract_project_name (file_name)
+  info = extract_info_from_pcb (pcb_filename) # Extract basic information from the input file
+
+  print (f"runDRC [INFO]: Project name is '{color.magenta (project_name)}' and revision is {color.magenta ('R')}{color.magenta (info ['rev'])}.")
+
+  #---------------------------------------------------------------------------------------------#
+
+  # print (color.yellow ("runDRC [INFO]: Running DRC (Design Rule Check) on the PCB file.."))
+
+  file_path = os.path.abspath (pcb_filename) # Get the absolute path of the file.
+
+  # Get the directory path of the file and save it as the project directory.
+  # All other export directories will be relative to the project directory.
+  project_dir = os.path.dirname (file_path)
+  
+  # Read the output directory name from the config file.
+  od_from_config = project_dir + "/" + current_config.get ("data", {}).get ("pcb_drc", {}).get ("--output_dir", lambda: default_config ["data"]["pcb_drc"]["--output_dir"])
+  od_from_cli = output_dir  # The output directory specified by the command line argument
+
+  # Get the final directory path.
+  final_directory, filename_date = create_final_directory (od_from_config, od_from_cli, "Report", info ["rev"], "runDRC")
+  
+  #---------------------------------------------------------------------------------------------#
+
+  # Get the argument list from the config file.
+  arg_list = current_config.get ("data", {}).get ("pcb_drc", {})
+
+  full_command = [] # Store the full command to run
+  full_command.extend (pcb_drc_command) # Add the base command
+
+  if type == "default": # If the default type is specified, then use type specified in the config file.
+    if arg_list: # Check if the argument list is not empty.
+      if "--format" in arg_list: # Check if the "--format" argument is present in the argument list.
+        format_value = arg_list ["--format"] # Get the format value from the argument list.
+        if format_value == "report":
+          type = format_value
+        elif format_value == "json":
+          type = format_value
+      else:
+        type = "report"  # Default to report if no format is specified in the config file.
+    else: # If the argument list is empty, then default to report.
+      type = "report"  # Default to report if no argument list is provided.
+  else:
+    pass
+
+  #---------------------------------------------------------------------------------------------#
+
+  seq_number = 1
+  not_completed = True
+  
+  # Create the output file name.
+  while not_completed:
+    if type == "report":
+      file_name = f"{final_directory}/{project_name}-R{info ['rev']}-PCB-DRC-Report-{filename_date}-{seq_number}.rpt"
+    elif type == "json":
+      file_name = f"{final_directory}/{project_name}-R{info ['rev']}-PCB-DRC-Report-{filename_date}-{seq_number}.json"
+
+    if os.path.exists (file_name):
+      seq_number += 1 # Increment the sequence number and try again
+      not_completed = True
+    else:
+      full_command.append ("--output")
+      full_command.append (f'"{file_name}"') # Add the output file name with double quotes around it
+      break
+  
+  # Add the remaining arguments.
+  # Check if the argument list is not an empty dictionary.
+  if arg_list:
+    for key, value in arg_list.items():
+      if key.startswith ("--"): # Only fetch the arguments that start with "--"
+        if key == "--output_dir": # Skip the --output_dir argument, sice we already added it
+          continue
+        elif key == "--format": # Skip the --format argument, since we already set the type
+          if isinstance (value, str):
+            full_command.append (key)
+            full_command.append (f'"{type}"') # Use the override value. Add as a double-quoted string.
+        else:
+          # Check if the value is empty
+          if value == "": # Skip if the value is empty
+            continue
+          else:
+            # Check if the vlaue is a JSON boolean
+            if isinstance (value, bool):
+              if value == True: # If the value is true, then append the key as an argument
+                full_command.append (key)
+            else:
+              # Check if the value is a string and not a numeral
+              if isinstance (value, str) and not value.isdigit():
+                  full_command.append (key)
+                  full_command.append (f'"{value}"') # Add as a double-quoted string
+              elif isinstance (value, (int, float)):
+                  full_command.append (key)
+                  full_command.append (str (value))  # Append the numeric value as string
+  
+  # Finally add the input file
+  full_command.append (f'"{pcb_filename}"')
+  print ("runDRC [INFO]: Running command: ", color.blue (' '.join (full_command)))
+
+  #----------------------------------------------------------------------------------------------#
+
+  # Run the command
+  try:
+    full_command = ' '.join (full_command) # Convert the list to a string
+    result = subprocess.run (full_command, check = True, capture_output = True, text = True)
+
+    print (result.stdout)  # Print the standard output
+
+    is_drc_error = False
+
+    # Check for a 0 DRC violations.
+    if "Found 0 violations" in result.stdout:
+      print (color.green ("runDRC [OK]: No DRC violations found."))
+    
+    # Search for the "Found <number> violations" string in the output using regex.
+    elif re.search (r"Found \d+ violations", result.stdout):
+      violations = re.search (r"Found (\d+) violations", result.stdout)
+      if violations:
+        num_violations = violations.group (1)
+        print (color.red (f"runDRC [ERROR]: Found {num_violations} DRC violations. Check the report file for details."))
+        is_drc_error = True
+    
+    if "Found 0 unconnected items" in result.stdout:
+      print (color.green ("runDRC [OK]: No unconnected items found."))
+
+    # Search for the "Found <number> unconnected items" string in the output using regex.
+    elif re.search (r"Found \d+ unconnected items", result.stdout):
+      unconnected = re.search (r"Found (\d+) unconnected items", result.stdout)
+      if unconnected:
+        num_unconnected = unconnected.group (1)
+        print (color.red (f"runDRC [ERROR]: Found {num_unconnected} unconnected items. Check the report file for details."))
+        is_drc_error = True
+    
+    if "Found 0 schematic parity issues" in result.stdout:
+      print (color.green ("runDRC [OK]: No schematic parity issues found."))
+    
+    # Search for the "Found <number> schematic parity issues" string in the output using regex.
+    elif re.search (r"Found \d+ schematic parity issues", result.stdout):
+      parity_issues = re.search (r"Found (\d+) schematic parity issues", result.stdout)
+      if parity_issues:
+        num_parity_issues = parity_issues.group (1)
+        print (color.red (f"runDRC [ERROR]: Found {num_parity_issues} schematic parity issues. Check the report file for details."))
+        is_drc_error = True
+  
+    if is_drc_error:
+      print (color.yellow ("runDRC [WARNING]: Multiple DRC errors were found. Do you want to continue? [Y/N]"))
+      user_input = input ("").strip().lower()
+      if user_input == "y":
+        print (color.yellow ("runDRC [WARNING]: Process will continue with DRC errors."))
+        command_exec_status ["pcb_drc"] = False
+      else:
+        print (color.yellow ("runDRC [WARNING]: Process will exit."))
+        exit (1)  # Exit the script with an error code if the user does not want to continue
+
+  except subprocess.CalledProcessError as e: # If the DRC command fails for some reason.
+    print (color.red (f"runDRC [ERROR]: Error occurred: {e}"))
+    print()
+    command_exec_status ["pcb_drc"] = False
+    return
+
+  print (color.green ("runDRC [OK]: DRC completed successfully."))
+  print()
+  command_exec_status ["pcb_drc"] = True
 
 #=============================================================================================#
 
@@ -3007,6 +3240,13 @@ def parseArguments():
   pcb_render_parser.add_argument ("-od", "--output_dir", required = True, help = "Directory to save the rendered images to.")
   pcb_render_parser.add_argument ("-ps", "--preset", required = False, help = "The render preset to use.")
 
+  # Subparser for the DRC Run command.
+  # Example: python .\kiexport.py pcb_drc -od "Mitayi-Pico-D1/Export" -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb" -t "report"
+  pcb_drc_parser = subparsers.add_parser ("pcb_drc", help = "Run DRC on the PCB file and generate a report.")
+  pcb_drc_parser.add_argument ("-if", "--input_filename", required = True, help = "Path to the .kicad_pcb file.")
+  pcb_drc_parser.add_argument ("-od", "--output_dir", required = True, help = "Directory to save the report file to.")
+  pcb_drc_parser.add_argument ("-t", "--type", required = False, help = "The type of report file. Can be report or json.")
+
   # Subparser for the test function.
   test_parser = subparsers.add_parser ("test", help = "Internal test function.")
 
@@ -3068,9 +3308,9 @@ def parseArguments():
       logPath = path_from_config
     else: # If it is not absolute, we will add the project directory to it.
       if args.command == "run":
-        file_path = os.path.abspath (args.config_file) # Get the absolute path of the file.
-      elif args.config_file is not None:
-        file_path = os.path.abspath (args.input_filename) # Get the absolute path of the file.
+        file_path = os.path.abspath (args.config_file) # Get the absolute path of the config file.
+      else:
+        file_path = os.path.abspath (args.input_filename) # Get the absolute path of the input file.
       # Get the directory path of the file and save it as the project directory.
       # All other export directories will be relative to the project directory.
       project_dir = os.path.dirname (file_path)
@@ -3085,6 +3325,11 @@ def parseArguments():
   if args.command == "run":
     pass
 
+  elif args.command == "pcb_drc":
+    if args.type is None:
+      args.type = "default"  # Set the default type. This will use the type specified in the config file.
+    runDRC (output_dir = args.output_dir, pcb_filename = args.input_filename, type = args.type)
+  
   elif args.command == "gerbers":
     generateGerbers (output_dir = args.output_dir, pcb_filename = args.input_filename)
 
