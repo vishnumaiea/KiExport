@@ -2,6 +2,12 @@
 # Changes
 
 #
+### **+05:30 04:51:05 PM 16-06-2025, Monday**
+
+  - Updated Readme.
+    - Added `pcb_drc` command documentation.
+
+#
 ### **+05:30 04:26:44 PM 16-06-2025, Monday**
 
   - Updated `runDRC()`.

@@ -25,6 +25,7 @@ This tool was created with the help of [**ChatGPT**](https://chat.openai.com/cha
   - [Commands](#commands)
     - [`version`](#version)
     - [`help`](#help)
+    - [`pcb_drc`](#pcb_drc)
     - [`gerbers`](#gerbers)
     - [`drills`](#drills)
     - [`positions`](#positions)
@@ -108,7 +109,7 @@ If you generate the files multiple times a day, older files will be overwritten 
         |       Mitayi-Pico-RP2040-R0.6-STEP-26102024-1.step
         |       Mitayi-Pico-RP2040-R0.6-VRML-26102024-1.wrl
         |
-        +---Assembly
+        +---Position
         |       Mitayi-Pico-RP2040-R0.6-Pos-All.csv
         |       Mitayi-Pico-RP2040-R0.6-Pos-Back.csv
         |       Mitayi-Pico-RP2040-R0.6-Pos-Front.csv
@@ -166,6 +167,10 @@ If you generate the files multiple times a day, older files will be overwritten 
         |       Mitayi-Pico-RP2040-R0.6-Bottom-26102024-1.png
         |       Mitayi-Pico-RP2040-R0.6-Front-26102024-1.png
         |       Mitayi-Pico-RP2040-R0.6-Back-26102024-1.png
+        |
+        +---Report
+        |       Mitayi-Pico-RP2040-R0.6-DRC-26102024-1.rpt
+        |       Mitayi-Pico-RP2040-R0.6-DRC-26102024-1.json
         |
         +---SCH
         |       Mitayi-Pico-RP2040-R0.6-SCH-26102024-1.pdf
@@ -253,6 +258,20 @@ You can include the command to get the help menu of a specific command. For exam
 ```bash
 kiexport gerbers -h
 ```
+
+### `pcb_drc`
+
+Runs a DRC (Design Rule Check) on the PCB file. If there are errors in the design, evaluated as per the DRC rules, the command will return the type and number of errors found. It will also generate a report file and save it to the output directory. When ran as part of the `run` command, you can choose to skip other commands if there are DRC errors. The configruation for this command can be specified in the configuration file under the `pcb_drc` section. If a format type is specified in the CLI command, it will override the type specified in the configuration file.
+
+```bash
+kiexport pcb_drc -if <input_file> -od <output_dir> -t <type>
+```
+
+- `-if`: Path to the input `.kicad_pcb` file. Required.
+- `-od`: Path to the output directory where the report will be saved. Required.
+- `-t`: The type of report to generate. Possible values are `report`, and `json`. Optional. Defaults to the type specified in the configuration file.
+  - `report` - Generates a text report file with `.rpt` extension.
+  - `json` - Generates a JSON report file with `.json` extension.
 
 ### `gerbers`
 
