@@ -2,6 +2,22 @@
 # Changes
 
 #
+### **+05:30 02:14:07 PM 16-06-2025, Monday**
+
+  - Added new command `pcb_drc`.
+    - This will run the DRC on the PCB file and write a report file.
+    - Added new `pcb_drc` configuration under the `data` section in `kiexport.json`.
+    - Updated `valid_commands_json`.
+    - Updated `valid_commands`.
+    - Added the new command in `run()`.
+    - Added new function `runDRC()`.
+    - Added `pcb_drc_parser` in `parseArguments()`.
+  - Updated the `DEFAULT_CONFIG_JSON` with latest command arguments.
+    - Mainly for STEP and VRML export.
+  - Bumped up the `kiexport.json` version to `1.7`.
+  - New Version 🆕 `0.1.6`.
+
+#
 ### **+05:30 10:09:02 AM 29-05-2025, Thursday**
 
   - Fixed `generateBomXls()` function call issue in `parseArguments()`.
