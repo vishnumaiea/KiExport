@@ -2,6 +2,16 @@
 # Changes
 
 #
+### **+05:30 03:16:03 PM 16-06-2025, Monday**
+
+  - Updated `runDRC()`.
+    - It now checks how many voilations were found in the DRC report and print them.
+    - If violations are found, the user will be prompted to continue or exit the app.
+    - The export log won't be saved if the user chooses to exit. The report will still be saved.
+    - `pcb_drc` command execcution will be set to false if the user chooses to continue with DRC errors.
+  - New Version 🆕 `0.1.7`.
+
+#
 ### **+05:30 02:14:07 PM 16-06-2025, Monday**
 
   - Added new command `pcb_drc`.

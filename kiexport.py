@@ -4,8 +4,8 @@
 # KiExport
 # Tool to export manufacturing files from KiCad PCB projects.
 # Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)
-# Version: 0.1.6
-# Last Modified: +05:30 02:13:49 PM 16-06-2025, Monday
+# Version: 0.1.7
+# Last Modified: +05:30 03:21:24 PM 16-06-2025, Monday
 # GitHub: https://github.com/vishnumaiea/KiExport
 # License: MIT
 
@@ -33,7 +33,7 @@ from openpyxl.styles import PatternFill
 #=============================================================================================#
 
 APP_NAME = "KiExport"
-APP_VERSION = "0.1.6"
+APP_VERSION = "0.1.7"
 APP_DESCRIPTION = "Tool to export manufacturing files from KiCad PCB projects."
 APP_AUTHOR = "Vishnu Mohanan (@vishnumaiea, @vizmohanan)"
 
@@ -3072,15 +3072,63 @@ def runDRC (output_dir, pcb_filename, type = "report"):
   # Run the command
   try:
     full_command = ' '.join (full_command) # Convert the list to a string
-    subprocess.run (full_command, check = True)
+    result = subprocess.run (full_command, check = True, capture_output = True, text = True)
+
+    print (result.stdout)  # Print the standard output
+
+    is_drc_error = False
+
+    # Check for a 0 DRC violations.
+    if "Found 0 violations" in result.stdout:
+      print (color.green ("runDRC [OK]: No DRC violations found."))
+    
+    # Search for the "Found <number> violations" string in the output using regex.
+    elif re.search (r"Found \d+ violations", result.stdout):
+      violations = re.search (r"Found (\d+) violations", result.stdout)
+      if violations:
+        num_violations = violations.group (1)
+        print (color.red (f"runDRC [ERROR]: Found {num_violations} DRC violations. Check the report file for details."))
+        is_drc_error = True
+    
+    if "Found 0 unconnected items" in result.stdout:
+      print (color.green ("runDRC [OK]: No unconnected items found."))
+
+    # Search for the "Found <number> unconnected items" string in the output using regex.
+    elif re.search (r"Found \d+ unconnected items", result.stdout):
+      unconnected = re.search (r"Found (\d+) unconnected items", result.stdout)
+      if unconnected:
+        num_unconnected = unconnected.group (1)
+        print (color.red (f"runDRC [ERROR]: Found {num_unconnected} unconnected items. Check the report file for details."))
+        is_drc_error = True
+    
+    if "Found 0 schematic parity issues" in result.stdout:
+      print (color.green ("runDRC [OK]: No schematic parity issues found."))
+    
+    # Search for the "Found <number> schematic parity issues" string in the output using regex.
+    elif re.search (r"Found \d+ schematic parity issues", result.stdout):
+      parity_issues = re.search (r"Found (\d+) schematic parity issues", result.stdout)
+      if parity_issues:
+        num_parity_issues = parity_issues.group (1)
+        print (color.red (f"runDRC [ERROR]: Found {num_parity_issues} schematic parity issues. Check the report file for details."))
+        is_drc_error = True
   
-  except subprocess.CalledProcessError as e:
+    if is_drc_error:
+      print (color.yellow ("runDRC [WARNING]: Multiple DRC errors were found. Do you want to continue? [Y/N]"))
+      user_input = input ("").strip().lower()
+      if user_input == "y":
+        print (color.yellow ("runDRC [WARNING]: Process will continue with DRC errors."))
+        command_exec_status ["pcb_drc"] = False
+      else:
+        print (color.yellow ("runDRC [WARNING]: Process will exit."))
+        exit (1)  # Exit the script with an error code if the user does not want to continue
+
+  except subprocess.CalledProcessError as e: # If the DRC command fails for some reason.
     print (color.red (f"runDRC [ERROR]: Error occurred: {e}"))
     print()
     command_exec_status ["pcb_drc"] = False
     return
 
-  print (color.green ("runDRC [OK]: DRC ran successfully."))
+  print (color.green ("runDRC [OK]: DRC completed successfully."))
   print()
   command_exec_status ["pcb_drc"] = True
 
