@@ -4,8 +4,8 @@
 # KiExport
 # Tool to export manufacturing files from KiCad PCB projects.
 # Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)
-# Version: 0.1.7
-# Last Modified: +05:30 03:21:24 PM 16-06-2025, Monday
+# Version: 0.1.8
+# Last Modified: +05:30 04:26:31 PM 16-06-2025, Monday
 # GitHub: https://github.com/vishnumaiea/KiExport
 # License: MIT
 
@@ -33,7 +33,7 @@ from openpyxl.styles import PatternFill
 #=============================================================================================#
 
 APP_NAME = "KiExport"
-APP_VERSION = "0.1.7"
+APP_VERSION = "0.1.8"
 APP_DESCRIPTION = "Tool to export manufacturing files from KiCad PCB projects."
 APP_AUTHOR = "Vishnu Mohanan (@vishnumaiea, @vizmohanan)"
 
@@ -2965,7 +2965,7 @@ def run (config_file, command_list = None):
 
 #=============================================================================================#
 
-def runDRC (output_dir, pcb_filename, type = "report"):
+def runDRC (output_dir, pcb_filename, type = "default"):
   """
   Runs the DRC (Design Rule Check) on the PCB file.
   This function is a placeholder and should be implemented with actual DRC logic.
@@ -3017,8 +3017,25 @@ def runDRC (output_dir, pcb_filename, type = "report"):
   # Get the argument list from the config file.
   arg_list = current_config.get ("data", {}).get ("pcb_drc", {})
 
-  full_command = []
+  full_command = [] # Store the full command to run
   full_command.extend (pcb_drc_command) # Add the base command
+
+  if type == "default": # If the default type is specified, then use type specified in the config file.
+    if arg_list: # Check if the argument list is not empty.
+      if "--format" in arg_list: # Check if the "--format" argument is present in the argument list.
+        format_value = arg_list ["--format"] # Get the format value from the argument list.
+        if format_value == "report":
+          type = format_value
+        elif format_value == "json":
+          type = format_value
+      else:
+        type = "report"  # Default to report if no format is specified in the config file.
+    else: # If the argument list is empty, then default to report.
+      type = "report"  # Default to report if no argument list is provided.
+  else:
+    pass
+
+  #---------------------------------------------------------------------------------------------#
 
   seq_number = 1
   not_completed = True
@@ -3045,6 +3062,10 @@ def runDRC (output_dir, pcb_filename, type = "report"):
       if key.startswith ("--"): # Only fetch the arguments that start with "--"
         if key == "--output_dir": # Skip the --output_dir argument, sice we already added it
           continue
+        elif key == "--format": # Skip the --format argument, since we already set the type
+          if isinstance (value, str):
+            full_command.append (key)
+            full_command.append (f'"{type}"') # Use the override value. Add as a double-quoted string.
         else:
           # Check if the value is empty
           if value == "": # Skip if the value is empty
@@ -3287,9 +3308,9 @@ def parseArguments():
       logPath = path_from_config
     else: # If it is not absolute, we will add the project directory to it.
       if args.command == "run":
-        file_path = os.path.abspath (args.config_file) # Get the absolute path of the file.
-      elif args.config_file is not None:
-        file_path = os.path.abspath (args.input_filename) # Get the absolute path of the file.
+        file_path = os.path.abspath (args.config_file) # Get the absolute path of the config file.
+      else:
+        file_path = os.path.abspath (args.input_filename) # Get the absolute path of the input file.
       # Get the directory path of the file and save it as the project directory.
       # All other export directories will be relative to the project directory.
       project_dir = os.path.dirname (file_path)
@@ -3304,6 +3325,11 @@ def parseArguments():
   if args.command == "run":
     pass
 
+  elif args.command == "pcb_drc":
+    if args.type is None:
+      args.type = "default"  # Set the default type. This will use the type specified in the config file.
+    runDRC (output_dir = args.output_dir, pcb_filename = args.input_filename, type = args.type)
+  
   elif args.command == "gerbers":
     generateGerbers (output_dir = args.output_dir, pcb_filename = args.input_filename)
 

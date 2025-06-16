@@ -8,7 +8,7 @@ KiExport generates the manufacturing files based on the options available in the
 The [**Mitayi Pico RP2040**](https://github.com/CIRCUITSTATE/Mitayi-Pico-RP2040) project is added as a sample project to test the script. If you are on Windows, you can run the `EXPORT-ALL.bat` batch script to automatically generate the manufacturing files with a double-click.
 
 - **Author:** [Vishnu Mohanan](https://github.com/vishnumaiea)
-- **Version:** `0.1.7`
+- **Version:** `0.1.8`
 - **Contributors:** Dominic Le Blanc ([@domleblanc94](https://github.com/domleblanc94))
 
 This tool was created with the help of [**ChatGPT**](https://chat.openai.com/chat). Thanks to humanity!
@@ -199,6 +199,7 @@ set SCH_FILE=Mitayi-Pico-RP2040.kicad_sch
 set PCB_FILE=Mitayi-Pico-RP2040.kicad_pcb
 
 :: Execute commands
+@REM kiexport pcb_drc -od "%OUTPUT_DIR%" -if "%PCB_FILE%" -t "report"
 @REM kiexport sch_pdf -od "%OUTPUT_DIR%" -if "%SCH_FILE%"
 @REM kiexport bom -od "%OUTPUT_DIR%" -if "%SCH_FILE%" -t "CSV"
 @REM kiexport bom -od "%OUTPUT_DIR%" -if "%SCH_FILE%" -t "XLS"

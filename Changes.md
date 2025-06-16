@@ -2,6 +2,17 @@
 # Changes
 
 #
+### **+05:30 04:26:44 PM 16-06-2025, Monday**
+
+  - Updated `runDRC()`.
+    - Updated the default value of the `type` to `default`.
+    - When `default` type is used, the format from the configuration file will be used.
+    - If the configuration file is missing the correct format value, then the "report" format will be used.
+    - Specifying the file format in CLI command will override the configuration file value.
+    - If no type is specified in the CLI command, then the format specified in the configuration file will be used.
+  - New Version 🆕 `0.1.8`.
+
+#
 ### **+05:30 03:16:03 PM 16-06-2025, Monday**
 
   - Updated `runDRC()`.
