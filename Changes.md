@@ -2,6 +2,15 @@
 # Changes
 
 #
+### **+05:30 05:58:46 PM 05-10-2025, Sunday**
+
+  - `merge_pdfs()` can now accept a list of specific PDF files to merge.
+    - If the list is not provided, all PDF files with `.pdf` extension in the folder will be merged.
+    - This allows merging specific files when needed.
+  - Fixed log message error in `generateBomXls()` function.
+  - New Version 🆕 `0.1.9`.
+
+#
 ### **+05:30 04:51:05 PM 16-06-2025, Monday**
 
   - Updated Readme.

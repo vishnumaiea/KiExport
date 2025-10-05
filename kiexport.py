@@ -4,8 +4,8 @@
 # KiExport
 # Tool to export manufacturing files from KiCad PCB projects.
 # Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)
-# Version: 0.1.8
-# Last Modified: +05:30 04:26:31 PM 16-06-2025, Monday
+# Version: 0.1.9
+# Last Modified: +05:30 18:09:00 PM 05-10-2025, Sunday
 # GitHub: https://github.com/vishnumaiea/KiExport
 # License: MIT
 
@@ -33,7 +33,7 @@ from openpyxl.styles import PatternFill
 #=============================================================================================#
 
 APP_NAME = "KiExport"
-APP_VERSION = "0.1.8"
+APP_VERSION = "0.1.9"
 APP_DESCRIPTION = "Tool to export manufacturing files from KiCad PCB projects."
 APP_AUTHOR = "Vishnu Mohanan (@vishnumaiea, @vizmohanan)"
 
@@ -537,8 +537,11 @@ DEFAULT_CONFIG_JSON = '''
 '''
 
 #=============================================================================================#
-
 class Logger:
+  """
+  Logger class to capture console output and save it to a log file.
+  """
+  
   def __init__ (self, log_file):
     self.terminal = sys.stdout
     self.buffer = []
@@ -585,6 +588,9 @@ class Logger:
 #=============================================================================================#
 
 class Colorize:
+  """
+  Class to colorize text in the terminal using ANSI escape codes.
+  """
   def __init__(self, text):
     self.text = text
     self.ansi_code = '\033[0m'  # Default to reset
@@ -626,7 +632,11 @@ COLORS = {
   'cyan': '\033[96m',
   'reset': '\033[0m'
 }
+
 class _color:
+  """
+  A class to return a colorized version of the text.
+  """
   def __call__ (self, text, color):
     return f"{COLORS[color]}{text}{COLORS['reset']}"
   
@@ -642,10 +652,10 @@ color = _color()
 
 class LazyDict (dict):
   """
-  A class to overload the get() function so that the value look up is only done when needed.
+  A class to overload the `get()` function so that the value look up is only done when needed.
 
   Args:
-      dict (dic): The dictionary to be converted.
+    `dict` (`dic`): The dictionary to be converted.
   """
   def get (self, key, fallback = None):
     if key in self:
@@ -659,10 +669,10 @@ def to_lazy_dict (d):
   Recursively convert all dicts to LazyDict.
 
   Args:
-      d (dic): The normal dictionary to be converted.
+    `d` (`dic`): The normal dictionary to be converted.
 
   Returns:
-      LazyDict : A dictionary of type LazyDict.
+    `LazyDict` : A dictionary of type LazyDict.
   """
   if isinstance (d, dict):
     return LazyDict ({k: to_lazy_dict (v) for k, v in d.items()})
@@ -672,15 +682,16 @@ def to_lazy_dict (d):
 
 def generateBomHtml (output_dir = None, pcb_filename = None, extra_args = None):
   """
-  Runs the KiCad iBOM Python script on a specified PCB file.
+  Runs the KiCad iBOM Python script on a specified PCB file. The iBoM plugin should be installed
+  for this to work.
 
   Args:
-    pcb_filename (str): Path to the KiCad PCB file (.kicad_pcb).
-    output_dir (str): Directory to save the output files. Defaults to the PCB file's directory.
-    extra_args (list): Additional command-line arguments for customization (optional).
+    `pcb_filename` (`str`): Path to the KiCad PCB file (.kicad_pcb).
+    `output_dir` (`str`): Directory to save the output files. Defaults to the PCB file's directory.
+    `extra_args` (`list`): Additional command-line arguments for customization (optional).
 
   Returns:
-    str: Path to the generated iBOM HTML file.
+    `str`: Path to the generated iBOM HTML file.
   """
 
   # Read the paths.
@@ -832,17 +843,19 @@ def generateBomHtml (output_dir = None, pcb_filename = None, extra_args = None):
 
 #=============================================================================================#
 
-def merge_pdfs (folder_path, output_file):
+def merge_pdfs (folder_path, output_file, pdf_files = None):
   """
   Merges PDF files in a folder and creates a TOC based on file names.
 
   Args:
-    folder_path (str): Path to the folder containing PDF files.
-    output_file (str): Name of the output PDF file.
+    `folder_path` (`str`): Path to the folder containing PDF files.
+    `output_file` (`str`): Name of the output PDF file.
+    `pdf_files` (`list`, optional): List of specific PDF files to merge. If None, all PDFs in the folder are merged.
   """
   try:
     # List all PDF files in the specified folder.
-    pdf_files = [f for f in os.listdir (folder_path) if f.endswith ('.pdf')]
+    if pdf_files == None:
+      pdf_files = [f for f in os.listdir (folder_path) if f.endswith ('.pdf')]
     
     if not pdf_files:
       print (f"merge_pdfs() [WARNING]: No PDF files found in the specified folder.")
@@ -1960,7 +1973,7 @@ def generateBomCsv (output_dir, sch_filename, to_overwrite = True):
 def generateBomXls (output_dir, csv_file, sch_filename, to_overwrite = True):
   # Check if the input schematic file exists
   if not check_file_exists (sch_filename):
-    print (color.red (f"generateBomCsv [ERROR]: '{sch_filename}' does not exist."))
+    print (color.red (f"generateBomXls [ERROR]: '{sch_filename}' does not exist."))
     command_exec_status ["bom_csv"] = False
     return False
   
