@@ -2,6 +2,12 @@
 # Changes
 
 #
+### **+05:30 08:18:37 PM 05-10-2025, Sunday**
+
+  - `generateGerbers()` will now rename the file names in the generated Gerber job file.
+    - Originally contributed by `Leor Weinstein`.
+
+#
 ### **+05:30 05:58:46 PM 05-10-2025, Sunday**
 
   - `merge_pdfs()` can now accept a list of specific PDF files to merge.

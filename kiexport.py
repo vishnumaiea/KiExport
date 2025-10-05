@@ -4,8 +4,8 @@
 # KiExport
 # Tool to export manufacturing files from KiCad PCB projects.
 # Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)
-# Version: 0.1.9
-# Last Modified: +05:30 18:09:00 PM 05-10-2025, Sunday
+# Version: 0.1.10
+# Last Modified: +05:30 20:19:53 PM 05-10-2025, Sunday
 # GitHub: https://github.com/vishnumaiea/KiExport
 # License: MIT
 
@@ -33,7 +33,7 @@ from openpyxl.styles import PatternFill
 #=============================================================================================#
 
 APP_NAME = "KiExport"
-APP_VERSION = "0.1.9"
+APP_VERSION = "0.1.10"
 APP_DESCRIPTION = "Tool to export manufacturing files from KiCad PCB projects."
 APP_AUTHOR = "Vishnu Mohanan (@vishnumaiea, @vizmohanan)"
 
@@ -1021,6 +1021,29 @@ def generateGerbers (output_dir, pcb_filename, to_overwrite = True):
   
   # Rename the files by adding Revision after the project name.
   rename_files (final_directory, project_name, info ['rev'], [".gbr", ".gbrjob"])
+
+  # Since we are renaming the files, we must also update the file names in the Gerber job file.
+  # The gbrjob file is actually a json format file and so we can easily modify it.
+  gbrjob_file_path = os.path.join (final_directory, project_name + "-R" + info ['rev'] + "-job.gbrjob")
+
+  # Function to modify the Path value
+  def modify_path (original_path, prefix, revision):
+    base_name = original_path [len (prefix):]  # Remove the prefix part
+    return f"{prefix}-R{revision}{base_name}"
+
+  # Load the gbrjob (JSON) file
+  with open (gbrjob_file_path, "r", encoding = "utf-8") as f:
+    data = json.load (f)
+
+  # Modify all Path values inside FilesAttributes
+  if "FilesAttributes" in data:
+    for file_attr in data ["FilesAttributes"]:
+      if "Path" in file_attr:
+        file_attr ["Path"] = modify_path (file_attr ["Path"], project_name, info ['rev'])
+
+    # Save the modified JSON back to file
+  with open (gbrjob_file_path, "w", encoding = "utf-8") as f:
+    json.dump (data, f, indent = 2, ensure_ascii = False)
   
   #---------------------------------------------------------------------------------------------#
   
