@@ -2,6 +2,14 @@
 # Changes
 
 #
+### **+05:30 01:26:37 PM 05-10-2025, Sunday**
+
+  - Added files from `Leor Weinstein`.
+    - These files were shared via email.
+    - Created the `leor` branch to test the contributions.
+    - Working improvements and fixes will be backported to the `main` branch.
+
+#
 ### **+05:30 04:51:05 PM 16-06-2025, Monday**
 
   - Updated Readme.

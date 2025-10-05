@@ -1,19 +1,87 @@
-
 #=============================================================================================#
 
 # KiExport
 # Tool to export manufacturing files from KiCad PCB projects.
 # Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)
-# Version: 0.1.8
-# Last Modified: +05:30 04:26:31 PM 16-06-2025, Monday
+# Version: 0.1.9
+# Last Modified: +05:30 13:15:20 PM 05-10-2025, Sunday
 # GitHub: https://github.com/vishnumaiea/KiExport
 # License: MIT
-
+#
+# Update 1.9 22/08/2025 by Leor Weinstein
+# 1. Modified default config json
+#      Added additional CLI commands as available on Kicad CLI 9.0.3 to be supported by JSON configuration file
+#      Added support for multylayer boards In1.cu-In8.cu
+# 2. Corrected support for pcb_renders preset string from CLI
+#      replaced \w in bare word pattern search with [\w-] so will allow hyphen as part of word string
+# 3. Removed the inclusion of gbrjob in the created gerber zip file since most mfc factories will not use it 
+#      (it was also not functional anyhow see below correction)
+# 4. Added correction to gerber file name in gbrjob to match the updated single gerber file names 
+#      since these files were renamed with ver string and can no longer be accessed by gbrjob directly
+# 5. When merging all pcb pdf file to a single file, this is now done in the order listed under layer list
+#      that makes more sense than just a random OS files order.
+# 6. Added delete of all single page pdf files created from pcb_pdf and only keeped the final merged pdf
+#      As such removed also the zip creation of the individual pdf files since only the merged pdf is needed
+# 7. Also forced drill marking to None (0) on Silk and Fab layers when generating pcb_pdf
+# 8. Added new cmd "pcb_fab_pdf", this is similar to pcb_pdf only specific behaviour for F.fab and B.fab layers only
+#      it will only accept either F.fab and B.fab in layer list and ignore all others
+#      if F.fab is present it will automatically generate it with mirror false
+#      if B.fab is present it will automatically generate it with mirror true
+#      if both F.fab and B.fab were generated it will create a single combined fab pdf under the PCB-Fab dir
+# 9. Added special handling for cmd "pcb_pdf", this will have the following specific behaviour
+#      All Front layers (Cu,Silkscreen,Mask,Paste,Fab,Courtyard) if present will automatically generate it with mirror false
+#      All Bottom layers (Cu,Silkscreen,Mask,Paste,Fab,Courtyard) if present will automatically generate it with mirror true
+#      so can easily compare to PCB view looking on it from bottom side
+#10. Added -c or --clean command line parameter
+#      This will remove completely the Kicad project revision directory so will generate final clean output
+#      of all exports, thus removing any seq accumulated dates and files along the way.
+#      This is useful for producing one final approved release of all files for current revision without the confusion of older runs for same version
+#11. At first I thought PCB and Schematic may have different revisions 
+#      (e.g. parts value change or patches not corrected in PCB design) and it can get confusing which rev dir 
+#      is for which, so I thought to create an additional hierarchy: PCB and SCH.
+#      But then I realized that this is not the case, since any change of schematic will affect BOM and fab layers in PCB
+#      So better to have a unique global version identical to PCB and schematic (project version).
+#      However, It is possible that gerber files for remaking PCB production WILL NOT be made for each version
+#      (e.g. in case of value change and wire patches), so gereber files will only be found in specific versions dirs
+#      for which PCB production was generated.
+#      It is therfore recommended that user wll keep a unique single version number for sch and pcb files.
+#      Warning will be provided if schematic and PCB have different revisions
+#12. Bug in create_final_directory was reversly selecting using config or cli directory
+#13. In case of requested in cmd config to generate both XLS and CSV, modified code so will only generate one CSV for both
+#14. Added sch_erc command option with dedictaed parameter structure similar to pcb_drc
+#15. Added additional argument to XLS gnerating BOM "kie_row_height" this will allow user to easily set the desired value for row height in generated XLS.
+#      Value of 0 or None or none digit will set row to auto height, otherwise will be set to value specified 
+#16. The custom_widths dictionary for bom xls generation was changed to be loaded from an the configuration file.
+#      Added additional dictionary object to XLS gnerating BOM "kie_custom_width:{...}"
+#      If specified will use the key:value pairs in it for XLS width defintion
+#      If no valid found and loaded than using the predefined custom_width in python script
+#17. Added additional dictionary object to XLS gnerating BOM "custom_styles:{...}"
+#      If specified will allow setting specific stypes to specific columns (most notably Hyperlink style to URL columns
+#      If no valid found and loaded than using the predefined custom_styles in python script (Link,Datasheet and URL as Hyperlink)
+#18. PCB-render default set of renders was completely changed, not sure why had PCB-Part, PCB-Pads, PCB-Paste?
+#      Also was placing Part/Pads/Paste value in Preset flag although this flag does not accept such values ??!!
+#      Created simple defaults: Top,Bottom,Left,Right,Front,Back and Perspective for a perspective view of the board.
+#      Kicad 9.0.3 still has a bug in handling preset for 3D renderer and output all layers even unneeded ones (like user drawing)
+#      perhaps when fixed in V10 or sooner can select preset layer name here
+#19. If project name not specified in configuration file or is set to "" or "None" or "Auto" value
+#      will search for kicad_pcb and kicad_sch files if found one of each with identical names will use this as project name
+#      This will allow easy re-use of same config across multiple projects since usually only one sch/pcb project found in same dir
+#20. Added source_zip command in run command list options
+#      This will be create a SRC directory in specified output directory and will zip to it all relevant source file, 
+#      This can be useful for backup of actual sources used to produce a specific final release. 
+#      Source file included are by default: kicad_pcb, kicad_sch, kicad_pro, kicad_prl, net.
+#      Above project name extensions to inlcude in zip may be defined unser the "source_zip" command in config file
+#      This will only be executed at the end of all generations and only if successful generation of all commands in run 
+#      This is usually to be used together with --clean option for final clean release generation
+#      Zip subroutines were slightly modified for above usage
+#21. Note! Known issue with "kie_single_file" under pcb_pdf, the code seem to be remarked and assumed this 
+#      flag is always set, not modified since in any case this is the preferred operation.   
 #=============================================================================================#
 
 import subprocess
 import argparse
 import os
+import shutil
 import stat
 import re
 from datetime import datetime
@@ -33,7 +101,7 @@ from openpyxl.styles import PatternFill
 #=============================================================================================#
 
 APP_NAME = "KiExport"
-APP_VERSION = "0.1.8"
+APP_VERSION = "0.1.9"
 APP_DESCRIPTION = "Tool to export manufacturing files from KiCad PCB projects."
 APP_AUTHOR = "Vishnu Mohanan (@vishnumaiea, @vizmohanan)"
 
@@ -54,30 +122,30 @@ DEFAULT_CONFIG_JSON = '''
   "name": "KiExport.JSON",
   "description": "Configuration file for KiExport",
   "filetype": "json",
-  "version": "1.6",
-  "project_name": "Mitayi-Pico-RP2040",
+  "version": "1.9",
+  "project_name": "Project Name",
   "commands": [
     "pcb_drc",
     "gerbers",
+    "sch_erc",
     "sch_pdf",
     ["bom", "CSV"],
     ["bom", "XLS"],
     ["bom", "HTML"],
     "pcb_pdf",
+    "pcb_fab_pdf",
     "positions",
     "svg",
+    ["pcb_render", "PCB-Perspective"],
+    ["pcb_render", "PCB-Top"],
+    ["pcb_render", "PCB-Bottom"],
     ["pcb_render", "PCB-Front"],
     ["pcb_render", "PCB-Back"],
     ["pcb_render", "PCB-Left"],
     ["pcb_render", "PCB-Right"],
-    ["pcb_render", "PCB-Parts-Front"],
-    ["pcb_render", "PCB-Parts-Back"],
-    ["pcb_render", "PCB-Pads-Front"],
-    ["pcb_render", "PCB-Pads-Back"],
-    ["pcb_render", "PCB-Paste-Front"],
-    ["pcb_render", "PCB-Paste-Back"],
     ["ddd", "STEP"],
-    ["ddd", "VRML"]
+    ["ddd", "VRML"],
+    "source_zip"
   ],
   "kicad_cli_path": "C:\\\\Program Files\\\\KiCad\\\\9.99\\bin\\\\kicad-cli.exe",
   "kicad_python_path": "C:\\\\Program Files\\\\KiCad\\\\9.99\\\\bin\\\\python.exe",
@@ -86,6 +154,7 @@ DEFAULT_CONFIG_JSON = '''
   "data": {
     "pcb_drc": {
       "--output_dir": "Export",
+      "--define-var": false,
       "--format": "report",
       "--all-track-errors": false,
       "--schematic-parity": true,
@@ -100,6 +169,14 @@ DEFAULT_CONFIG_JSON = '''
       "--output_dir": "Export",
       "--layers": [
         "F.Cu",
+        "In1.Cu",
+        "In2.Cu",
+        "In3.Cu",
+        "In4.Cu",
+        "In5.Cu",
+        "In6.Cu",
+        "In7.Cu",
+        "In8.Cu",
         "B.Cu",
         "F.Paste",
         "B.Paste",
@@ -116,9 +193,14 @@ DEFAULT_CONFIG_JSON = '''
         "B.Fab"
       ],
       "--drawing-sheet": false,
+      "--define-var": false,
       "--exclude-refdes": false,
       "--exclude-value": false,
       "--include-border-title": false,
+      "--sketch-pads-on-fab-layers": false,
+      "--hide-DNP-footprints-on-fab-layers": false,
+      "--sketch-DNP-footprints-on-fab-layers": false,
+      "--crossout-DNP-footprints-on-fab-layers": false,
       "--no-x2": false,
       "--no-netlist": true,
       "--subtract-soldermask": false,
@@ -126,9 +208,10 @@ DEFAULT_CONFIG_JSON = '''
       "--use-drill-file-origin": true,
       "--precision": 6,
       "--no-protel-ext": true,
+      "--plot-invisible-text": false,
       "--common-layers": false,
       "--board-plot-params": false,
-      "kie_include_drill": true
+      "kie_include_drill": false
     },
     "drills": {
       "--output_dir": "Export",
@@ -139,7 +222,7 @@ DEFAULT_CONFIG_JSON = '''
       "--excellon-units": "mm",
       "--excellon-mirror-y": false,
       "--excellon-min-header": false,
-      "--excellon-separate-th": true,
+      "--excellon-separate-th": false,
       "--generate-map": true,
       "--map-format": "pdf",
       "--gerber-precision": false
@@ -152,10 +235,11 @@ DEFAULT_CONFIG_JSON = '''
         "--fields": "${ITEM_NUMBER},Reference,Value,Name,Footprint,${QUANTITY},${DNP},MPN,MFR,Alt MPN",
         "--labels": "#,Reference,Value,Name,Footprint,Qty,DNP,MPN,MFR,Alt MPN",
         "--group-by": "${DNP},MPN",
-        "--sort-field": false,
-        "--sort-asc": false,
+        "--sort-field": "Reference",
+        "--sort-asc": true,
         "--filter": false,
         "--exclude-dnp": false,
+        "--include-excluded-from-bom": false,
         "--field-delimiter": false,
         "--string-delimiter": false,
         "--ref-delimiter": false,
@@ -164,7 +248,24 @@ DEFAULT_CONFIG_JSON = '''
         "--keep-line-breaks": false
       },
       "XLS": {
-        "--output_dir": "Export"
+        "--output_dir": "Export",
+        "kie_row_height": 0,
+        "kie_custom_widths": {
+            "#": 6,
+            "Reference": 34,
+            "Value": 34,
+            "Qty": 6,
+            "DNP": 6,
+            "Description": 40,
+            "MFR": 24,
+            "MPN": 32,
+            "Alt MPN": 32
+        },
+        "kie_custom_styles": {
+            "Link": "Hyperlink",
+            "Datasheet": "Hyperlink",
+            "URL": "Hyperlink"
+        }
       },
       "HTML": {
         "--output_dir": "Export",
@@ -199,13 +300,28 @@ DEFAULT_CONFIG_JSON = '''
         "--dnp-field": false
       }
     },
+    "sch_erc": {
+      "--output_dir": "Export",
+      "--define-var": false,
+      "--format": "report",
+      "--units": "mm",
+      "--severity-all": false,
+      "--severity-error": true,
+      "--severity-warning": true,
+      "--severity-exclusions": false,
+      "--exit-code-violations": false
+    },
     "sch_pdf": {
       "--output_dir": "Export",
       "--drawing-sheet": false,
+      "--define-var": false,
       "--theme": "User",
       "--black-and-white": false,
       "--exclude-drawing-sheet": false,
+      "--default-font": false,
       "--exclude-pdf-property-popups": false,
+      "--exclude-pdf-hierarchical-links": false,
+      "--exclude-pdf-metadata": false,
       "--no-background-color": false,
       "--pages": false
     },
@@ -213,6 +329,14 @@ DEFAULT_CONFIG_JSON = '''
       "--output_dir": "Export",
       "--layers": [
         "F.Cu",
+        "In1.Cu",
+        "In2.Cu",
+        "In3.Cu",
+        "In4.Cu",
+        "In5.Cu",
+        "In6.Cu",
+        "In7.Cu",
+        "In8.Cu",
         "B.Cu",
         "F.Paste",
         "B.Paste",
@@ -230,15 +354,53 @@ DEFAULT_CONFIG_JSON = '''
       ],
       "kie_common_layers": ["Edge.Cuts"],
       "--drawing-sheet": false,
+      "--define-var": false,
       "--mirror": false,
       "--exclude-refdes": false,
       "--exclude-value": false,
       "--include-border-title": true,
+      "--subtract-soldermask": false,
+      "--sketch-pads-on-fab-layers": false,
+      "--hide-DNP-footprints-on-fab-layers": false,
+      "--sketch-DNP-footprints-on-fab-layers": false,
+      "--crossout-DNP-footprints-on-fab-layers": false,
       "--negative": false,
       "--black-and-white": false,
       "--theme": "User",
       "--drill-shape-opt": 2,
-      "kie_single_file": false
+      "--plot-invisible-text": false,
+      "--mode-single": false,
+      "--mode-separate": false,
+      "--mode-multipage": false,
+      "kie_single_file": true
+    },
+    "pcb_fab_pdf": {
+      "--output_dir": "Export",
+      "--layers": [
+        "F.Fab",
+        "B.Fab"
+      ],
+      "kie_common_layers": ["Edge.Cuts"],
+      "--drawing-sheet": false,
+      "--define-var": false,
+      "--mirror": false,
+      "--exclude-refdes": false,
+      "--exclude-value": false,
+      "--include-border-title": true,
+      "--subtract-soldermask": false,
+      "--sketch-pads-on-fab-layers": false,
+      "--hide-DNP-footprints-on-fab-layers": false,
+      "--sketch-DNP-footprints-on-fab-layers": false,
+      "--crossout-DNP-footprints-on-fab-layers": false,
+      "--negative": false,
+      "--black-and-white": false,
+      "--theme": "User",
+      "--drill-shape-opt": 2,
+      "--plot-invisible-text": false,
+      "--mode-single": false,
+      "--mode-separate": false,
+      "--mode-multipage": false,
+      "kie_single_file": true
     },
     "positions": {
       "--output_dir": "Export",
@@ -256,6 +418,14 @@ DEFAULT_CONFIG_JSON = '''
       "--output_dir": "Export",
       "--layers": [
         "F.Cu",
+        "In1.Cu",
+        "In2.Cu",
+        "In3.Cu",
+        "In4.Cu",
+        "In5.Cu",
+        "In6.Cu",
+        "In7.Cu",
+        "In8.Cu",
         "B.Cu",
         "F.Paste",
         "B.Paste",
@@ -273,17 +443,28 @@ DEFAULT_CONFIG_JSON = '''
       ],
       "kie_common_layers": [""],
       "--drawing-sheet": false,
+      "--define-var": false,
       "--mirror": false,
       "--theme": "User",
       "--negative": false,
       "--black-and-white": false,
+      "--sketch-pads-on-fab-layers": false,
+      "--hide-DNP-footprints-on-fab-layers": false,
+      "--sketch-DNP-footprints-on-fab-layers": false,
+      "--crossout-DNP-footprints-on-fab-layers": false,
       "--page-size-mode": 0,
+      "--fit-page-to-board": false,
       "--exclude-drawing-sheet": false,
-      "--drill-shape-opt": 2
+      "--drill-shape-opt": 2,
+      "--mode-single": false,
+      "--mode-separate": false,
+      "--mode-multipage": false,
+      "--plot-invisible-text": false
     },
     "ddd": {
       "STEP": {
         "--output_dir": "Export",
+        "--define-var": false,
         "--force": true,
         "--no-unspecified": false,
         "--no-dnp": false,
@@ -310,6 +491,7 @@ DEFAULT_CONFIG_JSON = '''
       },
       "VRML": {
         "--output_dir": "Export",
+        "--define-var": false,
         "--force": true,
         "--no-unspecified": false,
         "--no-dnp": false,
@@ -321,21 +503,85 @@ DEFAULT_CONFIG_JSON = '''
     },
     "pcb_render": {
       "--output_dir": "Export",
-      "PCB-Front": {
+      "--define-var": false,
+      "PCB-Perspective": {
         "kie_type": "png",
-        "kie_name_stub": "PCB-Front",
-        "--width": 8000,
-        "--height": 6000,
-        "--side": "front",
+        "kie_name_stub": "PCB-Perspective",
+        "--width": 3200,
+        "--height": 1800,
+        "--side": "top",
         "--background": "default",
         "--quality": "basic",
-        "--preset": "Parts",
+        "--preset": false,
+        "--floor": false,
+        "--perspective": true,
+        "--zoom ": 1,
+        "--pan ": "0,0,0",
+        "--pivot": "0,0,0",
+        "--rotate": "-60,0,-45",
+        "--light-top": false,
+        "--light-bottom": false,
+        "--light-side": false,
+        "--light-camera": false,
+        "--light-side-elevation": false
+      },
+      "PCB-Top": {
+        "kie_type": "png",
+        "kie_name_stub": "PCB-Top",
+        "--width": 3200,
+        "--height": 1800,
+        "--side": "top",
+        "--background": "default",
+        "--quality": "basic",
+        "--preset": false,
         "--floor": false,
         "--perspective": false,
         "--zoom ": 1,
         "--pan ": "0,0,0",
         "--pivot": "0,0,0",
-        "--rotate": "0,0,0",
+        "--rotate": "0,0,-90",
+        "--light-top": false,
+        "--light-bottom": false,
+        "--light-side": false,
+        "--light-camera": false,
+        "--light-side-elevation": false
+      },
+      "PCB-Bottom": {
+        "kie_type": "png",
+        "kie_name_stub": "PCB-Bottom",
+        "--width": 3200,
+        "--height": 1800,
+        "--side": "bottom",
+        "--background": "default",
+        "--quality": "basic",
+        "--preset": false,
+        "--floor": false,
+        "--perspective": false,
+        "--zoom ": 1,
+        "--pan ": "0,0,0",
+        "--pivot": "0,0,0",
+        "--rotate": "0,0,-90",
+        "--light-top": false,
+        "--light-bottom": false,
+        "--light-side": false,
+        "--light-camera": false,
+        "--light-side-elevation": false
+      },
+      "PCB-Front": {
+        "kie_type": "png",
+        "kie_name_stub": "PCB-Front",
+        "--width": 3200,
+        "--height": 1800,
+        "--side": "front",
+        "--background": "default",
+        "--quality": "basic",
+        "--preset": false,
+        "--floor": false,
+        "--perspective": false,
+        "--zoom ": 1,
+        "--pan ": "0,0,0",
+        "--pivot": "0,0,0",
+        "--rotate": "0,0,-90",
         "--light-top": false,
         "--light-bottom": false,
         "--light-side": false,
@@ -345,18 +591,18 @@ DEFAULT_CONFIG_JSON = '''
       "PCB-Back": {
         "kie_type": "png",
         "kie_name_stub": "PCB-Back",
-        "--width": 8000,
-        "--height": 6000,
+        "--width": 3200,
+        "--height": 1800,
         "--side": "back",
         "--background": "default",
         "--quality": "basic",
-        "--preset": "Parts",
+        "--preset": false,
         "--floor": false,
         "--perspective": false,
         "--zoom ": 1,
         "--pan ": "0,0,0",
         "--pivot": "0,0,0",
-        "--rotate": "0,0,0",
+        "--rotate": "0,0,-90",
         "--light-top": false,
         "--light-bottom": false,
         "--light-side": false,
@@ -366,18 +612,18 @@ DEFAULT_CONFIG_JSON = '''
       "PCB-Left": {
         "kie_type": "png",
         "kie_name_stub": "PCB-Left",
-        "--width": 8000,
-        "--height": 6000,
+        "--width": 3200,
+        "--height": 1800,
         "--side": "left",
         "--background": "default",
         "--quality": "basic",
-        "--preset": "Parts",
+        "--preset": false,
         "--floor": false,
         "--perspective": false,
         "--zoom ": 1,
         "--pan ": "0,0,0",
         "--pivot": "0,0,0",
-        "--rotate": "0,0,0",
+        "--rotate": "0,0,-90",
         "--light-top": false,
         "--light-bottom": false,
         "--light-side": false,
@@ -387,150 +633,34 @@ DEFAULT_CONFIG_JSON = '''
       "PCB-Right": {
         "kie_type": "png",
         "kie_name_stub": "PCB-Right",
-        "--width": 8000,
-        "--height": 6000,
+        "--width": 3200,
+        "--height": 1800,
         "--side": "right",
         "--background": "default",
         "--quality": "basic",
-        "--preset": "Parts",
+        "--preset": false,
         "--floor": false,
         "--perspective": false,
         "--zoom ": 1,
         "--pan ": "0,0,0",
         "--pivot": "0,0,0",
-        "--rotate": "0,0,0",
-        "--light-top": false,
-        "--light-bottom": false,
-        "--light-side": false,
-        "--light-camera": false,
-        "--light-side-elevation": false
-      },
-      "PCB-Parts-Front": {
-        "kie_type": "png",
-        "kie_name_stub": "PCB-Parts-Front",
-        "--width": 8000,
-        "--height": 6000,
-        "--side": "top",
-        "--background": "default",
-        "--quality": "basic",
-        "--preset": "Parts",
-        "--floor": false,
-        "--perspective": false,
-        "--zoom ": 1,
-        "--pan ": "0,0,0",
-        "--pivot": "0,0,0",
-        "--rotate": "0,0,0",
-        "--light-top": false,
-        "--light-bottom": false,
-        "--light-side": false,
-        "--light-camera": false,
-        "--light-side-elevation": false
-      },
-      "PCB-Parts-Back": {
-        "kie_type": "png",
-        "kie_name_stub": "PCB-Parts-Back",
-        "--width": 8000,
-        "--height": 6000,
-        "--side": "bottom",
-        "--background": "default",
-        "--quality": "basic",
-        "--preset": "Parts",
-        "--floor": false,
-        "--perspective": false,
-        "--zoom ": 1,
-        "--pan ": "0,0,0",
-        "--pivot": "0,0,0",
-        "--rotate": "0,0,0",
-        "--light-top": false,
-        "--light-bottom": false,
-        "--light-side": false,
-        "--light-camera": false,
-        "--light-side-elevation": false
-      },
-      "PCB-Pads-Front": {
-        "kie_type": "png",
-        "kie_name_stub": "PCB-Pads-Front",
-        "--width": 8000,
-        "--height": 6000,
-        "--side": "top",
-        "--background": "default",
-        "--quality": "basic",
-        "--preset": "Pads",
-        "--floor": false,
-        "--perspective": false,
-        "--zoom ": 1,
-        "--pan ": "0,0,0",
-        "--pivot": "0,0,0",
-        "--rotate": "0,0,0",
-        "--light-top": false,
-        "--light-bottom": false,
-        "--light-side": false,
-        "--light-camera": false,
-        "--light-side-elevation": false
-      },
-      "PCB-Pads-Back": {
-        "kie_type": "png",
-        "kie_name_stub": "PCB-Pads-Back",
-        "--width": 8000,
-        "--height": 6000,
-        "--side": "bottom",
-        "--background": "default",
-        "--quality": "basic",
-        "--preset": "Pads",
-        "--floor": false,
-        "--perspective": false,
-        "--zoom ": 1,
-        "--pan ": "0,0,0",
-        "--pivot": "0,0,0",
-        "--rotate": "0,0,0",
-        "--light-top": false,
-        "--light-bottom": false,
-        "--light-side": false,
-        "--light-camera": false,
-        "--light-side-elevation": false
-      },
-      "PCB-Paste-Front": {
-        "kie_type": "png",
-        "kie_name_stub": "PCB-Paste-Front",
-        "--width": 8000,
-        "--height": 6000,
-        "--side": "top",
-        "--background": "default",
-        "--quality": "basic",
-        "--preset": "Paste",
-        "--floor": false,
-        "--perspective": false,
-        "--zoom ": 1,
-        "--pan ": "0,0,0",
-        "--pivot": "0,0,0",
-        "--rotate": "0,0,0",
-        "--light-top": false,
-        "--light-bottom": false,
-        "--light-side": false,
-        "--light-camera": false,
-        "--light-side-elevation": false
-      },
-      "PCB-Paste-Back": {
-        "kie_type": "png",
-        "kie_name_stub": "PCB-Paste-Back",
-        "--width": 8000,
-        "--height": 6000,
-        "--side": "bottom",
-        "--background": "default",
-        "--quality": "basic",
-        "--preset": "Paste",
-        "--floor": false,
-        "--perspective": false,
-        "--zoom ": 1,
-        "--pan ": "0,0,0",
-        "--pivot": "0,0,0",
-        "--rotate": "0,0,0",
+        "--rotate": "0,0,-90",
         "--light-top": false,
         "--light-bottom": false,
         "--light-side": false,
         "--light-camera": false,
         "--light-side-elevation": false
       }
+    },
+    "source_zip": {
+      "--output_dir": "Output",
+      "kie_ext_list": [
+         ".kicad_pcb",
+         ".kicad_sch",
+         ".kicad_pro",
+         ".kicad_prl",
+         ".net"
+      ]
     }
   }
 }
@@ -832,7 +962,7 @@ def generateBomHtml (output_dir = None, pcb_filename = None, extra_args = None):
 
 #=============================================================================================#
 
-def merge_pdfs (folder_path, output_file):
+def merge_pdfs (folder_path, output_file, pdf_files = None):
   """
   Merges PDF files in a folder and creates a TOC based on file names.
 
@@ -842,7 +972,8 @@ def merge_pdfs (folder_path, output_file):
   """
   try:
     # List all PDF files in the specified folder.
-    pdf_files = [f for f in os.listdir (folder_path) if f.endswith ('.pdf')]
+    if pdf_files == None:
+      pdf_files = [f for f in os.listdir (folder_path) if f.endswith ('.pdf')]
     
     if not pdf_files:
       print (f"merge_pdfs() [WARNING]: No PDF files found in the specified folder.")
@@ -872,12 +1003,12 @@ def merge_pdfs (folder_path, output_file):
     doc.save (output_path)
     doc.close()
 
-    # # Delete original PDF files.
-    # for pdf in pdf_files:
-    #   os.remove (os.path.join (folder_path, pdf))
+    # Delete original PDF files.
+    for pdf in pdf_files:
+      os.remove (os.path.join (folder_path, pdf))
 
-    # print (f"Merged PDF created: {output_path}")
-    # print ("Original PDF files have been deleted.")
+    print (f"Merged PDF created: {output_path}")
+    print ("Original PDF files have been deleted.")
 
   except PermissionError:
     print (color.red ("merge_pdfs() [ERROR]: Unable to access the specified folder or files."))
@@ -1011,10 +1142,39 @@ def generateGerbers (output_dir, pcb_filename, to_overwrite = True):
   
   #---------------------------------------------------------------------------------------------#
   
+  #---------------------------------------------------------------------------------------------#
+  
+  # Due to above rename of project files, MUST also rename the project files within the gbrjob file.
+  # The gbrjob file is actually a json format file so easily done with json load and save
+  gbrjob_file_path=os.path.join(final_directory,project_name+"-R"+info ['rev']+"-job.gbrjob")
+
+  # Function to modify the Path value
+  def modify_path(original_path,prefix,revision):
+    base_name = original_path [len (prefix):]  # Remove the prefix part
+    return f"{prefix}-R{revision}{base_name}"
+
+  # Load the gbrjob (JSON) file
+  with open(gbrjob_file_path, "r", encoding="utf-8") as f:
+    data = json.load(f)
+
+  # Modify all Path values inside FilesAttributes
+  if "FilesAttributes" in data:
+    for file_attr in data["FilesAttributes"]:
+      if "Path" in file_attr:
+        file_attr["Path"] = modify_path(file_attr["Path"],project_name,info ['rev'])
+
+    # Save the modified JSON back to file
+  with open(gbrjob_file_path, "w", encoding="utf-8") as f:
+    json.dump(data, f, indent=2, ensure_ascii=False)
+
+  #---------------------------------------------------------------------------------------------#
+  
   seq_number = 1
   not_completed = True
 
-  files_to_include = [".gbr", ".gbrjob"]
+  #files_to_include = [".gbr", ".gbrjob"]
+  # Do not include the gbrjob file in the output zip for mfc
+  files_to_include = [".gbr"]
 
   if kie_include_drill:
     files_to_include.extend ([".drl", ".ps", ".pdf"])
@@ -1026,9 +1186,8 @@ def generateGerbers (output_dir, pcb_filename, to_overwrite = True):
     if os.path.exists (f"{final_directory}/{zip_file_name}"):
       seq_number += 1
     else:
-      # zip_all_files (final_directory, f"{final_directory}/{zip_file_name}")
-      zip_all_files_2 (final_directory, files_to_include, zip_file_name)
-      print (f"generateGerbers [OK]: ZIP file '{color.magenta (zip_file_name)}' created successfully.")
+      zip_cnt = zip_all_files_ext (final_directory, zip_file_name, files_to_include)
+      print (f"generateGerbers [OK]: ZIP file '{color.magenta (zip_file_name)}' created successfully with {zip_cnt} files.")
       print()
       not_completed = False
 
@@ -1292,9 +1451,8 @@ def generatePositions (output_dir, pcb_filename, to_overwrite = True):
     if os.path.exists (f"{final_directory}/{zip_file_name}"):
       seq_number += 1
     else:
-      # zip_all_files (final_directory, f"{final_directory}/{zip_file_name}")
-      zip_all_files_2 (final_directory, files_to_include, zip_file_name)
-      print (f"generatePositions [OK]: ZIP file '{color.magenta (zip_file_name)}' created successfully.")
+      zip_cnt = zip_all_files_ext (final_directory, zip_file_name, files_to_include)
+      print (f"generatePositions [OK]: ZIP file '{color.magenta (zip_file_name)}' created successfully with {zip_cnt} files.")
       print()
       not_completed = False
 
@@ -1362,6 +1520,7 @@ def generatePcbPdf (output_dir, pcb_filename, to_overwrite = True):
   not_completed = True
   base_command = []
   base_command.extend (pcb_pdf_export_command) # Add the base command
+  pdf_files = []      # List of generated PDF files in order of Layers specified by user      
   
   for i in range (layer_count):
     full_command = base_command [:]
@@ -1377,7 +1536,10 @@ def generatePcbPdf (output_dir, pcb_filename, to_overwrite = True):
             layer_name = layer_name.replace (" ", "_") # Replace spaces with underscores
 
             full_command.append ("--output")
-            full_command.append (f'"{final_directory}/{project_name}-R{info ["rev"]}-{layer_name}.pdf"') # This is the ouput file name, and not a directory name
+            pdf_file_name = f'"{final_directory}/{project_name}-R{info ["rev"]}-{layer_name}.pdf"' # This is the ouput file name, and not a directory name
+            full_command.append (pdf_file_name)
+            pdf_file_name = f"{project_name}-R{info ["rev"]}-{layer_name}.pdf" # This is the ouput file name, and not a directory name
+            pdf_files.append(os.path.join(final_directory, pdf_file_name))
 
             layer_name = arg_list ["--layers"][i] # Get a layer name from the layer list
             layer_list = [f"{layer_name}"]  # Now create a list with the first item as the layer name
@@ -1393,14 +1555,31 @@ def generatePcbPdf (output_dir, pcb_filename, to_overwrite = True):
             else:
               # Check if the vlaue is a JSON boolean
               if isinstance (value, bool):
-                if value == True: # If the value is true, then append the key as an argument
+                # Special handline for --mirror flag for Fab layers generation
+                if key == "--mirror":
+                  if layer_name == "F.Fab" or layer_name == "F.Silkscreen" or layer_name == "F.Cu" or layer_name == "F.Mask" or layer_name == "F.Paste" or layer_name == "F.Courtyard": # Skip mirror options for all Front layers
+                    continue
+                  elif layer_name == "B.Fab" or layer_name == "B.Silkscreen" or layer_name == "B.Cu" or layer_name == "B.Mask" or layer_name == "B.Paste" or layer_name == "B.Courtyard": # Force mirror options for all Bottom layers
+                    full_command.append (key)
+                  elif value == True: # If the value is true, then append the key as an argument
+                    full_command.append (key)
+                elif value == True: # If the value is true, then append the key as an argument
                   full_command.append (key)
               else:
                 # Check if the value is a string and not a numeral
                 if isinstance (value, str) and not value.isdigit():
-                    full_command.append (key)
-                    full_command.append (f'"{value}"') # Add as a double-quoted string
+                  full_command.append (key)
+                  full_command.append (f'"{value}"') # Add as a double-quoted string
                 elif isinstance (value, (int, float)):
+                  # Special handline for --drill-shape-opt value for silk/Fab layers generation
+                  if key == "--drill-shape-opt":
+                    if layer_name == "F.Silkscreen" or layer_name == "B.Silkscreen" or layer_name == "F.Fab" or layer_name == "B.Fab": # Change drill_shape_opt options for Fab and Silk layers
+                      full_command.append (key)
+                      full_command.append (str (0))  # Force drill marking as None
+                    else:
+                      full_command.append (key)
+                      full_command.append (str (value))  # Append the numeric value as string
+                  else:
                     full_command.append (key)
                     full_command.append (str (value))  # Append the numeric value as string
 
@@ -1440,7 +1619,7 @@ def generatePcbPdf (output_dir, pcb_filename, to_overwrite = True):
 
   # Merge all the PDFs into one file
   merged_pdf_filename = f"{project_name}-R{info ['rev']}-PCB-PDF-All-{filename_date}-{seq_number}.pdf"
-  merge_pdfs (final_directory, merged_pdf_filename)
+  merge_pdfs (final_directory, merged_pdf_filename, pdf_files)
 
   #---------------------------------------------------------------------------------------------#
 
@@ -1448,23 +1627,212 @@ def generatePcbPdf (output_dir, pcb_filename, to_overwrite = True):
 
   #---------------------------------------------------------------------------------------------#
 
-  seq_number = 1
-  not_completed = True
+  # Generating a single pdf file no need for zip all (all single files have been deleted already as well)
+  #seq_number = 1
+  #not_completed = True
 
-  files_to_include = [".pdf"]
+  #files_to_include = [".pdf"]
   
   # Sequentially name and create the zip files.
-  while not_completed:
-    zip_file_name = f"{project_name}-R{info ['rev']}-PCB-PDF-{filename_date}-{seq_number}.zip"
+  #while not_completed:
+  #  zip_file_name = f"{project_name}-R{info ['rev']}-PCB-PDF-{filename_date}-{seq_number}.zip"
 
-    if os.path.exists (f"{final_directory}/{zip_file_name}"):
-      seq_number += 1
-    else:
-      # zip_all_files (final_directory, f"{final_directory}/{zip_file_name}")
-      zip_all_files_2 (final_directory, files_to_include, zip_file_name)
-      print (f"generatePcbPdf [OK]: ZIP file '{color.magenta (zip_file_name)}' created successfully.")
-      print()
-      not_completed = False
+  #  if os.path.exists (f"{final_directory}/{zip_file_name}"):
+  #    seq_number += 1
+  #  else:
+  #    zip_cnt = zip_all_files_ext (final_directory, zip_file_name, files_to_include)
+  #    print (f"generatePcbPdf [OK]: ZIP file '{color.magenta (zip_file_name)}' created successfully with {zip_cnt} files.")
+  #    print()
+  #    not_completed = False
+
+#==============================================================================================#
+
+def generatePcbFabPdf (output_dir, pcb_filename, to_overwrite = True):
+  # Get the KiCad CLI path.
+  kicad_cli_path = f'{current_config.get ("kicad_cli_path", lambda: default_config ["kicad_cli_path"])}'
+
+  # Common base command
+  pcb_pdf_export_command = [f'"{kicad_cli_path}"', "pcb", "export", "pdf"]
+
+  # Check if the pcb file exists
+  if not check_file_exists (pcb_filename):
+    print (color.red (f"generatePcbFabPdf [ERROR]: '{pcb_filename}' does not exist."))
+    command_exec_status ["pcb_fab_pdf"] = False
+    return
+
+  #---------------------------------------------------------------------------------------------#
+
+  file_name = extract_pcb_file_name (pcb_filename)
+  file_name = file_name.replace (" ", "-") # If there are whitespace characters in the project name, replace them with a hyphen
+  
+  project_name = extract_project_name (file_name)
+  info = extract_info_from_pcb (pcb_filename)
+  print (f"generatePcbFabPdf [INFO]: Project name is '{color.magenta (project_name)}' and revision is {color.magenta ('R')}{color.magenta (info ['rev'])}.")
+  
+  #---------------------------------------------------------------------------------------------#
+
+  file_path = os.path.abspath (pcb_filename) # Get the absolute path of the file.
+
+  # Get the directory path of the file and save it as the project directory.
+  # All other export directories will be relative to the project directory.
+  project_dir = os.path.dirname (file_path)
+  
+  # Read the output directory name from the config file.
+  od_from_config = project_dir + "/" + current_config.get ("data", {}).get ("pcb_fab_pdf", {}).get ("--output_dir", lambda: default_config ["data"]["pcb_fab_pdf"]["--output_dir"])
+  od_from_cli = output_dir  # The output directory specified by the command line argument
+
+  # Get the final directory path
+  final_directory, filename_date = create_final_directory (od_from_config, od_from_cli, "PCB-Fab", info ["rev"], "generatePcbFabPdf")
+
+  #---------------------------------------------------------------------------------------------#
+  
+  # Delete the existing files in the output directory
+  delete_files (final_directory, include_extensions = [".pdf", ".ps"])
+
+  #---------------------------------------------------------------------------------------------#
+  
+  # Get the argument list from the config file.
+  arg_list = current_config.get ("data", {}).get ("pcb_fab_pdf", {})
+
+  # Check the number of technical layers to export. This is not the number of copper layers.
+  layer_count = len (arg_list.get ("--layers", []))
+
+  if layer_count <= 0:
+    print (color.red (f"generatePcbFabPdf [ERROR]: No layers specified for export."))
+    command_exec_status ["pcb_fab_pdf"] = False
+    return
+
+  # Get the number of common layers to include in each of the PDF.
+  # common_layer_count = len (arg_list.get ("kie_common_layers", []))
+
+  seq_number = 1
+  not_completed = True
+  base_command = []
+  base_command.extend (pcb_pdf_export_command) # Add the base command
+  pdf_files = []      # List of generated PDF files in order of Layers specified by user      
+  
+  for i in range (layer_count):
+    full_command = base_command [:]
+    # Get the arguments.
+    if arg_list: # Check if the argument list is not an empty dictionary.
+      for key, value in arg_list.items():
+        if key.startswith ("--"): # Only fetch the arguments that start with "--"
+          if key == "--output_dir": # Skip the --output_dir argument, since we already added it
+            continue
+          elif key == "--layers":
+            layer_name = arg_list ["--layers"][i] # Get a layer name from the layer list
+            layer_name = layer_name.replace (".", "_") # Replace dots with underscores
+            layer_name = layer_name.replace (" ", "_") # Replace spaces with underscores
+
+            full_command.append ("--output")
+            pdf_file_name = f'"{final_directory}/{project_name}-R{info ["rev"]}-{layer_name}.pdf"' # This is the ouput file name, and not a directory name
+            full_command.append (pdf_file_name)
+            pdf_file_name = f"{project_name}-R{info ["rev"]}-{layer_name}.pdf" # This is the ouput file name, and not a directory name
+            pdf_files.append(os.path.join(final_directory, pdf_file_name))
+
+            layer_name = arg_list ["--layers"][i] # Get a layer name from the layer list
+            layer_list = [f"{layer_name}"]  # Now create a list with the first item as the layer name
+            common_layer_list = arg_list ["kie_common_layers"]  # Add the common layers
+            layer_list.extend (common_layer_list) # Now combine the two lists
+            layers_csv = ",".join (layer_list) # Convert the list to a comma-separated string
+            full_command.append (key)
+            full_command.append (f'"{layers_csv}"')
+          else:
+            # Check if the value is empty
+            if value == "": # Skip if the value is empty
+              continue
+            else:
+              # Check if the vlaue is a JSON boolean
+              if isinstance (value, bool):
+                # Special handline for --mirror flag for Fab layers generation
+                if key == "--mirror":
+                  if layer_name == "F.Fab": # Skip mirror options for F.Fab layer
+                    continue
+                  elif layer_name == "B.Fab": # Force mirror options for B.Fab layer
+                    full_command.append (key)
+                  elif value == True: # If the value is true, then append the key as an argument
+                    full_command.append (key)
+                elif value == True: # If the value is true, then append the key as an argument
+                  full_command.append (key)
+              else:
+                # Check if the value is a string and not a numeral
+                if isinstance (value, str) and not value.isdigit():
+                  full_command.append (key)
+                  full_command.append (f'"{value}"') # Add as a double-quoted string
+                elif isinstance (value, (int, float)):
+                  # Special handline for --drill-shape-opt value for silk/Fab layers generation
+                  if key == "--drill-shape-opt":
+                    if layer_name == "F.Silkscreen" or layer_name == "B.Silkscreen" or layer_name == "F.Fab" or layer_name == "B.Fab": # Skip mirror options for F.Fab layer
+                      full_command.append (key)
+                      full_command.append (str (0))  # Force drill marking as None
+                    else:
+                      full_command.append (key)
+                      full_command.append (str (value))  # Append the numeric value as string
+                  else:
+                    full_command.append (key)
+                    full_command.append (str (value))  # Append the numeric value as string
+
+    full_command.append (f'"{pcb_filename}"')
+    print ("generatePcbFabPdf [INFO]: Running command: ", color.blue (' '.join (full_command)))
+
+      # Run the command
+    try:
+      full_command = ' '.join (full_command) # Convert the list to a string
+      subprocess.run (full_command, check = True)
+      # print (color.green ("generatePcbFabPdf [OK]: PCB Fab PDF files exported successfully."))
+      command_exec_status ["pcb_fab_pdf"] = True
+    
+    except subprocess.CalledProcessError as e:
+      print (color.red (f"generatePcbFabPdf [ERROR]: Error occurred: {e}"))
+      command_exec_status ["pcb_fab_pdf"] = True
+      continue
+  
+  #---------------------------------------------------------------------------------------------#
+  
+  # # Generate a single file if specified
+  # kie_single_file = current_config.get ("data", {}).get ("pcb_pdf", {}).get ("kie_single_file", lambda: default_config ["data"]["pcb_pdf"]["kie_single_file"])
+
+  # # Check if the value is boolean and then true or false
+  # if isinstance (kie_single_file, bool):
+  #   kie_single_file = str (kie_single_file).lower()
+
+  # if kie_single_file == "true":
+  #   kie_single_file = True
+  # elif kie_single_file == "false":
+  #   kie_single_file = False
+
+  # if kie_single_file == True:
+  #   full_command.append (f'"{pcb_filename}"')
+  
+  #---------------------------------------------------------------------------------------------#
+
+  # Merge all the PDFs into one file
+  merged_pdf_filename = f"{project_name}-R{info ['rev']}-PCB-PDF-FAB-{filename_date}-{seq_number}.pdf"
+  merge_pdfs (final_directory, merged_pdf_filename, pdf_files)
+
+  #---------------------------------------------------------------------------------------------#
+
+  print (color.green ("generatePcbFabPdf [OK]: PCB Fab PDF files exported successfully."))
+
+  #---------------------------------------------------------------------------------------------#
+
+  # Generating a single pdf file no need for zip all
+  #seq_number = 1
+  #not_completed = True
+
+  #files_to_include = [".pdf"]
+  
+  # Sequentially name and create the zip files.
+  #while not_completed:
+  #  zip_file_name = f"{project_name}-R{info ['rev']}-PCB-PDF-{filename_date}-{seq_number}.zip"
+
+  #  if os.path.exists (f"{final_directory}/{zip_file_name}"):
+  #    seq_number += 1
+  #  else:
+  #    zip_cnt = zip_all_files_ext (final_directory, zip_file_name, files_to_include)
+  #    print (f"generatePcbFabPdf [OK]: ZIP file '{color.magenta (zip_file_name)}' created successfully with {zip_cnt} files.")
+  #    print()
+  #    not_completed = False
 
 #==============================================================================================#
 
@@ -1569,6 +1937,10 @@ def generatePcbRenders (output_dir, pcb_filename, preset = None, to_overwrite = 
     # Get the argument list from the config file.
     arg_list = current_config.get ("data", {}).get ("pcb_render", {}).get (preset)
 
+    # List of commands which should not be outputed as quoted strings but single comma string
+    # Otherwise cannot handle negative values for angles
+    list_of_comma_keys = ["--pan","--pivot","--rotate","--light-top","--light-bottom","--light-side","--light-camera"]
+    
     # Add the remaining arguments.
     # Check if the argument list is not an empty dictionary.
     if arg_list:
@@ -1589,7 +1961,10 @@ def generatePcbRenders (output_dir, pcb_filename, preset = None, to_overwrite = 
                 # Check if the value is a string and not a numeral
                 if isinstance (value, str) and not value.isdigit():
                     full_command.append (key)
-                    full_command.append (f'"{value}"') # Add as a double-quoted string
+                    if key in list_of_comma_keys:
+                        full_command.append (f'\'{value}\'') # Add as a double-quoted string
+                    else:
+                        full_command.append (f'"{value}"') # Add as a double-quoted string
                 elif isinstance (value, (int, float)):
                     full_command.append (key)
                     full_command.append (str (value))  # Append the numeric value as string
@@ -1616,7 +1991,7 @@ def generatePcbRenders (output_dir, pcb_filename, preset = None, to_overwrite = 
 
 #=============================================================================================#
 
-def generateSchPdf (output_dir, sch_filename, to_overwrite = True):
+def generateSchPdf (output_dir, sch_filename, pcb_filename = None, to_overwrite = True):
   global current_config  # Access the global config
   global default_config  # Access the global config
 
@@ -1638,7 +2013,11 @@ def generateSchPdf (output_dir, sch_filename, to_overwrite = True):
   file_name = file_name.replace (" ", "-") # If there are whitespace characters in the project name, replace them with a hyphen
 
   project_name = extract_project_name (file_name)
-  info = extract_info_from_pcb (sch_filename) # Extract basic information from the input file
+  # Use pcb_filename rev info for dir structure when this is provided
+  if pcb_filename != None:
+    info = extract_info_from_pcb (pcb_filename) # Extract basic information from the input file (pcb)
+  else:
+    info = extract_info_from_pcb (sch_filename) # Extract basic information from the input file (sch)
 
   print (f"generateSchPdf [INFO]: Project name is '{color.magenta (project_name)}' and revision is {color.magenta ('R')}{color.magenta (info ['rev'])}.")
 
@@ -1864,7 +2243,7 @@ def generateBomCsv (output_dir, sch_filename, to_overwrite = True):
   file_name = file_name.replace (" ", "-") # If there are whitespace characters in the project name, replace them with a hyphen
   
   project_name = extract_project_name (file_name)
-  info = extract_info_from_pcb (sch_filename)
+  info = extract_info_from_pcb (sch_filename) # Extract basic information from the input file (sch)
   
   print (f"generateBomCsv [INFO]: Project name is '{color.magenta (project_name)}' and revision is {color.magenta ('R')}{color.magenta (info ['rev'])}.")
 
@@ -1956,11 +2335,11 @@ def generateBomCsv (output_dir, sch_filename, to_overwrite = True):
   return file_name # Return the file name of the generated BoM file
 
 #=============================================================================================#
-
+        
 def generateBomXls (output_dir, csv_file, sch_filename, to_overwrite = True):
   # Check if the input schematic file exists
   if not check_file_exists (sch_filename):
-    print (color.red (f"generateBomCsv [ERROR]: '{sch_filename}' does not exist."))
+    print (color.red (f"generateBomXls [ERROR]: '{sch_filename}' does not exist."))
     command_exec_status ["bom_csv"] = False
     return False
   
@@ -1978,7 +2357,7 @@ def generateBomXls (output_dir, csv_file, sch_filename, to_overwrite = True):
   file_name = file_name.replace (" ", "-") # If there are whitespace characters in the project name, replace them with a hyphen
   
   project_name = extract_project_name (file_name)
-  info = extract_info_from_pcb (sch_filename)
+  info = extract_info_from_pcb (sch_filename) # Extract basic information from the input file (sch)
   
   print (f"generateBomXls [INFO]: Project name is '{color.magenta (project_name)}' and revision is {color.magenta ('R')}{color.magenta (info ['rev'])}.")
 
@@ -2014,7 +2393,25 @@ def generateBomXls (output_dir, csv_file, sch_filename, to_overwrite = True):
 
   #---------------------------------------------------------------------------------------------#
 
-  # Create workbook and sheet
+  # Get the argument list from the config file.
+  arg_list = current_config.get ("data", {}).get ("bom", {}).get ("XLS")
+  
+  # Set the default values for keys if ther are not listed in config file
+  row_height = 50
+  
+  # Check if the argument list is not an empty dictionary.
+  if arg_list:
+    for key, value in arg_list.items():
+      # Check for valid special keys defined for XLS BoM generation
+      if key == "kie_row_height":
+        if isinstance (value, str) and not value.isdigit():
+          row_height = None                       # Any non integer value treated as None
+        if isinstance (value, (int, float)):
+          row_height = value
+          if row_height == 0:                     # Value of 0 considered as None
+            row_height = None
+ 
+ # Create workbook and sheet
   wb = Workbook()
   ws = wb.active
   ws.title = "BoM"
@@ -2025,8 +2422,9 @@ def generateBomXls (output_dir, csv_file, sch_filename, to_overwrite = True):
   alignment = Alignment (horizontal = "center", vertical = "center", wrap_text = True)
   header_fill = PatternFill (fill_type = "solid", fgColor = "CCE5FF")  # Light blue background
 
-  # Custom width mapping (column header => width in points)
-  custom_widths = {
+  # Custom widths mapping (column header => width in points)
+  # Use a default setting if file not provided or is not correctly parsed
+  def_custom_widths = {
     "#": 14,
     "Reference": 42,
     "Value": 34,
@@ -2038,26 +2436,48 @@ def generateBomXls (output_dir, csv_file, sch_filename, to_overwrite = True):
     "MFR": 28,
     "Alt MPN": 30,
   }
-  
+  # First try to load custom widths file from the current config file
+  custom_widths = current_config.get ("data", {}).get ("bom", {}).get ("XLS").get ("kie_custom_widths")
+
+  # Custom styles mapping (column header => style)
+  # Use a default setting if file not provided or is not correctly parsed
+  def_custom_styles = {
+    "Link": "Hyperlink",
+    "Datasheet": "Hyperlink",
+    "URL": "Hyperlink"
+  }
+  # First try to load custom styles file from the current config file
+  custom_styles = current_config.get ("data", {}).get ("bom", {}).get ("XLS").get ("kie_custom_styles")
+
+  if len (custom_styles) == 0:
+    # if this is not loaded as well then will use default custom styles dictionary
+    custom_styles = def_custom_styles
+
   headers = []
 
   # Read CSV and write to worksheet
   with open (csv_file, newline = '', encoding = 'utf-8') as csvfile:
     reader = csv.reader (csvfile)
     for row_index, row in enumerate (reader, start = 1):
+      # Store headers for width adjustment
+      if row_index == 1:
+        headers = row
+
       for col_index, value in enumerate (row, start = 1):
         cell = ws.cell (row = row_index, column = col_index, value = value)
         cell.font = header_font if row_index == 1 else cell_font
         cell.alignment = alignment
+        style = custom_styles.get(headers[col_index-1], "None")
+        # Special style Hyperlink also make the value with hyperlink contents)
+        if style == "Hyperlink":
+          cell.value = '=HYPERLINK("%s","%s")' % (value, value)
+        if style != "None" and row_index > 1:
+          cell.style = style
         if row_index == 1:
           cell.fill = header_fill
       
-      # Set minimum row height
-      ws.row_dimensions [row_index].height = 50
-
-      # Store headers for width adjustment
-      if row_index == 1:
-        headers = row
+      # Set minimum row height from user parameter (None indicates auto height)
+      ws.row_dimensions [row_index].height = row_height
 
   # Freeze the header row
   ws.freeze_panes = ws ["A2"]
@@ -2193,7 +2613,7 @@ def generateSvg (output_dir, pcb_filename, to_overwrite = True):
     try:
       full_command = ' '.join (full_command) # Convert the list to a string
       subprocess.run (full_command, check = True)
-      # print (color.green ("generateSvg [OK]: PCB PDF files exported successfully."))
+      # print (color.green ("generateSvg [OK]: PCB SVG files exported successfully."))
     
     except subprocess.CalledProcessError as e:
       print (color.red (f"generateSvg [ERROR]: Error occurred: {e}"))
@@ -2219,9 +2639,8 @@ def generateSvg (output_dir, pcb_filename, to_overwrite = True):
     if os.path.exists (f"{final_directory}/{zip_file_name}"):
       seq_number += 1
     else:
-      # zip_all_files (final_directory, f"{final_directory}/{zip_file_name}")
-      zip_all_files_2 (final_directory, files_to_include, zip_file_name)
-      print (f"generateSvg [OK]: ZIP file '{color.magenta (zip_file_name)}' created successfully.")
+      zip_cnt = zip_all_files_ext (final_directory, zip_file_name, files_to_include)
+      print (f"generateSvg [OK]: ZIP file '{color.magenta (zip_file_name)}' created successfully with {zip_cnt} files.")
       print()
       not_completed = False
 
@@ -2235,10 +2654,10 @@ def create_final_directory (dir_from_config, dir_from_cli, target_dir_name, rev,
   # The command line directory has precedence over the  configured directory.
   if dir_from_cli == "":
     print (f"{func_name} [INFO]: CLI directory '{color.magenta (dir_from_config)}' is empty. Using the configured directory.")
-    target_dir = dir_from_cli # If it's empty, use the configured directory
+    target_dir = dir_from_config # If it's empty, use the configured directory
   else:
     print (f"{func_name} [INFO]: CLI directory '{color.magenta (dir_from_config)}' is not empty. Using the CLI directory.")
-    target_dir = dir_from_config # Otherwise, use the command line argument
+    target_dir = dir_from_cli # Otherwise, use the command line argument
 
   if not os.path.exists (target_dir): # Check if the target directory exists
     print (f"{func_name} [INFO]: Output directory '{color.magenta (target_dir)}' does not exist. Creating it now.")
@@ -2289,34 +2708,43 @@ def create_final_directory (dir_from_config, dir_from_cli, target_dir_name, rev,
 
 #=============================================================================================#
 
-def zip_all_files (source_folder, zip_file_path):
-  """
-  Compresses all files from a folder into a ZIP file.
-
-  Args:
-      source_folder (str): Path to the folder containing files.
-      zip_file_path (str): Path where the ZIP file will be saved.
-  """
-  with zipfile.ZipFile (zip_file_path, 'w') as zipf:
-    for foldername, subfolders, filenames in os.walk (source_folder):
-      for filename in filenames:
-        file_path = os.path.join (foldername, filename)
-        # Exclude the ZIP file itself from being added
-        if os.path.abspath (file_path) != os.path.abspath (zip_file_path) and not filename.endswith('.zip'):
-          zipf.write (file_path, arcname = os.path.relpath (file_path, source_folder))
+def load_dict_from_text_file(filepath, delimiter=':'):
+    """
+    Loads a dictionary from a text file with key:value pairs.
+    In any case of error file not found or file not properly parsed (dictionary loaded has less than 2 items) an empty dic will be returned
     
-    # print (f"ZIP file created: {os.path.basename (zip_file_path)}")
+    Args:
+        filepath (str): Full path to the text file from which to load the key:value pairs to dictionary
+        delimiter (char): optional delimiter, default is ':'
+    """
+    data = {}
+    
+    try:
+        with open(filepath, 'r') as f:
+            for line in f:
+                line = line.strip()
+                if line and delimiter in line:
+                    key, value = line.split(delimiter, 1)
+                    data[key.strip()] = value.strip()
+        if len (data) > 1:  # Expected min 2 valid parsed entries in file
+            return data
+        return {}
+    except: # Any exception file not found or other
+        return {}
 
-# ============================================================================================#
+#=============================================================================================#
 
-def zip_all_files_2 (source_folder, extensions = None, zip_file_name = None):
+def zip_all_files_ext (source_folder, zip_file_name = None, extensions = None):
     """
     Compresses files from a folder into a ZIP file, including only files with specified extensions.
 
     Args:
         source_folder (str): Path to the folder containing files.
-        extensions (list of str, optional): List of file extensions to include (e.g., ['.txt', '.jpg']).
+        extensions (list of str, optional): List of file extensions to include (e.g., ['.txt', '.jpg']) (None means Zip all).
         zip_file_name (str, optional): Name of the ZIP file. If None, will use 'archive.zip'.
+
+    Return:
+        zip_cnt (int): Total number of files zipped to zip file
     """
     if extensions is None:
         extensions = []  # Include all files if no extensions are specified
@@ -2325,6 +2753,7 @@ def zip_all_files_2 (source_folder, extensions = None, zip_file_name = None):
         zip_file_name = 'archive.zip'  # Default ZIP file name
     
     zip_file_path = os.path.join (source_folder, zip_file_name)
+    zip_cnt = 0
     
     with zipfile.ZipFile (zip_file_path, 'w') as zipf:
         for foldername, subfolders, filenames in os.walk (source_folder):
@@ -2335,8 +2764,41 @@ def zip_all_files_2 (source_folder, extensions = None, zip_file_name = None):
                     # Exclude the ZIP file itself from being added
                     if os.path.abspath (file_path) != os.path.abspath (zip_file_path):
                         zipf.write (file_path, arcname = os.path.relpath (file_path, source_folder))
+                        zip_cnt = zip_cnt + 1
     
     # print(f"ZIP file created: {zip_file_name}")
+
+    return zip_cnt
+
+#=============================================================================================#
+
+def zip_all_files_list (source_folder, zip_file_path, file_list = None):
+  """
+  Compresses files from a folder into a ZIP file, including only files within provided list.
+
+  Args:
+      source_folder (str): Path to the folder containing files.
+      file_list (list of str, optional): List of file name (in source dir) to include (None means Zip All).
+      zip_file_path (str): Path where the ZIP file will be saved.
+
+  Return:
+      zip_cnt (int): Total number of files zipped to zip file
+  """
+  
+  zip_cnt = 0  
+  with zipfile.ZipFile (zip_file_path, 'w') as zipf:
+    for foldername, subfolders, filenames in os.walk (source_folder):
+      for filename in filenames:
+        if foldername == source_folder:
+          # Include only files from file list in source_folder (or all if list is none, except for .zip files)
+          if (file_list is None and not filename.endswith('.zip')) or f'{filename}' in file_list:
+            file_path = os.path.join (foldername, filename)
+            zipf.write (file_path, arcname = os.path.relpath (file_path, source_folder))
+            zip_cnt = zip_cnt + 1
+
+  # print(f"ZIP file created: {os.path.basename (zip_file_path)}")
+
+  return zip_cnt
 
 #=============================================================================================#
 
@@ -2412,6 +2874,25 @@ def delete_files (directory, include_extensions = None, exclude_extensions = Non
             if (not include_extensions or file_ext in include_extensions) and (file_ext not in exclude_extensions):
                 os.remove(file_path)
                 # print(f"Deleted: {filename}")
+
+#=============================================================================================#
+
+def delete_directory (directory):
+    """
+    Deletes a complete directory tree with all its files and subdirs wheather empty or not
+    This cannot be undone and does not save contents to recycle bin
+
+    Args:
+        directory (str): Path to the directory to be deleted
+    """
+
+    try:
+        if os.path.isdir(directory):
+            shutil.rmtree(directory)
+        else:
+            print(f"Directory '{directory}' does not exist, nothing to delete.")
+    except OSError as e:
+        print (color.red (f"delete_directory [ERROR]: Error while deleting directory: {e.filename} - {e.strerror}."))
 
 #=============================================================================================#
 
@@ -2550,15 +3031,18 @@ def validate_command_list (cli_string):
   # Top level commands.
   valid_commands_json = json.dumps ({
     "pcb_drc": ["report", "json"],
+    "sch_erc": ["report", "json"],
     "gerbers": [],
     "drills": [],
     "sch_pdf": [],
     "bom": ["CSV", "XLS", "HTML"],
     "pcb_pdf": [],
+    "pcb_fab_pdf": [],
     "positions": [],
     "svg": [],
     "ddd": ["STEP", "VRML"],
-    "pcb_render": []
+    "pcb_render": [],
+    "source_zip": []
   })
 
   # Some commands like the "pcb_render" can have custom named presets.
@@ -2573,7 +3057,7 @@ def validate_command_list (cli_string):
     def replacer (match):
         word = match.group (0)
         return f'"{word}"'
-    pattern = r'\b(?!True|False|None)\w+\b'
+    pattern = r'\b(?!True|False|None)[\w-]+\b'
     return re.sub (pattern, replacer, s)
 
   #---------------------------------------------------------------------------------------------#
@@ -2688,12 +3172,14 @@ def normalize_version (version: str) -> str:
 
 #=============================================================================================#
 
-def run (config_file, command_list = None):
+def run (config_file, command_list = None, clean = False):
   """
   Fetches command list and configuration from the JSON file and runs the commands.
 
   Args:
-    `config_file` (str): Path to the configuration file. Can be relative or absolute.
+    config_file (str): Path to the configuration file. Can be relative or absolute.
+    command_list (str): string of the commands to be executed as part of this run job request
+    clean (bool): True indicates to do a complete directory delete of the current rev export tree before creating al new export files
   """
 
   print (f"run [INFO]: Running KiExport with configuration file '{color.magenta (config_file)}'.")
@@ -2706,7 +3192,7 @@ def run (config_file, command_list = None):
   #---------------------------------------------------------------------------------------------#
 
   # List of top-level commands.
-  valid_commands = ["pcb_drc", "gerbers", "drills", "sch_pdf", "bom", "pcb_pdf", "positions", "ddd", "svg", "pcb_render"]
+  valid_commands = ["pcb_drc", "gerbers", "drills", "sch_erc", "sch_pdf", "bom", "pcb_pdf", "pcb_fab_pdf", "positions", "ddd", "svg", "pcb_render", "source_zip"]
 
   #---------------------------------------------------------------------------------------------#
 
@@ -2795,6 +3281,48 @@ def run (config_file, command_list = None):
   project_dir = os.path.dirname (config_path)
   project_name = current_config.get ("project_name")
 
+  # Special handling to automatically detect project name from a single kicad_pcb/kicad_sch pair files found in current config directory
+  if project_name == None or project_name == "" or project_name == "None" or project_name == "Auto":
+    # Look for kicad_pcb and kicad_sch in currect config dir
+    entries = os.listdir(project_dir)
+
+    pcb_filename = None
+    sch_filename = None
+    for entry in entries:
+        full_path = os.path.join(project_dir, entry)
+        if os.path.isfile(full_path):
+            file_name = os.path.basename(full_path)
+            root, ext = os.path.splitext(file_name)
+            if ext == ".kicad_pcb":
+                if pcb_filename != None:
+                    # More than one kicad_pcb file exist in directory so cannot determine what is the project name
+                    print (color.red ("run [ERROR]: Cannot determine the project name to use in project directory {project_dir}."))
+                    return
+                pcb_filename = root
+            if ext == ".kicad_sch":
+                if sch_filename != None:
+                    # More than one kicad_sch file exist in directory so cannot determine what is the project name
+                    print (color.red ("run [ERROR]: Cannot determine the project name to use in project directory {project_dir}."))
+                    return
+                sch_filename = root
+                
+    if pcb_filename == None and sch_filename == None:
+        # No kicad_sch or kicad_pcb file exist in directory so cannot determine what is the project name
+        print (color.red ("run [ERROR]: Cannot determine the project name to use in project directory {project_dir}."))
+        return
+    if pcb_filename == None:
+        # Only kicad_sch file found in directory use it as the project name
+        project_name = sch_filename
+    elif sch_filename == None:
+        # Only kicad_pcb file found in directory use it as the project name
+        project_name = pcb_filename
+    else:
+        # Both kicad_pcb and kicad_sch files found in directory use either ONLY if they have the same root name
+        if pcb_filename != sch_filename:
+            print (color.red ("run [ERROR]: Cannot determine the project name to use in project directory {project_dir}."))
+            return
+        project_name = pcb_filename
+
   pcb_filename = project_name + ".kicad_pcb"
   sch_filename = project_name + ".kicad_sch"
 
@@ -2811,68 +3339,154 @@ def run (config_file, command_list = None):
   if not os.path.isfile (pcb_file_path):
     print (color.yellow (f"run [WARNING]: The PCB file '{pcb_file_path}' does not exist."))
     print (color.yellow ("run [WARNING]: Commands that require the PCB file won't be executed."))
-  
+    info_pcb = None
+  else:
+    info_pcb = extract_info_from_pcb (pcb_filename) # Extract basic information from the input file
   if not os.path.isfile (sch_file_path):
     print (color.yellow (f"run [WARNING]: The Schematic file '{sch_file_path}' does not exist."))
     print (color.yellow ("run [WARNING]: Commands that require the Schematic file won't be executed."))
-
-  # return
+    info_sch = None
+  else:
+    info_sch = extract_info_from_pcb (sch_filename) # Extract basic information from the input file
 
   #---------------------------------------------------------------------------------------------#
+  # Check SCH and PCB (if both provided) have same version info (as recommended) 
+  if info_sch != None and info_pcb != None:
+    if info_sch ["rev"] != info_pcb ["rev"]:
+      print (color.yellow (f"run [WARNING]: The Schematic file and PCB file have different revisions, to avoid confusion it is recommended to keep unique project version in both. Do you want to continue? [Y/N]"))
+      user_input = input ("").strip().lower()
+      if user_input == "y":
+        print (color.yellow ("run [WARNING]: Process will continue with different PCB and Schematic revision."))
+      else:
+        print (color.yellow ("run [WARNING]: Process will exit."))
+        exit (1)  # Exit the script with an error code if the user does not want to continue
+
+  # If requested clean the pcb revision from all previous runs
+  if clean == True:
+    if info_pcb != None:
+      # Clean will only be preformed if PCB exists since considered the major release source
+      # Clean will only be performed if atleast one of the following commands exists in cmd list: gerbers, sch_pdf, pcb_pdf, pcb_fab_pdf, bom
+      # Construct the current rev output directory as would be constructed by each command run
+      # The command line directory has precedence over the configured directory.
+      # Taking the output directory from first command in command list - assume all same directory output !!
+      output_dir = None
+      for cmd in cmd_strings:
+        if cmd == "gerbers":
+          output_dir = current_config.get ("data", {}).get ("gerbers", {}).get ("--output_dir", lambda: default_config ["data"]["gerbers"]["--output_dir"])
+
+        elif cmd == "sch_pdf":
+          output_dir = current_config.get ("data", {}).get ("sch_pdf", {}).get ("--output_dir", lambda: default_config ["data"]["sch_pdf"]["--output_dir"])
+
+        elif cmd == "bom":
+          # Default is CSV
+          output_dir = current_config.get ("data", {}).get ("bom", {}).get ("CSV", {}).get ("--output_dir", lambda: default_config ["data"]["bom"]["CSV"]["--output_dir"])
+
+        elif cmd == "pcb_pdf":
+          output_dir = current_config.get ("data", {}).get ("pcb_pdf", {}).get ("--output_dir", lambda: default_config ["data"]["pcb_pdf"]["--output_dir"])
+
+        elif cmd == "pcb_fab_pdf":
+          output_dir = current_config.get ("data", {}).get ("pcb_fab_pdf", {}).get ("--output_dir", lambda: default_config ["data"]["pcb_fab_pdf"]["--output_dir"])
+
+      if output_dir == None:
+        for cmd in cmd_lists:
+          if cmd[0] == "gerbers":
+            output_dir = current_config.get ("data", {}).get ("gerbers", {}).get ("--output_dir", lambda: default_config ["data"]["gerbers"]["--output_dir"])
+
+          elif cmd[0] == "sch_pdf":
+            output_dir = current_config.get ("data", {}).get ("sch_pdf", {}).get ("--output_dir", lambda: default_config ["data"]["sch_pdf"]["--output_dir"])
+
+          elif cmd[0] == "bom":
+            if cmd [1] == "CSV":
+              output_dir = current_config.get ("data", {}).get ("bom", {}).get ("CSV", {}).get ("--output_dir", lambda: default_config ["data"]["bom"]["CSV"]["--output_dir"])
+            elif cmd [1] == "XLS":
+              output_dir = current_config.get ("data", {}).get ("bom", {}).get ("XLS", {}).get ("--output_dir", lambda: default_config ["data"]["bom"]["XLS"]["--output_dir"])
+
+          elif cmd[0] == "pcb_pdf":
+            output_dir = current_config.get ("data", {}).get ("pcb_pdf", {}).get ("--output_dir", lambda: default_config ["data"]["pcb_pdf"]["--output_dir"])
+
+          elif cmd[0] == "pcb_fab_pdf":
+            output_dir = current_config.get ("data", {}).get ("pcb_fab_pdf", {}).get ("--output_dir", lambda: default_config ["data"]["pcb_fab_pdf"]["--output_dir"])
+
+      if output_dir != None:
+        target_dir = project_dir + "/" + output_dir
+        rev = info_pcb ["rev"]
+        rev_directory = f"{target_dir}/R{rev}"
+        delete_directory (rev_directory)
+    else:
+      print (f"run [INFO]: PCB file not found, clean request is ignored")
+  #---------------------------------------------------------------------------------------------#
+
+  csv_file_created = False
+  csv_filename = None
+  src_output_dir = None
 
   # Process the commands without any arguments or modifiers. eg. "gerbers", "drills", "sch_pdf", etc.
   for cmd in cmd_strings:
     if cmd == "pcb_drc":
       output_dir = current_config.get ("data", {}).get ("pcb_drc", {}).get ("--output_dir", lambda: default_config ["data"]["pcb_drc"]["--output_dir"])
-      output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
+      output_dir = project_dir + "\\" + output_dir # Output directory is relative to the project directory
       runDRC (output_dir = output_dir, pcb_filename = pcb_file_path, type = "report") # Default is "report"
 
     elif cmd == "gerbers":
       output_dir = current_config.get ("data", {}).get ("gerbers", {}).get ("--output_dir", lambda: default_config ["data"]["gerbers"]["--output_dir"])
-      output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
+      output_dir = project_dir + "\\" + output_dir # Output directory is relative to the project directory
       generateGerbers (output_dir = output_dir, pcb_filename = pcb_file_path)
 
     elif cmd == "drills":
       output_dir = current_config.get ("data", {}).get ("drills", {}).get ("--output_dir", lambda: default_config ["data"]["drills"]["--output_dir"])
-      output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
+      output_dir = project_dir + "\\" + output_dir # Output directory is relative to the project directory
       generateDrills (output_dir = output_dir, pcb_filename = pcb_file_path)
+
+    elif cmd == "sch_erc":
+      output_dir = current_config.get ("data", {}).get ("sch_erc", {}).get ("--output_dir", lambda: default_config ["data"]["sch_erc"]["--output_dir"])
+      output_dir = project_dir + "\\" + output_dir # Output directory is relative to the project directory
+      runERC (output_dir = output_dir, sch_filename = sch_file_path, type = "report") # Default is "report"
 
     elif cmd == "sch_pdf":
       output_dir = current_config.get ("data", {}).get ("sch_pdf", {}).get ("--output_dir", lambda: default_config ["data"]["sch_pdf"]["--output_dir"])
-      output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
+      output_dir = project_dir + "\\" + output_dir # Output directory is relative to the project directory
       generateSchPdf (output_dir = output_dir, sch_filename = sch_file_path)
 
     elif cmd == "bom":
       # Default is CSV
       output_dir = current_config.get ("data", {}).get ("bom", {}).get ("CSV", {}).get ("--output_dir", lambda: default_config ["data"]["bom"]["CSV"]["--output_dir"])
-      output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
+      output_dir = project_dir + "\\" + output_dir # Output directory is relative to the project directory
       generateBomCsv (output_dir = output_dir, sch_filename = sch_file_path)
 
     elif cmd == "pcb_pdf":
       output_dir = current_config.get ("data", {}).get ("pcb_pdf", {}).get ("--output_dir", lambda: default_config ["data"]["pcb_pdf"]["--output_dir"])
-      output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
+      output_dir = project_dir + "\\" + output_dir # Output directory is relative to the project directory
       generatePcbPdf (output_dir = output_dir, pcb_filename = pcb_file_path)
+
+    elif cmd == "pcb_fab_pdf":
+      output_dir = current_config.get ("data", {}).get ("pcb_fab_pdf", {}).get ("--output_dir", lambda: default_config ["data"]["pcb_fab_pdf"]["--output_dir"])
+      output_dir = project_dir + "\\" + output_dir # Output directory is relative to the project directory
+      generatePcbFabPdf (output_dir = output_dir, pcb_filename = pcb_file_path)
 
     elif cmd == "positions":
       output_dir = current_config.get ("data", {}).get ("positions", {}).get ("--output_dir", lambda: default_config ["data"]["positions"]["--output_dir"])
-      output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
+      output_dir = project_dir + "\\" + output_dir # Output directory is relative to the project directory
       generatePositions (output_dir = output_dir, pcb_filename = pcb_file_path)
 
     elif cmd == "ddd":
       # Default is STEP
       output_dir = current_config.get ("data", {}).get ("ddd", {}).get ("STEP", {}).get ("--output_dir", lambda: default_config ["data"]["ddd"]["STEP"]["--output_dir"])
-      output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
+      output_dir = project_dir + "\\" + output_dir # Output directory is relative to the project directory
       generate3D (output_dir = output_dir, pcb_filename = pcb_file_path, type = "STEP")
     
     elif cmd == "svg":
       output_dir = current_config.get ("data", {}).get ("svg", {}).get ("--output_dir", lambda: default_config ["data"]["svg"]["--output_dir"])
-      output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
+      output_dir = project_dir + "\\" + output_dir # Output directory is relative to the project directory
       generateSvg (output_dir = output_dir, pcb_filename = pcb_file_path)
 
     elif cmd == "pcb_render":
       output_dir = current_config.get ("data", {}).get ("pcb_render", {}).get ("--output_dir", lambda: default_config ["data"]["pcb_render"]["--output_dir"])
-      output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
+      output_dir = project_dir + "\\" + output_dir # Output directory is relative to the project directory
       generatePcbRenders (output_dir = output_dir, pcb_filename = pcb_file_path)
+
+    elif cmd == "source_zip":
+      src_output_dir = current_config.get ("data", {}).get ("source_zip", {}).get ("--output_dir", lambda: default_config ["data"]["source_zip"]["--output_dir"])
+      src_output_dir = project_dir + "\\" + src_output_dir # Output directory is relative to the project directory
 
   #---------------------------------------------------------------------------------------------#
 
@@ -2881,87 +3495,193 @@ def run (config_file, command_list = None):
     if cmd [0] == "pcb_drc":
       if cmd [1] == "report":
         output_dir = current_config.get ("data", {}).get ("pcb_drc", {}).get ("--output_dir", lambda: default_config ["data"]["pcb_drc"]["--output_dir"])
-        output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
+        output_dir = project_dir + "\\" + output_dir # Output directory is relative to the project directory
         runDRC (output_dir = output_dir, pcb_filename = pcb_file_path, type = "report")
       
       elif cmd [1] == "json":
         output_dir = current_config.get ("data", {}).get ("pcb_drc", {}).get ("--output_dir", lambda: default_config ["data"]["pcb_drc"]["--output_dir"])
-        output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
+        output_dir = project_dir + "\\" + output_dir # Output directory is relative to the project directory
         runDRC (output_dir = output_dir, pcb_filename = pcb_file_path, type = "json")
 
     elif cmd [0] == "gerbers":
       output_dir = current_config.get ("data", {}).get ("gerbers", {}).get ("--output_dir", lambda: default_config ["data"]["gerbers"]["--output_dir"])
-      output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
+      output_dir = project_dir + "\\" + output_dir # Output directory is relative to the project directory
       generateGerbers (output_dir = output_dir, pcb_filename = pcb_file_path)
-    
+   
     elif cmd [0] == "drills":
       output_dir = current_config.get ("data", {}).get ("drills", {}).get ("--output_dir", lambda: default_config ["data"]["drills"]["--output_dir"])
-      output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
+      output_dir = project_dir + "\\" + output_dir # Output directory is relative to the project directory
       generateDrills (output_dir = output_dir, pcb_filename = pcb_file_path)
+
+    elif cmd [0] == "sch_erc":
+      if cmd [1] == "report":
+        output_dir = current_config.get ("data", {}).get ("sch_erc", {}).get ("--output_dir", lambda: default_config ["data"]["sch_erc"]["--output_dir"])
+        output_dir = project_dir + "\\" + output_dir # Output directory is relative to the project directory
+        runERC (output_dir = output_dir, sch_filename = sch_file_path, type = "report")
+      
+      elif cmd [1] == "json":
+        output_dir = current_config.get ("data", {}).get ("sch_erc", {}).get ("--output_dir", lambda: default_config ["data"]["sch_erc"]["--output_dir"])
+        output_dir = project_dir + "\\" + output_dir # Output directory is relative to the project directory
+        runERC (output_dir = output_dir, sch_filename = sch_file_path, type = "json")
 
     elif cmd [0] == "sch_pdf":
       output_dir = current_config.get ("data", {}).get ("sch_pdf", {}).get ("--output_dir", lambda: default_config ["data"]["sch_pdf"]["--output_dir"])
-      output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
+      output_dir = project_dir + "\\" + output_dir # Output directory is relative to the project directory
       generateSchPdf (output_dir = output_dir, sch_filename = sch_file_path)
     
     elif cmd [0] == "bom":
-      if (cmd [1] == "CSV") or (cmd [1] == "XLS"):
-        output_dir = current_config.get ("data", {}).get ("bom", {}).get ("CSV", {}).get ("--output_dir", lambda: default_config ["data"]["bom"]["CSV"]["--output_dir"])
-        output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
-        csv_filename = generateBomCsv (output_dir = output_dir, sch_filename = sch_file_path)
+      if cmd [1] == "CSV":
+        if csv_file_created == False:
+          # Xls below may have generated a CSV first - generate CSV ONLY if not already generated by below XLS
+          output_dir = current_config.get ("data", {}).get ("bom", {}).get ("CSV", {}).get ("--output_dir", lambda: default_config ["data"]["bom"]["CSV"]["--output_dir"])
+          output_dir = project_dir + "\\" + output_dir # Output directory is relative to the project directory
+          csv_filename = generateBomCsv (output_dir = output_dir, sch_filename = sch_file_path)
+          csv_file_created = True
 
-        if cmd [1] == "XLS":
-          output_dir = current_config.get ("data", {}).get ("bom", {}).get ("XLS", {}).get ("--output_dir", lambda: default_config ["data"]["bom"]["XLS"]["--output_dir"])
-          output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
-          generateBomXls (output_dir = output_dir, csv_file = csv_filename, sch_filename = sch_file_path)
+      if cmd [1] == "XLS":
+        # Xls generation need to have a CSV first - generate CSV ONLY if not already generated by user request
+        if csv_file_created == False:
+          output_dir = current_config.get ("data", {}).get ("bom", {}).get ("CSV", {}).get ("--output_dir", lambda: default_config ["data"]["bom"]["CSV"]["--output_dir"])
+          output_dir = project_dir + "\\" + output_dir # Output directory is relative to the project directory
+          csv_filename = generateBomCsv (output_dir = output_dir, sch_filename = sch_file_path)
+          csv_file_created = True
+        output_dir = current_config.get ("data", {}).get ("bom", {}).get ("XLS", {}).get ("--output_dir", lambda: default_config ["data"]["bom"]["XLS"]["--output_dir"])
+        output_dir = project_dir + "\\" + output_dir # Output directory is relative to the project directory
+        generateBomXls (output_dir = output_dir, csv_file = csv_filename, sch_filename = sch_file_path)
     
       elif cmd [1] == "HTML":
         output_dir = current_config.get ("data", {}).get ("bom", {}).get ("HTML", {}).get ("--output_dir", lambda: default_config ["data"]["bom"]["HTML"]["--output_dir"])
-        output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
+        output_dir = project_dir + "\\" + output_dir # Output directory is relative to the project directory
         generateBomHtml (output_dir = output_dir, pcb_filename = pcb_file_path)
     
     elif cmd [0] == "pcb_pdf":
       output_dir = current_config.get ("data", {}).get ("pcb_pdf", {}).get ("--output_dir", lambda: default_config ["data"]["pcb_pdf"]["--output_dir"])
-      output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
+      output_dir = project_dir + "\\" + output_dir # Output directory is relative to the project directory
       generatePcbPdf (output_dir = output_dir, pcb_filename = pcb_file_path)
+    
+    elif cmd [0] == "pcb_fab_pdf":
+      output_dir = current_config.get ("data", {}).get ("pcb_fab_pdf", {}).get ("--output_dir", lambda: default_config ["data"]["pcb_fab_pdf"]["--output_dir"])
+      output_dir = project_dir + "\\" + output_dir # Output directory is relative to the project directory
+      generatePcbFabPdf (output_dir = output_dir, pcb_filename = pcb_file_path)
     
     elif cmd [0] == "positions":
       output_dir = current_config.get ("data", {}).get ("positions", {}).get ("--output_dir", lambda: default_config ["data"]["positions"]["--output_dir"])
-      output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
+      output_dir = project_dir + "\\" + output_dir # Output directory is relative to the project directory
       generatePositions (output_dir = output_dir, pcb_filename = pcb_file_path)
     
     elif cmd [0] == "ddd":
       if cmd [1] == "VRML":
         output_dir = current_config.get ("data", {}).get ("ddd", {}).get ("VRML", {}).get ("--output_dir", lambda: default_config ["data"]["ddd"]["VRML"]["--output_dir"])
-        output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
+        output_dir = project_dir + "\\" + output_dir # Output directory is relative to the project directory
         generate3D (output_dir = output_dir, pcb_filename = pcb_file_path, type = "VRML")
         
       else: # Default is STEP
         output_dir = current_config.get ("data", {}).get ("ddd", {}).get ("STEP", {}).get ("--output_dir", lambda: default_config ["data"]["ddd"]["STEP"]["--output_dir"])
-        output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
+        output_dir = project_dir + "\\" + output_dir # Output directory is relative to the project directory
         generate3D (output_dir = output_dir, pcb_filename = pcb_file_path, type = "STEP")
     
     elif cmd [0] == "svg":
       output_dir = current_config.get ("data", {}).get ("svg", {}).get ("--output_dir", lambda: default_config ["data"]["svg"]["--output_dir"])
-      output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
+      output_dir = project_dir + "\\" + output_dir # Output directory is relative to the project directory
       generateSvg (output_dir = output_dir, pcb_filename = pcb_file_path)
     
     elif cmd [0] == "pcb_render":
       output_dir = current_config.get ("data", {}).get ("pcb_render", {}).get ("--output_dir", lambda: default_config ["data"]["pcb_render"]["--output_dir"])
-      output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
+      output_dir = project_dir + "\\" + output_dir # Output directory is relative to the project directory
       # Run for the items in the list by iterating from the second item.
       for preset in cmd [1:]:
         generatePcbRenders (output_dir = output_dir, pcb_filename = pcb_file_path, preset = preset)
   
+    elif cmd [0] == "source_zip":
+      src_output_dir = current_config.get ("data", {}).get ("source_zip", {}).get ("--output_dir", lambda: default_config ["data"]["source_zip"]["--output_dir"])
+      src_output_dir = project_dir + "\\" + src_output_dir # Output directory is relative to the project directory
+    
   # Once the command execution is complete, print the statuses from command_exec_status.
   print (f"run [INFO]: Command execution completed. Statuses:")
+  command_exec_status_all = True
   for cmd in command_exec_status:
     if (command_exec_status [cmd] == True):
       print (color.green (f"run [INFO]: {cmd}: {command_exec_status [cmd]}"))
     else:
       print (color.red (f"run [INFO]: {cmd}: {command_exec_status [cmd]}"))
+      command_exec_status_all = False
 
+  # If requested source backup after all generation successful
+  if src_output_dir != None:
+    if command_exec_status_all == True:
+      generateSourceZip (output_dir = src_output_dir, pcb_filename = pcb_file_path, sch_filename = sch_file_path)
+    else:
+      print (color.yellow ("run [WARNING]: Source file zip not created because some commands generation failed."))
+   
   return
+
+#=============================================================================================#
+
+def generateSourceZip (output_dir, pcb_filename = None, sch_filename = None):
+  """
+  Generate the SRC directory with zip of all relevnt source files.
+  """
+  global current_config  # Access the global config
+  global default_config  # Access the global config
+
+  # Prefer using pcb_filename if provided.
+  if pcb_filename == None:
+    file_name = sch_filename
+  else:
+    file_name = pcb_filename
+  file_path = os.path.abspath (file_name) # Get the absolute path of the file.
+  # Check if the input file exists
+  if not check_file_exists (file_name):
+    print (color.red (f"generateSourceZip [ERROR]: '{file_name}' does not exist."))
+    return
+  
+  #---------------------------------------------------------------------------------------------#
+
+  file_name = extract_pcb_file_name (file_name) # Extract information from the input file
+  file_name = file_name.replace (" ", "-") # If there are whitespace characters in the project name, replace them with a hyphen
+
+  project_name = extract_project_name (file_name)
+  info = extract_info_from_pcb (pcb_filename) # Extract basic information from the input file
+
+  print (f"generateSourceZip [INFO]: Project name is '{color.magenta (project_name)}' and revision is {color.magenta ('R')}{color.magenta (info ['rev'])}.")
+
+  #---------------------------------------------------------------------------------------------#
+
+  # Get the directory path of the file and save it as the project directory.
+  # All other export directories will be relative to the project directory.
+  project_dir = os.path.dirname (file_path)
+  
+  # Read the output directory name from the config file.
+  od_from_config = project_dir + "/" + current_config.get ("data", {}).get ("source_zip", {}).get ("--output_dir", lambda: default_config ["data"]["source_zip"]["--output_dir"])
+  od_from_cli = output_dir  # The output directory specified by the command line argument
+
+  # Get the final directory path.
+  final_directory, filename_date = create_final_directory (od_from_config, od_from_cli, "SRC", info ["rev"], "generateSourceZip")
+  
+  #---------------------------------------------------------------------------------------------#
+
+  # list of project source files to include in zip file 
+  ext_list = current_config.get ("data", {}).get ("source_zip", {}).get ("kie_ext_list", lambda: default_config ["data"]["source_zip"]["kie_ext_list"])
+  files_list = []
+  for ext in ext_list:
+    if ext[0] == '.':
+      files_list.append( f'{project_name}{ext}' )
+    else:
+      files_list.append( f'{project_name}.{ext}' )
+
+  not_completed = True
+  # Sequentially name and create the zip files.
+  seq_number = 1
+  while not_completed:
+    zip_file_name = f"{project_name}-R{info ['rev']}-Source-{filename_date}-{seq_number}.zip"
+    zip_file_path = f"{final_directory}/{zip_file_name}"
+    if os.path.exists (zip_file_path):
+      seq_number += 1
+    else:
+      zip_cnt = zip_all_files_list (project_dir, zip_file_path, files_list)
+      print (f"generateSourceZip [OK]: ZIP file '{color.magenta (zip_file_name)}' created successfully with {zip_cnt} Files.")
+      print()
+      not_completed = False
 
 #=============================================================================================#
 
@@ -3155,6 +3875,174 @@ def runDRC (output_dir, pcb_filename, type = "default"):
 
 #=============================================================================================#
 
+def runERC (output_dir, sch_filename, type = "default"):
+  """
+  Runs the ERC (Electrical Rule Check) on the SCH file.
+  This function is a placeholder and should be implemented with actual ERC logic.
+  """
+  global current_config  # Access the global config
+  global default_config  # Access the global config
+
+  # Get the KiCad CLI path.
+  kicad_cli_path = f'{current_config.get ("kicad_cli_path", lambda: default_config ["kicad_cli_path"])}'
+
+  # Common base command
+  sch_erc_command = [f'"{kicad_cli_path}"', "sch", "erc"]
+
+  # Check if the input file exists
+  if not check_file_exists (sch_filename):
+    print (color.red (f"runERC [ERROR]: '{sch_filename}' does not exist."))
+    command_exec_status ["sch_erc"] = False
+    return
+  
+  #---------------------------------------------------------------------------------------------#
+
+  file_name = extract_pcb_file_name (sch_filename) # Extract information from the input file
+  file_name = file_name.replace (" ", "-") # If there are whitespace characters in the project name, replace them with a hyphen
+
+  project_name = extract_project_name (file_name)
+  info = extract_info_from_pcb (sch_filename) # Extract basic information from the input file
+
+  print (f"runERC [INFO]: Project name is '{color.magenta (project_name)}' and revision is {color.magenta ('R')}{color.magenta (info ['rev'])}.")
+
+  #---------------------------------------------------------------------------------------------#
+
+  # print (color.yellow ("runERC [INFO]: Running ERC (Electrical Rule Check) on the SCH file.."))
+
+  file_path = os.path.abspath (sch_filename) # Get the absolute path of the file.
+
+  # Get the directory path of the file and save it as the project directory.
+  # All other export directories will be relative to the project directory.
+  project_dir = os.path.dirname (file_path)
+  
+  # Read the output directory name from the config file.
+  od_from_config = project_dir + "/" + current_config.get ("data", {}).get ("sch_erc", {}).get ("--output_dir", lambda: default_config ["data"]["sch_erc"]["--output_dir"])
+  od_from_cli = output_dir  # The output directory specified by the command line argument
+
+  # Get the final directory path.
+  final_directory, filename_date = create_final_directory (od_from_config, od_from_cli, "Report", info ["rev"], "runERC")
+  
+  #---------------------------------------------------------------------------------------------#
+
+  # Get the argument list from the config file.
+  arg_list = current_config.get ("data", {}).get ("sch_erc", {})
+
+  full_command = [] # Store the full command to run
+  full_command.extend (sch_erc_command) # Add the base command
+
+  if type == "default": # If the default type is specified, then use type specified in the config file.
+    if arg_list: # Check if the argument list is not empty.
+      if "--format" in arg_list: # Check if the "--format" argument is present in the argument list.
+        format_value = arg_list ["--format"] # Get the format value from the argument list.
+        if format_value == "report":
+          type = format_value
+        elif format_value == "json":
+          type = format_value
+      else:
+        type = "report"  # Default to report if no format is specified in the config file.
+    else: # If the argument list is empty, then default to report.
+      type = "report"  # Default to report if no argument list is provided.
+  else:
+    pass
+
+  #---------------------------------------------------------------------------------------------#
+
+  seq_number = 1
+  not_completed = True
+  
+  # Create the output file name.
+  while not_completed:
+    if type == "report":
+      file_name = f"{final_directory}/{project_name}-R{info ['rev']}-SCH-ERC-Report-{filename_date}-{seq_number}.rpt"
+    elif type == "json":
+      file_name = f"{final_directory}/{project_name}-R{info ['rev']}-SCH-ERC-Report-{filename_date}-{seq_number}.json"
+
+    if os.path.exists (file_name):
+      seq_number += 1 # Increment the sequence number and try again
+      not_completed = True
+    else:
+      full_command.append ("--output")
+      full_command.append (f'"{file_name}"') # Add the output file name with double quotes around it
+      break
+  
+  # Add the remaining arguments.
+  # Check if the argument list is not an empty dictionary.
+  if arg_list:
+    for key, value in arg_list.items():
+      if key.startswith ("--"): # Only fetch the arguments that start with "--"
+        if key == "--output_dir": # Skip the --output_dir argument, sice we already added it
+          continue
+        elif key == "--format": # Skip the --format argument, since we already set the type
+          if isinstance (value, str):
+            full_command.append (key)
+            full_command.append (f'"{type}"') # Use the override value. Add as a double-quoted string.
+        else:
+          # Check if the value is empty
+          if value == "": # Skip if the value is empty
+            continue
+          else:
+            # Check if the vlaue is a JSON boolean
+            if isinstance (value, bool):
+              if value == True: # If the value is true, then append the key as an argument
+                full_command.append (key)
+            else:
+              # Check if the value is a string and not a numeral
+              if isinstance (value, str) and not value.isdigit():
+                  full_command.append (key)
+                  full_command.append (f'"{value}"') # Add as a double-quoted string
+              elif isinstance (value, (int, float)):
+                  full_command.append (key)
+                  full_command.append (str (value))  # Append the numeric value as string
+  
+  # Finally add the input file
+  full_command.append (f'"{sch_filename}"')
+  print ("runERC [INFO]: Running command: ", color.blue (' '.join (full_command)))
+
+  #----------------------------------------------------------------------------------------------#
+
+  # Run the command
+  try:
+    full_command = ' '.join (full_command) # Convert the list to a string
+    result = subprocess.run (full_command, check = True, capture_output = True, text = True)
+
+    print (result.stdout)  # Print the standard output
+
+    is_erc_error = False
+
+    # Check for a 0 ERC violations.
+    if "Found 0 violations" in result.stdout:
+      print (color.green ("runERC [OK]: No ERC violations found."))
+    
+    # Search for the "Found <number> violations" string in the output using regex.
+    elif re.search (r"Found \d+ violations", result.stdout):
+      violations = re.search (r"Found (\d+) violations", result.stdout)
+      if violations:
+        num_violations = violations.group (1)
+        print (color.red (f"runERC [ERROR]: Found {num_violations} ERC violations. Check the report file for details."))
+        is_erc_error = True
+    
+    if is_erc_error:
+      print (color.yellow ("runERC [WARNING]: Multiple ERC errors were found. Do you want to continue? [Y/N]"))
+      user_input = input ("").strip().lower()
+      if user_input == "y":
+        print (color.yellow ("runERC [WARNING]: Process will continue with ERC errors."))
+        command_exec_status ["pcb_erc"] = False
+      else:
+        print (color.yellow ("runERC [WARNING]: Process will exit."))
+        exit (1)  # Exit the script with an error code if the user does not want to continue
+
+  except subprocess.CalledProcessError as e: # If the ERC command fails for some reason.
+    print (color.red (f"runERC [ERROR]: Error occurred: {e}"))
+    print()
+    command_exec_status ["sch_erc"] = False
+    return
+
+  print (color.green ("runERC [OK]: ERC completed successfully."))
+  print()
+  command_exec_status ["sch_erc"] = True
+
+#=============================================================================================#
+
 def test():
   info = extract_info_from_pcb (SAMPLE_PCB_FILE)
   print (info)
@@ -3176,6 +4064,7 @@ def parseArguments():
   run_parser = subparsers.add_parser ("run", help = "Run KiExport using the provided JSON configuration file.")
   run_parser.add_argument ("config_file", help = "Path to the JSON configuration file.")
   run_parser.add_argument ("command_list", nargs = "?", help = "Specific commands in the JSON to execute (optional).")
+  run_parser.add_argument ("-c", "--clean", action="store_true", help = "Force clean version directory.")
 
   # Subparser for the Gerber export command.
   # Example: python .\kiexport.py gerbers -od "Mitayi-Pico-D1/Export" -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb"
@@ -3200,6 +4089,12 @@ def parseArguments():
   pcb_pdf_parser = subparsers.add_parser ("pcb_pdf", help = "Export PCB PDF files.")
   pcb_pdf_parser.add_argument ("-if", "--input_filename", required = True, help = "Path to the .kicad_pcb file.")
   pcb_pdf_parser.add_argument ("-od", "--output_dir", required = True, help = "Directory to save the PCB PDF files to.")
+
+  # Subparser for the PCB Fab PDF export command.
+  # Example: python .\kiexport.py pcb_pdf -od "Mitayi-Pico-D1/Export" -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb"
+  pcb_pdf_parser = subparsers.add_parser ("pcb_fab_pdf", help = "Export PCB Fab PDF files.")
+  pcb_pdf_parser.add_argument ("-if", "--input_filename", required = True, help = "Path to the .kicad_pcb file.")
+  pcb_pdf_parser.add_argument ("-od", "--output_dir", required = True, help = "Directory to save the PCB Fab PDF files to.")
 
   # Subparser for the Schematic PDF export command.
   # Example: python .\kiexport.py sch_pdf -od "Mitayi-Pico-D1/Export" -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_sch"
@@ -3247,6 +4142,13 @@ def parseArguments():
   pcb_drc_parser.add_argument ("-od", "--output_dir", required = True, help = "Directory to save the report file to.")
   pcb_drc_parser.add_argument ("-t", "--type", required = False, help = "The type of report file. Can be report or json.")
 
+  # Subparser for the ERC Run command.
+  # Example: python .\kiexport.py sch_erc -od "Mitayi-Pico-D1/Export" -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb" -t "report"
+  sch_erc_parser = subparsers.add_parser ("sch_erc", help = "Run ERC on the SCH file and generate a report.")
+  sch_erc_parser.add_argument ("-if", "--input_filename", required = True, help = "Path to the .kicad_pcb file.")
+  sch_erc_parser.add_argument ("-od", "--output_dir", required = True, help = "Directory to save the report file to.")
+  sch_erc_parser.add_argument ("-t", "--type", required = False, help = "The type of report file. Can be report or json.")
+
   # Subparser for the test function.
   test_parser = subparsers.add_parser ("test", help = "Internal test function.")
 
@@ -3279,8 +4181,7 @@ def parseArguments():
   if args.command == "run":
     # Check if the paramter ends with ".json"
     if args.config_file.endswith (".json") or args.config_file.endswith (".json\""):
-      run (config_file = args.config_file, command_list = args.command_list)
-    # return
+      run (config_file = args.config_file, command_list = args.command_list, clean = args.clean)
 
   else:
     # Load the standard config file for other commands.
@@ -3342,6 +4243,14 @@ def parseArguments():
   elif args.command == "pcb_pdf":
     generatePcbPdf (output_dir = args.output_dir, pcb_filename = args.input_filename)
 
+  elif args.command == "pcb_fab_pdf":
+    generatePcbFabPdf (output_dir = args.output_dir, pcb_filename = args.input_filename)
+
+  elif args.command == "sch_erc":
+    if args.type is None:
+      args.type = "default"  # Set the default type. This will use the type specified in the config file.
+    runERC (output_dir = args.output_dir, sch_filename = args.input_filename, type = args.type)
+  
   elif args.command == "sch_pdf":
     generateSchPdf (output_dir = args.output_dir, sch_filename = args.input_filename)
   
@@ -3379,6 +4288,9 @@ def parseArguments():
   elif args.command == "pcb_render":
     generatePcbRenders (output_dir = args.output_dir, pcb_filename = args.input_filename, preset = args.preset)
 
+  elif args.command == "source_zip":
+    generateSourceZip (output_dir = args.output_dir, pcb_filename = args.input_filename)
+    
   elif args.command == "test":
     test()
     
