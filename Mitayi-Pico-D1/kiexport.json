@@ -109,6 +109,7 @@
         "--sort-asc": false,
         "--filter": false,
         "--exclude-dnp": false,
+        "--include-excluded-from-bom": false,
         "--field-delimiter": false,
         "--string-delimiter": false,
         "--ref-delimiter": false,
@@ -158,7 +159,10 @@
       "--theme": "User",
       "--black-and-white": false,
       "--exclude-drawing-sheet": false,
+      "--default-font": false,
       "--exclude-pdf-property-popups": false,
+      "--exclude-pdf-hierarchical-links": false,
+      "--exclude-pdf-metadata": false,
       "--no-background-color": false,
       "--pages": false
     },
@@ -187,10 +191,16 @@
       "--exclude-refdes": false,
       "--exclude-value": false,
       "--include-border-title": true,
+      "--subtract-soldermask": false,
+      "--sketch-pads-on-fab-layers": false,
+      "--hide-DNP-footprints-on-fab-layers": false,
+      "--sketch-DNP-footprints-on-fab-layers": false,
+      "--crossout-DNP-footprints-on-fab-layers": false,
       "--negative": false,
       "--black-and-white": false,
       "--theme": "User",
-      "--drill-shape-opt": 2,
+      "--drill-shape-opt": 1,
+      "--plot-invisible-text": false,
       "kie_single_file": false
     },
     "positions": {
@@ -230,9 +240,15 @@
       "--theme": "User",
       "--negative": false,
       "--black-and-white": false,
+      "--sketch-pads-on-fab-layers": false,
+      "--hide-DNP-footprints-on-fab-layers": false,
+      "--sketch-DNP-footprints-on-fab-layers": false,
+      "--crossout-DNP-footprints-on-fab-layers": false,
       "--page-size-mode": 0,
+      "--fit-page-to-board": false,
       "--exclude-drawing-sheet": false,
-      "--drill-shape-opt": 2
+      "--drill-shape-opt": 1,
+      "--plot-invisible-text": false
     },
     "ddd": {
       "STEP": {

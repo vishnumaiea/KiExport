@@ -2,6 +2,36 @@
 # Changes
 
 #
+### **+05:30 09:58:25 PM 20-10-2025, Monday**
+
+  - Added new options for the `bom` export command.
+    - Added `--include-excluded-from-bom`.
+  - Added new options for the `sch_pdf` command.
+    - Added `--default-font`.
+    - Added `--exclude-pdf-hierarchical-links`.
+    - Added `--exclude-pdf-metadata`.
+  - Added new options for the `pcb_pdf` command.
+    - Added `--subtract-soldermask`.
+    - Added `--sketch-pads-on-fab-layers`.
+    - Added `--hide-DNP-footprints-on-fab-layers`.
+    - Added `--sketch-DNP-footprints-on-fab-layers`.
+    - Added `--crossout-DNP-footprints-on-fab-layers`.
+    - Added `--plot-invisible-text`.
+  - Added new options for the `svg` command.
+    - Added `--sketch-pads-on-fab-layers`.
+    - Added `--hide-DNP-footprints-on-fab-layers`.
+    - Added `--sketch-DNP-footprints-on-fab-layers`.
+    - Added `--crossout-DNP-footprints-on-fab-layers`.
+    - Added `--fit-page-to-board`.
+    - Added `--plot-invisible-text`.
+  - In `generatePositions()`, the files are named with "Position" instead of "Pos".
+  - There will be a few breaking changes added to the upcoming versions as we need to add some functionalities that are now natively supported by KiCad CLI.
+    - These changes will replace existing KiExport configuration parameters.
+    - New version of KiExport will not support the older parameters.
+    - The idea is to add support for as many new non-breaking command options as possible before the breaking changes are introduced.
+  - New Version 🆕 `0.1.12`.
+
+#
 ### **+05:30 09:32:48 PM 20-10-2025, Monday**
 
   - Added new options for the `gerbers` command.
@@ -10,7 +40,7 @@
     - Added `--sketch-DNP-footprints-on-fab-layers`.
     - Added `--crossout-DNP-footprints-on-fab-layers`.
     - Added `--plot-invisible-text`.
-  - New Revision 🆕 `0.1.11`.
+  - New Version 🆕 `0.1.11`.
 
 #
 ### **+05:30 09:54:40 PM 05-10-2025, Sunday**

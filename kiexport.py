@@ -4,8 +4,8 @@
 # KiExport
 # Tool to export manufacturing files from KiCad PCB projects.
 # Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)
-# Version: 0.1.11
-# Last Modified: +05:30 21:43:08 PM 20-10-2025, Monday
+# Version: 0.1.12
+# Last Modified: +05:30 22:54:42 PM 20-10-2025, Monday
 # GitHub: https://github.com/vishnumaiea/KiExport
 # License: MIT
 
@@ -33,7 +33,7 @@ from openpyxl.styles import PatternFill
 #=============================================================================================#
 
 APP_NAME = "KiExport"
-APP_VERSION = "0.1.11"
+APP_VERSION = "0.1.12"
 APP_DESCRIPTION = "Tool to export manufacturing files from KiCad PCB projects."
 APP_AUTHOR = "Vishnu Mohanan (@vishnumaiea, @vizmohanan)"
 
@@ -161,6 +161,7 @@ DEFAULT_CONFIG_JSON = '''
         "--sort-asc": false,
         "--filter": false,
         "--exclude-dnp": false,
+        "--include-excluded-from-bom": false,
         "--field-delimiter": false,
         "--string-delimiter": false,
         "--ref-delimiter": false,
@@ -210,7 +211,10 @@ DEFAULT_CONFIG_JSON = '''
       "--theme": "User",
       "--black-and-white": false,
       "--exclude-drawing-sheet": false,
+      "--default-font": false,
       "--exclude-pdf-property-popups": false,
+      "--exclude-pdf-hierarchical-links": false,
+      "--exclude-pdf-metadata": false,
       "--no-background-color": false,
       "--pages": false
     },
@@ -239,10 +243,16 @@ DEFAULT_CONFIG_JSON = '''
       "--exclude-refdes": false,
       "--exclude-value": false,
       "--include-border-title": true,
+      "--subtract-soldermask": false,
+      "--sketch-pads-on-fab-layers": false,
+      "--hide-DNP-footprints-on-fab-layers": false,
+      "--sketch-DNP-footprints-on-fab-layers": false,
+      "--crossout-DNP-footprints-on-fab-layers": false,
       "--negative": false,
       "--black-and-white": false,
       "--theme": "User",
-      "--drill-shape-opt": 2,
+      "--drill-shape-opt": 1,
+      "--plot-invisible-text": false,
       "kie_single_file": false
     },
     "positions": {
@@ -282,9 +292,15 @@ DEFAULT_CONFIG_JSON = '''
       "--theme": "User",
       "--negative": false,
       "--black-and-white": false,
+      "--sketch-pads-on-fab-layers": false,
+      "--hide-DNP-footprints-on-fab-layers": false,
+      "--sketch-DNP-footprints-on-fab-layers": false,
+      "--crossout-DNP-footprints-on-fab-layers": false,
       "--page-size-mode": 0,
+      "--fit-page-to-board": false,
       "--exclude-drawing-sheet": false,
-      "--drill-shape-opt": 2
+      "--drill-shape-opt": 1,
+      "--plot-invisible-text": false
     },
     "ddd": {
       "STEP": {
@@ -1228,9 +1244,9 @@ def generatePositions (output_dir, pcb_filename, to_overwrite = True):
   
   #---------------------------------------------------------------------------------------------#
   
-  pos_front_filename = f"{final_directory}/{project_name}-Pos-Front.csv"
-  pos_back_filename = f"{final_directory}/{project_name}-Pos-Back.csv"
-  pos_all_filename = f"{final_directory}/{project_name}-Pos-All.csv"
+  pos_front_filename = f"{final_directory}/{project_name}-Position-Front.csv"
+  pos_back_filename = f"{final_directory}/{project_name}-Position-Back.csv"
+  pos_all_filename = f"{final_directory}/{project_name}-Position-All.csv"
 
   # Create a list of filenames for front, back, and both.
   pos_filenames = [pos_front_filename, pos_back_filename, pos_all_filename]
@@ -3176,7 +3192,7 @@ def runDRC (output_dir, pcb_filename, type = "default"):
         is_drc_error = True
   
     if is_drc_error:
-      print (color.yellow ("runDRC [WARNING]: Multiple DRC errors were found. Do you want to continue? [Y/N]"))
+      print (color.yellow ("runDRC [WARNING]: Multiple DRC errors were found. Do you want to continue? [Y/N] "), end = "")
       user_input = input ("").strip().lower()
       if user_input == "y":
         print (color.yellow ("runDRC [WARNING]: Process will continue with DRC errors."))
