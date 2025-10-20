@@ -4,8 +4,8 @@
 # KiExport
 # Tool to export manufacturing files from KiCad PCB projects.
 # Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)
-# Version: 0.1.10
-# Last Modified: +05:30 20:19:53 PM 05-10-2025, Sunday
+# Version: 0.1.11
+# Last Modified: +05:30 21:43:08 PM 20-10-2025, Monday
 # GitHub: https://github.com/vishnumaiea/KiExport
 # License: MIT
 
@@ -33,7 +33,7 @@ from openpyxl.styles import PatternFill
 #=============================================================================================#
 
 APP_NAME = "KiExport"
-APP_VERSION = "0.1.10"
+APP_VERSION = "0.1.11"
 APP_DESCRIPTION = "Tool to export manufacturing files from KiCad PCB projects."
 APP_AUTHOR = "Vishnu Mohanan (@vishnumaiea, @vizmohanan)"
 
@@ -119,6 +119,10 @@ DEFAULT_CONFIG_JSON = '''
       "--exclude-refdes": false,
       "--exclude-value": false,
       "--include-border-title": false,
+      "--sketch-pads-on-fab-layers": false,
+      "--hide-DNP-footprints-on-fab-layers": false,
+      "--sketch-DNP-footprints-on-fab-layers": false,
+      "--crossout-DNP-footprints-on-fab-layers": false,
       "--no-x2": false,
       "--no-netlist": true,
       "--subtract-soldermask": false,
@@ -126,6 +130,7 @@ DEFAULT_CONFIG_JSON = '''
       "--use-drill-file-origin": true,
       "--precision": 6,
       "--no-protel-ext": true,
+      "--plot-invisible-text": false,
       "--common-layers": false,
       "--board-plot-params": false,
       "kie_include_drill": true
@@ -1052,6 +1057,7 @@ def generateGerbers (output_dir, pcb_filename, to_overwrite = True):
 
   files_to_include = [".gbr", ".gbrjob"]
 
+  # If the drill files are generated together with the Gerbers, then include them as well.
   if kie_include_drill:
     files_to_include.extend ([".drl", ".ps", ".pdf"])
   
@@ -2229,7 +2235,7 @@ def generateSvg (output_dir, pcb_filename, to_overwrite = True):
     try:
       full_command = ' '.join (full_command) # Convert the list to a string
       subprocess.run (full_command, check = True)
-      # print (color.green ("generateSvg [OK]: PCB PDF files exported successfully."))
+      # print (color.green ("generateSvg [OK]: PCB SVG files exported successfully."))
     
     except subprocess.CalledProcessError as e:
       print (color.red (f"generateSvg [ERROR]: Error occurred: {e}"))
@@ -2330,8 +2336,8 @@ def zip_all_files (source_folder, zip_file_path):
   Compresses all files from a folder into a ZIP file.
 
   Args:
-      source_folder (str): Path to the folder containing files.
-      zip_file_path (str): Path where the ZIP file will be saved.
+    `source_folder` (`str`): Path to the folder containing files.
+    `zip_file_path` (`str`): Path where the ZIP file will be saved.
   """
   with zipfile.ZipFile (zip_file_path, 'w') as zipf:
     for foldername, subfolders, filenames in os.walk (source_folder):
@@ -2346,33 +2352,33 @@ def zip_all_files (source_folder, zip_file_path):
 # ============================================================================================#
 
 def zip_all_files_2 (source_folder, extensions = None, zip_file_name = None):
-    """
-    Compresses files from a folder into a ZIP file, including only files with specified extensions.
+  """
+  Compresses files from a folder into a ZIP file, including only files with specified extensions.
 
-    Args:
-        source_folder (str): Path to the folder containing files.
-        extensions (list of str, optional): List of file extensions to include (e.g., ['.txt', '.jpg']).
-        zip_file_name (str, optional): Name of the ZIP file. If None, will use 'archive.zip'.
-    """
-    if extensions is None:
-        extensions = []  # Include all files if no extensions are specified
-    
-    if zip_file_name is None:
-        zip_file_name = 'archive.zip'  # Default ZIP file name
-    
-    zip_file_path = os.path.join (source_folder, zip_file_name)
-    
-    with zipfile.ZipFile (zip_file_path, 'w') as zipf:
-        for foldername, subfolders, filenames in os.walk (source_folder):
-            for filename in filenames:
-                file_path = os.path.join (foldername, filename)
-                # Check if the file has one of the specified extensions
-                if not extensions or any (filename.endswith (ext) for ext in extensions):
-                    # Exclude the ZIP file itself from being added
-                    if os.path.abspath (file_path) != os.path.abspath (zip_file_path):
-                        zipf.write (file_path, arcname = os.path.relpath (file_path, source_folder))
-    
-    # print(f"ZIP file created: {zip_file_name}")
+  Args:
+    `source_folder` (`str`): Path to the folder containing files.
+    `extensions` (list of `str`, optional): List of file extensions to include (e.g., ['.txt', '.jpg']).
+    `zip_file_name` (`str`, optional): Name of the ZIP file. If None, will use 'archive.zip'.
+  """
+  if extensions is None:
+    extensions = []  # Include all files if no extensions are specified
+  
+  if zip_file_name is None:
+    zip_file_name = 'archive.zip'  # Default ZIP file name
+  
+  zip_file_path = os.path.join (source_folder, zip_file_name)
+  
+  with zipfile.ZipFile (zip_file_path, 'w') as zipf:
+    for foldername, subfolders, filenames in os.walk (source_folder):
+      for filename in filenames:
+        file_path = os.path.join (foldername, filename)
+        # Check if the file has one of the specified extensions
+        if not extensions or any (filename.endswith (ext) for ext in extensions):
+          # Exclude the ZIP file itself from being added
+          if os.path.abspath (file_path) != os.path.abspath (zip_file_path):
+            zipf.write (file_path, arcname = os.path.relpath (file_path, source_folder))
+  
+  # print (f"ZIP file created: {zip_file_name}")
 
 #=============================================================================================#
 
@@ -2392,62 +2398,62 @@ def delete_non_zip_files (directory):
 #=============================================================================================#
 
 def delete_files_with_extensions (directory, extensions = None):
-    """
-    Deletes files in the specified directory with the specified extensions.
+  """
+  Deletes files in the specified directory with the specified extensions.
 
-    Args:
-        directory (str): Path to the directory where the cleanup will occur.
-        extensions (str or list of str, optional): Comma-separated string or list of file extensions to delete.
-    """
-    if extensions is None:
-        # print ("No extensions provided. No files will be deleted.")
-        return
-    
-    if isinstance (extensions, str):
-        extensions = extensions.split (',')
+  Args:
+    `directory` (`str`): Path to the directory where the cleanup will occur.
+    `extensions` (`str` or list of str, optional): Comma-separated string or list of file extensions to delete.
+  """
+  if extensions is None:
+    # print ("No extensions provided. No files will be deleted.")
+    return
+  
+  if isinstance (extensions, str):
+    extensions = extensions.split (',')
 
-    # Ensure all extensions are in the form of '.ext'
-    extensions = [f".{ext.strip()}" for ext in extensions]
+  # Ensure all extensions are in the form of '.ext'
+  extensions = [f".{ext.strip()}" for ext in extensions]
 
-    for filename in os.listdir (directory):
-        file_path = os.path.join (directory, filename)
-        if os.path.isfile (file_path):
-            # Check if file extension matches one of the provided extensions
-            if any (filename.endswith (ext) for ext in extensions):
-                os.remove (file_path)
-                # print(f"Deleted: {filename}")
+  for filename in os.listdir (directory):
+    file_path = os.path.join (directory, filename)
+    if os.path.isfile (file_path):
+      # Check if file extension matches one of the provided extensions
+      if any (filename.endswith (ext) for ext in extensions):
+        os.remove (file_path)
+        # print(f"Deleted: {filename}")
 
 #=============================================================================================#
 
 def delete_files (directory, include_extensions = None, exclude_extensions = None):
-    """
-    Deletes files in the specified directory based on the inclusion and exclusion lists of file extensions.
+  """
+  Deletes files in the specified directory based on the inclusion and exclusion lists of file extensions.
 
-    Args:
-        directory (str): Path to the directory where the cleanup will occur.
-        include_extensions (list of str, optional): List of file extensions to include for deletion, e.g., ['.txt', '.jpg'].
-        exclude_extensions (list of str, optional): List of file extensions to exclude from deletion, e.g., ['.zip'].
-    """
-    # Ensure inclusion and exclusion lists are properly formatted
-    if include_extensions is None:
-        include_extensions = []
-    # Ensure that include_extensions have leading dots and are unique
-    include_extensions = [ext.strip().lower() for ext in include_extensions if ext.startswith('.')]
-    
-    if exclude_extensions is None:
-        exclude_extensions = []
-    # Ensure that exclude_extensions have leading dots and are unique
-    exclude_extensions = [ext.strip().lower() for ext in exclude_extensions if ext.startswith('.')]
+  Args:
+    `directory` (`str`): Path to the directory where the cleanup will occur.
+    `include_extensions` (list of `str`, optional): List of file extensions to include for deletion, e.g., ['.txt', '.jpg'].
+    `exclude_extensions` (list of `str`, optional): List of file extensions to exclude from deletion, e.g., ['.zip'].
+  """
+  # Ensure inclusion and exclusion lists are properly formatted
+  if include_extensions is None:
+    include_extensions = []
+  # Ensure that include_extensions have leading dots and are unique
+  include_extensions = [ext.strip().lower() for ext in include_extensions if ext.startswith('.')]
+  
+  if exclude_extensions is None:
+    exclude_extensions = []
+  # Ensure that exclude_extensions have leading dots and are unique
+  exclude_extensions = [ext.strip().lower() for ext in exclude_extensions if ext.startswith('.')]
 
-    for filename in os.listdir (directory):
-        file_path = os.path.join (directory, filename)
-        if os.path.isfile (file_path):
-            # Get the file extension
-            file_ext = os.path.splitext (filename) [1].lower()
-            # Check if file extension is in the inclusion list and not in the exclusion list
-            if (not include_extensions or file_ext in include_extensions) and (file_ext not in exclude_extensions):
-                os.remove(file_path)
-                # print(f"Deleted: {filename}")
+  for filename in os.listdir (directory):
+    file_path = os.path.join (directory, filename)
+    if os.path.isfile (file_path):
+      # Get the file extension
+      file_ext = os.path.splitext (filename) [1].lower()
+      # Check if file extension is in the inclusion list and not in the exclusion list
+      if (not include_extensions or file_ext in include_extensions) and (file_ext not in exclude_extensions):
+        os.remove(file_path)
+        # print(f"Deleted: {filename}")
 
 #=============================================================================================#
 
@@ -2459,10 +2465,10 @@ def rename_files (directory, prefix, revision = "", extensions = None):
   all files will be renamed.
 
   Args:
-      directory (str): The directory of the files to rename.
-      prefix (str): The prefix of the files to be renamed. Only these files will be renamed.
-      revision (str, optional): The revision tag. For example, "0.1". Defaults to "".
-      extensions (list of str, optional): The list of extensions. Only these files will be renamed. Defaults to None.
+    `directory` (`str`): The directory of the files to rename.
+    `prefix` (`str`): The prefix of the files to be renamed. Only these files will be renamed.
+    `revision` (`str`, optional): The revision tag. For example, "0.1". Defaults to "".
+    `extensions` (list of `str`, optional): The list of extensions. Only these files will be renamed. Defaults to None.
   """
   
   if extensions is None:
@@ -3428,7 +3434,7 @@ def printInfo():
   print (color.cyan (f"{APP_NAME} v{APP_VERSION}"))
   print (color.cyan ("CLI tool to export design and manufacturing files from KiCad projects."))
   print (color.cyan (f"Author: {APP_AUTHOR}"))
-  print (color.cyan ("Contributors: Dominic Le Blanc (@domleblanc94)"))
+  print (color.cyan ("Contributors: Dominic Le Blanc (@domleblanc94), Leor Weinstein"))
   print ("")
 
 #=============================================================================================#

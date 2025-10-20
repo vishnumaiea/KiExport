@@ -2,6 +2,26 @@
 # Changes
 
 #
+### **+05:30 09:32:48 PM 20-10-2025, Monday**
+
+  - Added new options for the `gerbers` command.
+    - Added `--sketch-pads-on-fab-layers`.
+    - Added `--hide-DNP-footprints-on-fab-layers`.
+    - Added `--sketch-DNP-footprints-on-fab-layers`.
+    - Added `--crossout-DNP-footprints-on-fab-layers`.
+    - Added `--plot-invisible-text`.
+  - New Revision 🆕 `0.1.11`.
+
+#
+### **+05:30 09:54:40 PM 05-10-2025, Sunday**
+
+  - TODO:
+    - Add support for `source_zip` command.
+      - This will zip the project source files while generating the manufacturing files.
+    - Add support for JSON configuration for the XLS BoM export.
+    - Add `sch_erc` command support.
+
+#
 ### **+05:30 08:18:37 PM 05-10-2025, Sunday**
 
   - `generateGerbers()` will now rename the file names in the generated Gerber job file.

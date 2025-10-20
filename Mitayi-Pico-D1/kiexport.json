@@ -67,6 +67,10 @@
       "--exclude-refdes": false,
       "--exclude-value": false,
       "--include-border-title": false,
+      "--sketch-pads-on-fab-layers": false,
+      "--hide-DNP-footprints-on-fab-layers": false,
+      "--sketch-DNP-footprints-on-fab-layers": false,
+      "--crossout-DNP-footprints-on-fab-layers": false,
       "--no-x2": false,
       "--no-netlist": true,
       "--subtract-soldermask": false,
@@ -74,6 +78,7 @@
       "--use-drill-file-origin": true,
       "--precision": 6,
       "--no-protel-ext": true,
+      "--plot-invisible-text": false,
       "--common-layers": false,
       "--board-plot-params": false,
       "kie_include_drill": true
