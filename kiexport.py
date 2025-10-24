@@ -3,8 +3,8 @@
 # KiExport
 # Tool to export manufacturing files from KiCad PCB projects.
 # Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)
-# Version: 0.1.13
-# Last Modified: +05:30 21:21:03 PM 24-10-2025, Friday
+# Version: 0.1.14
+# Last Modified: +05:30 23:39:51 PM 24-10-2025, Friday
 # GitHub: https://github.com/vishnumaiea/KiExport
 # License: MIT
 
@@ -33,12 +33,12 @@ from PIL import Image
 #=============================================================================================#
 
 APP_NAME = "KiExport"
-APP_VERSION = "0.1.13"
+APP_VERSION = "0.1.14"
 APP_DESCRIPTION = "Tool to export manufacturing files from KiCad PCB projects."
 APP_AUTHOR = "Vishnu Mohanan (@vishnumaiea, @vizmohanan)"
 
 SAMPLE_PCB_FILE = "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb"
-MIN_CONFIG_JSON_VERSION = "1.8"  # Minimum required version of the config JSON file
+MIN_CONFIG_JSON_VERSION = "1.7"  # Minimum required version of the config JSON file
 MIN_KICAD_VERSION = "8.0"  # Minimum required version of KiCad
 
 current_config = None
@@ -1781,14 +1781,19 @@ def generatePcbRenders (output_dir, pcb_filename, preset = None, to_overwrite = 
     #---------------------------------------------------------------------------------------------#
 
     # Now check for the `kie_generate_svg` flag for generating the SVG from the PNG.
-    kie_generate_svg = current_config.get ("data", {}).get ("pcb_render", {}).get (preset, {}).get ("kie_generate_svg", lambda: default_config ["data"]["pcb_render"][preset]["kie_generate_svg"])
+    kie_generate_svg = None
+    try:
+      # No need of getting the default value here.
+      kie_generate_svg = current_config.get ("data", {}).get ("pcb_render", {}).get (preset, {}).get ("kie_generate_svg")
+    except Exception as e:
+      kie_generate_svg = None
 
-    if isinstance (kie_generate_svg, bool):
-      kie_generate_svg = str (kie_generate_svg).lower()
-      print (f"generatePcbRenders [INFO]: Converting rendered PNG of '{color.magenta (preset)}' to SVG..")
-    else:
-      command_exec_status ["pcb_render"] = False
+    if (kie_generate_svg == None) or (kie_generate_svg == "") or (kie_generate_svg == False): # Return if we do not need to generate an SVG.
+      command_exec_status ["pcb_render"] = True
       return
+    
+    if kie_generate_svg == True:
+      print (f"generatePcbRenders [INFO]: Converting rendered PNG of '{color.magenta (preset)}' to SVG..")
 
     #---------------------------------------------------------------------------------------------#
 
@@ -1809,16 +1814,16 @@ def generatePcbRenders (output_dir, pcb_filename, preset = None, to_overwrite = 
     # This retrieves a dictionary of parameters for VTracer.
     kie_vtracer_params = current_config.get ("data", {}).get ("pcb_render", {}).get (preset, {}).get ("kie_vtracer_params", lambda: default_config ["data"]["pcb_render"][preset]["kie_vtracer_params"])
     
-    vtracer_path = current_config.get ("vtracer_path", lambda: default_config.get ("vtracer_path"))
+    vtracer_path = None
+    try: vtracer_path = current_config.get ("vtracer_path")
+    except Exception as e: vtracer_path = None
     
-    if not vtracer_path:
+    if (vtracer_path == None) or (vtracer_path == ""):
       print (color.red (f"generatePcbRenders [ERROR]: VTracer path not found in config file."))
       print()
       command_exec_status ["pcb_render"] = False
       return
     
-    vtracer_command = [f'"{vtracer_path}"']  # Base VTracer command
-
     # Check if the VTracer path exists
     if not check_file_exists (vtracer_path):
       print (color.red (f"generatePcbRenders [ERROR]: VTracer path '{vtracer_path}' does not exist. Cannot generate SVG."))
@@ -1826,8 +1831,7 @@ def generatePcbRenders (output_dir, pcb_filename, preset = None, to_overwrite = 
       command_exec_status ["pcb_render"] = False
       return
 
-    # print (f"generatePcbRenders [INFO]: VTracer parameters: {color.blue (json.dumps (kie_vtracer_params))}")
-
+    vtracer_command = [f'"{vtracer_path}"']  # Base VTracer command
     full_command = vtracer_command [:]  # Copy the base command
 
     # Add the VTracer parameters
@@ -1849,6 +1853,11 @@ def generatePcbRenders (output_dir, pcb_filename, preset = None, to_overwrite = 
               elif isinstance (value, (int, float)):
                   full_command.append (key)
                   full_command.append (str (value))  # Append the numeric value as string
+    else:
+      print (color.red (f"generatePcbRenders [ERROR]: No VTracer parameters found for preset '{preset}'. Cannot generate SVG."))
+      print()
+      command_exec_status ["pcb_render"] = False
+      return
 
     # Finally add the input and output files
     png_filename = file_name  # The PNG file generated earlier

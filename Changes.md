@@ -2,6 +2,20 @@
 # Changes
 
 #
+### **+05:30 11:39:59 PM 24-10-2025, Friday**
+
+  - Reverted the `MIN_CONFIG_JSON_VERSION` value back to `1.7`.
+    - I tested the current version with `1.7` and found no issues.
+  - Updated `generatePcbReners()`.
+    - `kie_generate_svg` is no longer loaded with a default value.
+    - Such control flags must only be read from the configuration file.
+    - Added exception handling for missing `kie_generate_svg` key.
+    - When the key is missing the SVG generation operation is skipped.
+    - `vtracer_path` is also now handled the same way.
+    - We can not expect where the users are going to install these apps. So there is no point in loading a default path.
+  - New Version 🆕 `0.1.14`.
+
+#
 ### **+05:30 09:21:12 PM 24-10-2025, Friday**
 
   - Added support for exporting rendered SVG images.
