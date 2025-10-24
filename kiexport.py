@@ -1,11 +1,10 @@
-
 #=============================================================================================#
 
 # KiExport
 # Tool to export manufacturing files from KiCad PCB projects.
 # Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)
-# Version: 0.1.12
-# Last Modified: +05:30 22:54:42 PM 20-10-2025, Monday
+# Version: 0.1.13
+# Last Modified: +05:30 21:21:03 PM 24-10-2025, Friday
 # GitHub: https://github.com/vishnumaiea/KiExport
 # License: MIT
 
@@ -29,17 +28,18 @@ from openpyxl.styles import Font, Alignment
 from openpyxl.utils import get_column_letter
 from openpyxl.worksheet.dimensions import ColumnDimension
 from openpyxl.styles import PatternFill
+from PIL import Image
 
 #=============================================================================================#
 
 APP_NAME = "KiExport"
-APP_VERSION = "0.1.12"
+APP_VERSION = "0.1.13"
 APP_DESCRIPTION = "Tool to export manufacturing files from KiCad PCB projects."
 APP_AUTHOR = "Vishnu Mohanan (@vishnumaiea, @vizmohanan)"
 
 SAMPLE_PCB_FILE = "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb"
-MIN_CONFIG_JSON_VERSION = "1.6"  # Minimum required version of the config JSON file
-MIN_KICAD_VERSION = "8.0"  # Minimum required version of the config JSON file
+MIN_CONFIG_JSON_VERSION = "1.8"  # Minimum required version of the config JSON file
+MIN_KICAD_VERSION = "8.0"  # Minimum required version of KiCad
 
 current_config = None
 default_config = None
@@ -345,8 +345,22 @@ DEFAULT_CONFIG_JSON = '''
       "PCB-Front": {
         "kie_type": "png",
         "kie_name_stub": "PCB-Front",
-        "--width": 8000,
-        "--height": 6000,
+        "kie_generate_svg": true,
+        "kie_vtracer_params": {
+          "--colormode": "color",
+          "--color_precision": 8,
+          "--corner_threshold": 25,
+          "--filter_speckle": 1,
+          "--gradient_step": 0,
+          "--hierarchical": "stacked",
+          "--mode": "spline",
+          "--path_precision": false,
+          "--preset": false,
+          "--segment_length": 4,
+          "--splice_threshold": 0
+        },
+        "--width": 20000,
+        "--height": 15000,
         "--side": "front",
         "--background": "default",
         "--quality": "basic",
@@ -366,8 +380,22 @@ DEFAULT_CONFIG_JSON = '''
       "PCB-Back": {
         "kie_type": "png",
         "kie_name_stub": "PCB-Back",
-        "--width": 8000,
-        "--height": 6000,
+        "kie_generate_svg": true,
+        "kie_vtracer_params": {
+          "--colormode": "color",
+          "--color_precision": 8,
+          "--corner_threshold": 25,
+          "--filter_speckle": 1,
+          "--gradient_step": 0,
+          "--hierarchical": "stacked",
+          "--mode": "spline",
+          "--path_precision": false,
+          "--preset": false,
+          "--segment_length": 4,
+          "--splice_threshold": 0
+        },
+        "--width": 20000,
+        "--height": 15000,
         "--side": "back",
         "--background": "default",
         "--quality": "basic",
@@ -387,8 +415,22 @@ DEFAULT_CONFIG_JSON = '''
       "PCB-Left": {
         "kie_type": "png",
         "kie_name_stub": "PCB-Left",
-        "--width": 8000,
-        "--height": 6000,
+        "kie_generate_svg": true,
+        "kie_vtracer_params": {
+          "--colormode": "color",
+          "--color_precision": 8,
+          "--corner_threshold": 25,
+          "--filter_speckle": 1,
+          "--gradient_step": 0,
+          "--hierarchical": "stacked",
+          "--mode": "spline",
+          "--path_precision": false,
+          "--preset": false,
+          "--segment_length": 4,
+          "--splice_threshold": 0
+        },
+        "--width": 20000,
+        "--height": 15000,
         "--side": "left",
         "--background": "default",
         "--quality": "basic",
@@ -408,8 +450,22 @@ DEFAULT_CONFIG_JSON = '''
       "PCB-Right": {
         "kie_type": "png",
         "kie_name_stub": "PCB-Right",
-        "--width": 8000,
-        "--height": 6000,
+        "kie_generate_svg": true,
+        "kie_vtracer_params": {
+          "--colormode": "color",
+          "--color_precision": 8,
+          "--corner_threshold": 25,
+          "--filter_speckle": 1,
+          "--gradient_step": 0,
+          "--hierarchical": "stacked",
+          "--mode": "spline",
+          "--path_precision": false,
+          "--preset": false,
+          "--segment_length": 4,
+          "--splice_threshold": 0
+        },
+        "--width": 20000,
+        "--height": 15000,
         "--side": "right",
         "--background": "default",
         "--quality": "basic",
@@ -429,8 +485,22 @@ DEFAULT_CONFIG_JSON = '''
       "PCB-Parts-Front": {
         "kie_type": "png",
         "kie_name_stub": "PCB-Parts-Front",
-        "--width": 8000,
-        "--height": 6000,
+        "kie_generate_svg": true,
+        "kie_vtracer_params": {
+          "--colormode": "color",
+          "--color_precision": 8,
+          "--corner_threshold": 25,
+          "--filter_speckle": 1,
+          "--gradient_step": 0,
+          "--hierarchical": "stacked",
+          "--mode": "spline",
+          "--path_precision": false,
+          "--preset": false,
+          "--segment_length": 4,
+          "--splice_threshold": 0
+        },
+        "--width": 20000,
+        "--height": 15000,
         "--side": "top",
         "--background": "default",
         "--quality": "basic",
@@ -450,8 +520,22 @@ DEFAULT_CONFIG_JSON = '''
       "PCB-Parts-Back": {
         "kie_type": "png",
         "kie_name_stub": "PCB-Parts-Back",
-        "--width": 8000,
-        "--height": 6000,
+        "kie_generate_svg": true,
+        "kie_vtracer_params": {
+          "--colormode": "color",
+          "--color_precision": 8,
+          "--corner_threshold": 25,
+          "--filter_speckle": 1,
+          "--gradient_step": 0,
+          "--hierarchical": "stacked",
+          "--mode": "spline",
+          "--path_precision": false,
+          "--preset": false,
+          "--segment_length": 4,
+          "--splice_threshold": 0
+        },
+        "--width": 20000,
+        "--height": 15000,
         "--side": "bottom",
         "--background": "default",
         "--quality": "basic",
@@ -681,7 +765,12 @@ class LazyDict (dict):
   def get (self, key, fallback = None):
     if key in self:
       return super().get (key)
-    return fallback() if callable (fallback) else fallback
+    if callable (fallback):
+      try:
+        return fallback()
+      except Exception:
+        return None
+    return fallback
 
 #=============================================================================================#
 
@@ -1396,7 +1485,7 @@ def generatePcbPdf (output_dir, pcb_filename, to_overwrite = True):
   final_directory, filename_date = create_final_directory (od_from_config, od_from_cli, "PCB", info ["rev"], "generatePcbPdf")
 
   #---------------------------------------------------------------------------------------------#
-  
+
   # Delete the existing files in the output directory
   delete_files (final_directory, include_extensions = [".pdf", ".ps"])
 
@@ -1505,7 +1594,7 @@ def generatePcbPdf (output_dir, pcb_filename, to_overwrite = True):
   print (color.green ("generatePcbPdf [OK]: PCB PDF files exported successfully."))
 
   #---------------------------------------------------------------------------------------------#
-
+  
   seq_number = 1
   not_completed = True
 
@@ -1527,6 +1616,17 @@ def generatePcbPdf (output_dir, pcb_filename, to_overwrite = True):
 #==============================================================================================#
 
 def generatePcbRenders (output_dir, pcb_filename, preset = None, to_overwrite = True):
+  """
+  Renders images of the PCB using KiCad's native raytracer and save them as raster or 
+  vector images. Rendering will use your GPU and high-resoltution images can take time
+  to render.
+
+  Args:
+    `output_dir` (str): The output directory where the rendered images will be saved.
+    `pcb_filename` (str): The input PCB file name.
+    `preset` (str, optional): The preset to be used for rendering. Defaults to None.
+    `to_overwrite` (bool, optional): Whether to overwrite existing files. Defaults to True.
+  """
   global current_config  # Access the global config
   global default_config  # Access the global config
   
@@ -1544,6 +1644,8 @@ def generatePcbRenders (output_dir, pcb_filename, preset = None, to_overwrite = 
   
   #---------------------------------------------------------------------------------------------#
   
+  # Extract project information.
+  
   file_name = extract_pcb_file_name (pcb_filename) # Extract information from the input file
   file_name = file_name.replace (" ", "-") # If there are whitespace characters in the project name, replace them with a hyphen
 
@@ -1555,6 +1657,7 @@ def generatePcbRenders (output_dir, pcb_filename, preset = None, to_overwrite = 
   #---------------------------------------------------------------------------------------------#
 
   # Check if the passed preset exists in the config file.
+
   if preset == None:
     print (color.yellow (f"generatePcbRenders [WARNING]: No render presets are specified in cli. All render presets available in the config file will be used."))
 
@@ -1568,6 +1671,8 @@ def generatePcbRenders (output_dir, pcb_filename, preset = None, to_overwrite = 
       print (f"generatePcbRenders [INFO]: Using render preset '{color.magenta (preset)}' from the config file.")
     
   #---------------------------------------------------------------------------------------------#
+
+  # Create the output directory.
 
   file_path = os.path.abspath (pcb_filename) # Get the absolute path of the file.
 
@@ -1584,10 +1689,11 @@ def generatePcbRenders (output_dir, pcb_filename, preset = None, to_overwrite = 
 
   #---------------------------------------------------------------------------------------------#
 
+  # Get the list of presets to use.
+
   preset_list = []
 
   if preset == None:
-
     # Get the list of all render presets from the config file.
     for key, value in current_config.get ("data", {}).get ("pcb_render", {}).items():
       if not key.startswith ("--"):
@@ -1598,10 +1704,11 @@ def generatePcbRenders (output_dir, pcb_filename, preset = None, to_overwrite = 
   
   else:
     preset_list = [preset] # Create a list with the specified preset
-  
+
   #---------------------------------------------------------------------------------------------#
 
-  # Now render images using all of the presets.
+  # Render images using the selected presets.
+
   for preset in preset_list:
     full_command = []
     full_command.extend (pcb_render_export_command)
@@ -1670,7 +1777,169 @@ def generatePcbRenders (output_dir, pcb_filename, preset = None, to_overwrite = 
 
     print (color.green (f"generatePcbRenders [OK]: Render files using preset '{preset}' exported successfully."))
     print()
+
+    #---------------------------------------------------------------------------------------------#
+
+    # Now check for the `kie_generate_svg` flag for generating the SVG from the PNG.
+    kie_generate_svg = current_config.get ("data", {}).get ("pcb_render", {}).get (preset, {}).get ("kie_generate_svg", lambda: default_config ["data"]["pcb_render"][preset]["kie_generate_svg"])
+
+    if isinstance (kie_generate_svg, bool):
+      kie_generate_svg = str (kie_generate_svg).lower()
+      print (f"generatePcbRenders [INFO]: Converting rendered PNG of '{color.magenta (preset)}' to SVG..")
+    else:
+      command_exec_status ["pcb_render"] = False
+      return
+
+    #---------------------------------------------------------------------------------------------#
+
+    # Crop the original PNG image to remove empty transparent space around the PCB.
+    try:
+      print (f"generatePcbRenders [INFO]: Cropping the image to remove empty transparent space..")
+      cropped_filename = cropImage (file_name, margins = (100, 100, 100, 100))
+      print (color.green (f"generatePcbRenders [OK]: Image cropped successfully."))
+      file_name = cropped_filename  # Update the file name to the cropped file
+    except Exception as e:
+      print (color.red (f"generatePcbRenders [ERROR]: Error occurred while cropping the image: {e}"))
+      command_exec_status ["pcb_render"] = False
+      return
+
+    #---------------------------------------------------------------------------------------------#
+
+    # If we need to generate an SVG, then read the VTracer parameters from `preset -> kie_vtracer_params`.
+    # This retrieves a dictionary of parameters for VTracer.
+    kie_vtracer_params = current_config.get ("data", {}).get ("pcb_render", {}).get (preset, {}).get ("kie_vtracer_params", lambda: default_config ["data"]["pcb_render"][preset]["kie_vtracer_params"])
+    
+    vtracer_path = current_config.get ("vtracer_path", lambda: default_config.get ("vtracer_path"))
+    
+    if not vtracer_path:
+      print (color.red (f"generatePcbRenders [ERROR]: VTracer path not found in config file."))
+      print()
+      command_exec_status ["pcb_render"] = False
+      return
+    
+    vtracer_command = [f'"{vtracer_path}"']  # Base VTracer command
+
+    # Check if the VTracer path exists
+    if not check_file_exists (vtracer_path):
+      print (color.red (f"generatePcbRenders [ERROR]: VTracer path '{vtracer_path}' does not exist. Cannot generate SVG."))
+      print()
+      command_exec_status ["pcb_render"] = False
+      return
+
+    # print (f"generatePcbRenders [INFO]: VTracer parameters: {color.blue (json.dumps (kie_vtracer_params))}")
+
+    full_command = vtracer_command [:]  # Copy the base command
+
+    # Add the VTracer parameters
+    if kie_vtracer_params:
+      for key, value in kie_vtracer_params.items():
+        if key.startswith ("--"): # Only fetch the arguments that start with "--"
+          if value == "": # Skip if the value is empty
+            continue
+          else:
+            # Check if the vlaue is a JSON boolean
+            if isinstance (value, bool):
+              if value == True: # If the value is true, then append the key as an argument
+                full_command.append (key)
+            else:
+              # Check if the value is a string and not a numeral
+              if isinstance (value, str) and not value.isdigit():
+                  full_command.append (key)
+                  full_command.append (f'"{value}"') # Add as a double-quoted string
+              elif isinstance (value, (int, float)):
+                  full_command.append (key)
+                  full_command.append (str (value))  # Append the numeric value as string
+
+    # Finally add the input and output files
+    png_filename = file_name  # The PNG file generated earlier
+    svg_filename = png_filename.rsplit ('.', 1)[0] + ".svg"  # Change the file extension to .svg
+    full_command.append (f'--input "{png_filename}"')
+    full_command.append (f'--output "{svg_filename}"')
+    print ("generatePcbRenders [INFO]: Running VTracer command: ", color.blue (' '.join (full_command)))
+
+    # Run the VTracer command
+    try:
+      full_command = ' '.join (full_command) # Convert the list to a string
+      subprocess.run (full_command, check = True)
+      print()
+
+    except subprocess.CalledProcessError as e:
+      print (color.red (f"generatePcbRenders [ERROR]: Error occurred while generating SVG: {e}"))
+      print()
+      command_exec_status ["pcb_render"] = False
+      return
+
+    print (color.green (f"generatePcbRenders [OK]: Render '{preset}' exported to SVG successfully"))
+    print (f"generatePcbRenders [INFO]: SVG file: {color.magenta (svg_filename)}")
+    print()
     command_exec_status ["pcb_render"] = True
+    return
+
+#=============================================================================================#
+
+def cropImage (
+    filename: str,
+    margins: tuple [int, int, int, int] = (0, 0, 0, 0),
+    output: str | None = None
+  ) -> str:
+  """
+  Crop empty transparent space around a high-resolution PNG image
+  and save the result as a new image.
+
+  Args:
+    filename (str): Path to the source PNG image.
+    margins (tuple[int, int, int, int]): Extra margins (top, right, bottom, left)
+    in pixels to retain after cropping. Default is (0, 0, 0, 0).
+    output (str, optional): Output file path. If None, '_cropped' is appended
+    to the original filename.
+
+  Returns:
+    str: The output file path of the cropped image.
+  """
+  
+  # Check if the image file exists
+  if not os.path.isfile (filename):
+    raise FileNotFoundError (f"File not found: {filename}")
+  else:
+    print (f"File found: {filename}")
+
+  # Temporarily increase PIL's size limit
+  Image.MAX_IMAGE_PIXELS = None  # Disable limit temporarily
+  
+  try:
+    # Open image
+    with Image.open (filename) as img:
+      if img.mode != "RGBA":
+        img = img.convert ("RGBA")
+
+      # Get bounding box of non-transparent pixels
+      bbox = img.getbbox()
+      if bbox is None:
+        raise ValueError (f"No visible pixels found in image: {filename}")
+
+      left, top, right, bottom = bbox
+      m_top, m_right, m_bottom, m_left = margins
+
+      # Apply margins safely within image bounds
+      left = max (0, left - m_left)
+      top = max (0, top - m_top)
+      right = min (img.width, right + m_right)
+      bottom = min (img.height, bottom + m_bottom)
+
+      cropped = img.crop ((left, top, right, bottom))
+
+      # Prepare output path
+      if output is None:
+        base, ext = filename.rsplit ('.', 1)
+        output = f"{base}-Cropped.{ext}"
+
+      cropped.save (output)
+  
+  finally:
+    # Restore the default limit
+    Image.MAX_IMAGE_PIXELS = 178956970  # Reset to default value
+  
+  return output
 
 #=============================================================================================#
 

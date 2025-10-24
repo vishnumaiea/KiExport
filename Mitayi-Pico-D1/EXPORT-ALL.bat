@@ -11,7 +11,7 @@ set PCB_FILE=Mitayi-Pico-RP2040.kicad_pcb
 @REM kiexport bom -od "%OUTPUT_DIR%" -if "%SCH_FILE%" -t "XLS"
 @REM kiexport bom -od "%OUTPUT_DIR%" -if "%PCB_FILE%" -t "HTML"
 @REM kiexport pcb_pdf -od "%OUTPUT_DIR%" -if "%PCB_FILE%"
-@REM kiexport pcb_render -od "%OUTPUT_DIR%" -if "%PCB_FILE%"
+@REM kiexport pcb_render -od "%OUTPUT_DIR%" -if "%PCB_FILE%" --preset "PCB-Parts-Front"
 @REM kiexport gerbers -od "%OUTPUT_DIR%" -if "%PCB_FILE%"
 @REM kiexport positions -od "%OUTPUT_DIR%" -if "%PCB_FILE%"
 @REM kiexport ddd -od "%OUTPUT_DIR%" -if "%PCB_FILE%" -t "STEP"

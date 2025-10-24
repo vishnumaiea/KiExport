@@ -1,3 +1,4 @@
 PyMuPDF
 openpyxl
 semver
+pillow

@@ -2,6 +2,30 @@
 # Changes
 
 #
+### **+05:30 09:21:12 PM 24-10-2025, Friday**
+
+  - Added support for exporting rendered SVG images.
+    - Updated the `kiexport.json` specification.
+      - Updated the JSON version to `1.8`.
+      - Added `vtracer_path`.
+        - This tells where the VTracer SVG converter is located.
+        - This can be a full path or jus the executable name if it is in the System Path.
+      - Added `kie_generate_svg`.
+        - This tells if an SVG should be generated from the rendered PNG images.
+        - Can be `true` or `false`.
+      - Added `kie_vtracer_params`.
+        - This is a dictionary that holds all of the VTracer parameters.
+    - Updated `MIN_CONFIG_JSON_VERSION` to `1.8`.
+    - Updated `DEFAULT_CONFIG_JSON`.
+    - Updated `LazyDict` callback.
+      - The call will now return `None` when the key/value is not found.
+      - We can then do a None check to find any missing keys/values.
+    - Added `cropImage()`
+      - Rendered images are cropped to remove empty spaces before converting to SVG.
+  - Added `pillow` to `requirements.txt`.
+  - New Version 🆕 `0.1.13`.
+
+#
 ### **+05:30 09:58:25 PM 20-10-2025, Monday**
 
   - Added new options for the `bom` export command.
