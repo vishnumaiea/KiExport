@@ -3,8 +3,8 @@
 # KiExport
 # Tool to export manufacturing files from KiCad PCB projects.
 # Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)
-# Version: 0.1.14
-# Last Modified: +05:30 23:39:51 PM 24-10-2025, Friday
+# Version: 0.1.15
+# Last Modified: +05:30 00:11:18 AM 25-10-2025, Saturday
 # GitHub: https://github.com/vishnumaiea/KiExport
 # License: MIT
 
@@ -18,28 +18,75 @@ import re
 from datetime import datetime
 import zipfile
 import json
-import pymupdf
 import ast
 import sys
-import semver
 import csv
-from openpyxl import Workbook
-from openpyxl.styles import Font, Alignment
-from openpyxl.utils import get_column_letter
-from openpyxl.worksheet.dimensions import ColumnDimension
-from openpyxl.styles import PatternFill
-from PIL import Image
 
 #=============================================================================================#
 
 APP_NAME = "KiExport"
-APP_VERSION = "0.1.14"
+APP_VERSION = "0.1.15"
 APP_DESCRIPTION = "Tool to export manufacturing files from KiCad PCB projects."
 APP_AUTHOR = "Vishnu Mohanan (@vishnumaiea, @vizmohanan)"
 
 SAMPLE_PCB_FILE = "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb"
 MIN_CONFIG_JSON_VERSION = "1.7"  # Minimum required version of the config JSON file
 MIN_KICAD_VERSION = "8.0"  # Minimum required version of KiCad
+
+#=============================================================================================#
+
+def check_dependencies() -> bool:
+  """Check if all required Python modules are available."""
+  required_modules = {
+    'semver': 'Version comparison',
+    'pymupdf': 'PDF manipulation', 
+    'openpyxl': 'Excel file generation',
+    'PIL': 'Image processing'
+  }
+
+  missing = []
+  for module, purpose in required_modules.items():
+    try:
+      __import__(module)
+    except ImportError:
+      if module == 'PIL':
+        try:
+          __import__('Pillow')
+        except ImportError:
+          missing.append (f"{module} (Purpose: {purpose})")
+      else:
+        missing.append (f"{module} (Purpose: {purpose})")
+
+  if missing:
+    print (f"\n{APP_NAME} - {APP_VERSION} requires the following Python modules:")
+    print ("\nMissing required Python modules:")
+    for module in missing:
+      print (f"  - {module}")
+    print ("\nPlease install the missing modules using pip:")
+    for module in missing:
+      module_name = module.split (" ")[0]
+      if module_name == 'PIL':
+        module_name = 'Pillow'
+      print (f"  pip install {module_name}")
+    return False
+  return True
+
+#---------------------------------------------------------------------------------------------#
+
+if check_dependencies():
+  # Only import these if dependencies are met
+  import semver
+  import pymupdf
+  from openpyxl import Workbook
+  from openpyxl.styles import Font, Alignment, PatternFill
+  from openpyxl.utils import get_column_letter
+  from openpyxl.worksheet.dimensions import ColumnDimension
+  from PIL import Image
+else:
+  print ("\nCannot continue without required dependencies.")
+  sys.exit (1)
+
+#=============================================================================================#
 
 current_config = None
 default_config = None
@@ -1878,7 +1925,7 @@ def generatePcbRenders (output_dir, pcb_filename, preset = None, to_overwrite = 
       command_exec_status ["pcb_render"] = False
       return
 
-    print (color.green (f"generatePcbRenders [OK]: Render '{preset}' exported to SVG successfully"))
+    print (color.green (f"generatePcbRenders [OK]: Render '{preset}' exported to SVG successfully."))
     print (f"generatePcbRenders [INFO]: SVG file: {color.magenta (svg_filename)}")
     print()
     command_exec_status ["pcb_render"] = True

@@ -2,6 +2,14 @@
 # Changes
 
 #
+### **+05:30 12:09:17 AM 25-10-2025, Saturday**
+
+  - Added dependency checks.
+    - `check_dependencies()` will now check if all of the required Python modules are installed.
+    - The app will proceed only if all of the required modules are found.
+  - New Version 🆕 `0.1.15`.
+
+#
 ### **+05:30 11:39:59 PM 24-10-2025, Friday**
 
   - Reverted the `MIN_CONFIG_JSON_VERSION` value back to `1.7`.
