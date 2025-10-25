@@ -9,7 +9,7 @@ The [**Mitayi Pico RP2040**](https://github.com/CIRCUITSTATE/Mitayi-Pico-RP2040)
 
 - **Author:** [Vishnu Mohanan](https://github.com/vishnumaiea)
 - **Version:** `0.1.14`
-- **Contributors:** Dominic Le Blanc ([@domleblanc94](https://github.com/domleblanc94))
+- **Contributors:** Dominic Le Blanc ([@domleblanc94](https://github.com/domleblanc94)), Leor Weinstein
 
 This tool was created with the help of [**ChatGPT**](https://chat.openai.com/chat). Thanks to humanity!
 
@@ -261,7 +261,7 @@ kiexport gerbers -h
 
 ### `pcb_drc`
 
-Runs a DRC (Design Rule Check) on the PCB file. If there are errors in the design, evaluated as per the DRC rules, the command will return the type and number of errors found. It will also generate a report file and save it to the output directory. When ran as part of the `run` command, you can choose to skip other commands if there are DRC errors. The configruation for this command can be specified in the configuration file under the `pcb_drc` section. If a format type is specified in the CLI command, it will override the type specified in the configuration file.
+Runs a DRC (Design Rule Check) on the PCB file. If there are errors in the design, evaluated as per the DRC rules, the command will return the type and number of errors found. It will also generate a report file and save it to the output directory. When ran as part of the `run` command, you can choose to skip other commands if there are DRC errors. The configuration for this command can be specified in the configuration file under the `pcb_drc` section. If a format type is specified in the CLI command, it will override the type specified in the configuration file.
 
 ```bash
 kiexport pcb_drc -if <input_file> -od <output_dir> -t <type>
@@ -309,7 +309,7 @@ kiexport drills -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb" -od "Mitayi-Pi
 
 ### `positions`
 
-Export the Position or Centroid files for PCB assembly (PCBA).
+Export the Position or Centroid files for automatic PCB assembly (PCBA).
 
 ```bash
 kiexport positions -if <input_file> -od <output_dir>
@@ -343,7 +343,7 @@ kiexport pcb_pdf -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb" -od "Mitayi-P
 
 ### `pcb_render`
 
-Export the PCB as a rendered image.
+Export the PCB as a rendered image using KiCad's native raytracing renderer. Currently supported formats are PNG and SVG. The SVG is a vector format created from the PNG image using the [**VTracer**](https://github.com/visioncortex/vtracer) application. VTracer must be installed for the SVG conversion to work. You can set the app path using the `vtracer_path` parameter. Working parameters for the VTracer can be passed using the `kie_vtracer_params` parameter. Rendering the PCB uses the CPU/GPU intensively and can take some time depending on your system configuration.
 
 ```bash
 kiexport pcb_render -if <input_file> -od <output_dir>
@@ -412,7 +412,7 @@ kiexport svg -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb" -od "Mitayi-Pico-
 
 ### `bom`
 
-Export the bill of materials files.
+Export the bill of materials files. KiCad's native format is CSV. This CSV file is converted to an Excel (XLS/XLSX) format when you choose that option.
 
 ```bash
 kiexport bom -if <input_file> -od <output_dir> -t <type>
