@@ -8,7 +8,7 @@ KiExport generates the manufacturing files based on the options available in the
 The [**Mitayi Pico RP2040**](https://github.com/CIRCUITSTATE/Mitayi-Pico-RP2040) project is added as a sample project to test the script. If you are on Windows, you can run the `EXPORT-ALL.bat` batch script to automatically generate the manufacturing files with a double-click.
 
 - **Author:** [Vishnu Mohanan](https://github.com/vishnumaiea)
-- **Version:** `0.1.14`
+- **Version:** `0.1.15`
 - **Contributors:** Dominic Le Blanc ([@domleblanc94](https://github.com/domleblanc94)), Leor Weinstein
 
 This tool was created with the help of [**ChatGPT**](https://chat.openai.com/chat). Thanks to humanity!
@@ -205,7 +205,7 @@ If you generate the files multiple times a day, older files will be overwritten 
 
 ## Usage
 
-You can run the Python script directly from the source folder with the following command. Python should be installed and available on the `Path`.
+After installing KiExport, you can create a new `kiexport.json` file inside the root folder of your KiCad project. You can also copy the configuration file included with the [**Mitayi-Pico-RP2040**](/Mitayi-Pico-D1/kiexport.json) project and modify it. You need to update the KiCad installation path, secondary application paths, and project information. After that, you can run the Python script directly from the source folder with the following command. Python should be installed and available on the `Path`.
 
 ```bash
 python kiexport.py <command> <arguments>
