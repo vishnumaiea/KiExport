@@ -64,6 +64,7 @@ This software was developed and tested on Windows 11. It should work on other pl
 - [KiCad 8.x or later](https://www.kicad.org/download/)
 - [Git](https://git-scm.com/downloads)
 - [Interactive HTML BoM Plugin](https://github.com/openscopeproject/InteractiveHtmlBom) (if you want to generate HTML BoM)
+- [VTracer](https://github.com/visioncortex/vtracer) (if you want to generate SVG renderings)
 - Recommended:
   - [VS Code](https://code.visualstudio.com/download)
   - [Windows Terminal](https://github.com/microsoft/terminal/releases)
@@ -80,7 +81,7 @@ git clone https://github.com/vishnumaiea/KiExport.git
 
 Additionally, you can download the project as a ZIP file from the main page or the [Releases](/releases) page and extract it in your system. After getting the files, you can add the project folder to the system `Path` variable. If your system opens Python script files with the Python interpreter by default, you can run any python script directly from the terminal even without using the `.py` extension as shown in the image below.
 
-![Windows Terminal](/resources/2024-10-12_10-05-04-PM-.png)
+![Windows Terminal](/resources/2025-10-25_10-39-03-AM-Administrator_-PowerShell.jpg)
 
 If you are going to run the app as a Python script, install the dependencies using the following command.
 
@@ -88,7 +89,7 @@ If you are going to run the app as a Python script, install the dependencies usi
 pip install -r requirements.txt
 ```
 
-Check if the app is working by checking the version of the tool. Open a terminal and run the following command.
+Additionally, the app can tell you which dependencies are missing in most cases, and guide you to install them. Check if the app is working by checking the version of the tool. Open a terminal and run the following command.
 
 ```bash
 kiexport -v
@@ -110,9 +111,9 @@ If you generate the files multiple times a day, older files will be overwritten 
         |       Mitayi-Pico-RP2040-R0.6-VRML-26102024-1.wrl
         |
         +---Position
-        |       Mitayi-Pico-RP2040-R0.6-Pos-All.csv
-        |       Mitayi-Pico-RP2040-R0.6-Pos-Back.csv
-        |       Mitayi-Pico-RP2040-R0.6-Pos-Front.csv
+        |       Mitayi-Pico-RP2040-R0.6-Position-All.csv
+        |       Mitayi-Pico-RP2040-R0.6-Position-Back.csv 
+        |       Mitayi-Pico-RP2040-R0.6-Position-Front.csv
         |       Mitayi-Pico-RP2040-R0.6-Position-Files-26102024-1.zip
         |
         +---BoM
@@ -164,9 +165,17 @@ If you generate the files multiple times a day, older files will be overwritten 
         |
         +---Render
         |       Mitayi-Pico-RP2040-R0.6-Top-26102024-1.png
+        |       Mitayi-Pico-RP2040-R0.6-Top-26102024-1-Cropped.png
+        |       Mitayi-Pico-RP2040-R0.6-Top-26102024-1-Cropped.svg
         |       Mitayi-Pico-RP2040-R0.6-Bottom-26102024-1.png
+        |       Mitayi-Pico-RP2040-R0.6-Bottom-26102024-1-Cropped.png
+        |       Mitayi-Pico-RP2040-R0.6-Bottom-26102024-1-Cropped.svg
         |       Mitayi-Pico-RP2040-R0.6-Front-26102024-1.png
+        |       Mitayi-Pico-RP2040-R0.6-Front-26102024-1-Cropped.png
+        |       Mitayi-Pico-RP2040-R0.6-Front-26102024-1-Cropped.svg
         |       Mitayi-Pico-RP2040-R0.6-Back-26102024-1.png
+        |       Mitayi-Pico-RP2040-R0.6-Back-26102024-1-Cropped.png
+        |       Mitayi-Pico-RP2040-R0.6-Back-26102024-1-Cropped.svg
         |
         +---Report
         |       Mitayi-Pico-RP2040-R0.6-DRC-26102024-1.rpt
@@ -176,7 +185,22 @@ If you generate the files multiple times a day, older files will be overwritten 
         |       Mitayi-Pico-RP2040-R0.6-SCH-26102024-1.pdf
         |
         \---SVG
-                Mitayi-Pico-RP2040-R0.6-SVG-26102024-1.svg
+                Mitayi-Pico-RP2040-R0.6-B_Courtyard.svg
+                Mitayi-Pico-RP2040-R0.6-B_Cu.svg
+                Mitayi-Pico-RP2040-R0.6-B_Fab.svg
+                Mitayi-Pico-RP2040-R0.6-B_Mask.svg
+                Mitayi-Pico-RP2040-R0.6-B_Paste.svg
+                Mitayi-Pico-RP2040-R0.6-B_Silkscreen.svg
+                Mitayi-Pico-RP2040-R0.6-Edge_Cuts.svg
+                Mitayi-Pico-RP2040-R0.6-F_Courtyard.svg
+                Mitayi-Pico-RP2040-R0.6-F_Cu.svg
+                Mitayi-Pico-RP2040-R0.6-F_Fab.svg
+                Mitayi-Pico-RP2040-R0.6-F_Mask.svg
+                Mitayi-Pico-RP2040-R0.6-F_Paste.svg
+                Mitayi-Pico-RP2040-R0.6-F_Silkscreen.svg
+                Mitayi-Pico-RP2040-R0.6-PCB-SVG-25102025-1.zip
+                Mitayi-Pico-RP2040-R0.6-User_Comments.svg
+                Mitayi-Pico-RP2040-R0.6-User_Drawings.svg
 ```
 
 ## Usage
