@@ -3,8 +3,8 @@
 # KiExport
 # Tool to export manufacturing files from KiCad PCB projects.
 # Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)
-# Version: 0.1.15
-# Last Modified: +05:30 00:11:18 AM 25-10-2025, Saturday
+# Version: 0.2.19
+# Last Modified: +05:30 03:25:06 PM 06-03-2026, Friday
 # GitHub: https://github.com/vishnumaiea/KiExport
 # License: MIT
 
@@ -25,13 +25,15 @@ import csv
 #=============================================================================================#
 
 APP_NAME = "KiExport"
-APP_VERSION = "0.1.15"
+APP_VERSION = "0.2.19"
 APP_DESCRIPTION = "Tool to export manufacturing files from KiCad PCB projects."
-APP_AUTHOR = "Vishnu Mohanan (@vishnumaiea, @vizmohanan)"
+APP_AUTHOR = "Vishnu Mohanan (@vishnumaiea)"
 
 SAMPLE_PCB_FILE = "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb"
 MIN_CONFIG_JSON_VERSION = "1.7"  # Minimum required version of the config JSON file
 MIN_KICAD_VERSION = "8.0"  # Minimum required version of KiCad
+
+DEFAULT_CONFIG_JSON = None
 
 #=============================================================================================#
 
@@ -82,6 +84,14 @@ if check_dependencies():
   from openpyxl.utils import get_column_letter
   from openpyxl.worksheet.dimensions import ColumnDimension
   from PIL import Image
+
+  # Load default configuration from default.json
+  default_json_path = os.path.join (os.path.dirname (__file__), 'default.json')
+  try:
+    with open (default_json_path, 'r', encoding = 'utf-8') as f:
+      DEFAULT_CONFIG_JSON = f.read()
+  except Exception as e:
+    print (f"[ERROR]: Could not load default.json: {e}")
 else:
   print ("\nCannot continue without required dependencies.")
   sys.exit (1)
@@ -95,598 +105,6 @@ logger = None  # Logger instance
 logPath = None  # Path to the log file
 
 command_exec_status = {}  # Command execution status
-
-DEFAULT_CONFIG_JSON = '''
-{
-  "name": "KiExport.JSON",
-  "description": "Configuration file for KiExport",
-  "filetype": "json",
-  "version": "1.6",
-  "project_name": "Mitayi-Pico-RP2040",
-  "commands": [
-    "pcb_drc",
-    "gerbers",
-    "sch_pdf",
-    ["bom", "CSV"],
-    ["bom", "XLS"],
-    ["bom", "HTML"],
-    "pcb_pdf",
-    "positions",
-    "svg",
-    ["pcb_render", "PCB-Front"],
-    ["pcb_render", "PCB-Back"],
-    ["pcb_render", "PCB-Left"],
-    ["pcb_render", "PCB-Right"],
-    ["pcb_render", "PCB-Parts-Front"],
-    ["pcb_render", "PCB-Parts-Back"],
-    ["pcb_render", "PCB-Pads-Front"],
-    ["pcb_render", "PCB-Pads-Back"],
-    ["pcb_render", "PCB-Paste-Front"],
-    ["pcb_render", "PCB-Paste-Back"],
-    ["ddd", "STEP"],
-    ["ddd", "VRML"]
-  ],
-  "kicad_cli_path": "C:\\\\Program Files\\\\KiCad\\\\9.99\\bin\\\\kicad-cli.exe",
-  "kicad_python_path": "C:\\\\Program Files\\\\KiCad\\\\9.99\\\\bin\\\\python.exe",
-  "ibom_path": "%USERPROFILE%\\\\Documents\\\\KiCad\\\\9.99\\\\3rdparty\\\\plugins\\\\org_openscopeproject_InteractiveHtmlBom\\\\generate_interactive_bom.py",
-  "kiexport_log_path": "Export\\\\kiexport.log",
-  "data": {
-    "pcb_drc": {
-      "--output_dir": "Export",
-      "--format": "report",
-      "--all-track-errors": false,
-      "--schematic-parity": true,
-      "--units": "mm",
-      "--severity-all": false,
-      "--severity-error": true,
-      "--severity-warning": true,
-      "--severity-exclusions": false,
-      "--exit-code-violations": false
-    },
-    "gerbers": {
-      "--output_dir": "Export",
-      "--layers": [
-        "F.Cu",
-        "B.Cu",
-        "F.Paste",
-        "B.Paste",
-        "F.Silkscreen",
-        "B.Silkscreen",
-        "F.Mask",
-        "B.Mask",
-        "User.Drawings",
-        "User.Comments",
-        "Edge.Cuts",
-        "F.Courtyard",
-        "B.Courtyard",
-        "F.Fab",
-        "B.Fab"
-      ],
-      "--drawing-sheet": false,
-      "--exclude-refdes": false,
-      "--exclude-value": false,
-      "--include-border-title": false,
-      "--sketch-pads-on-fab-layers": false,
-      "--hide-DNP-footprints-on-fab-layers": false,
-      "--sketch-DNP-footprints-on-fab-layers": false,
-      "--crossout-DNP-footprints-on-fab-layers": false,
-      "--no-x2": false,
-      "--no-netlist": true,
-      "--subtract-soldermask": false,
-      "--disable-aperture-macros": false,
-      "--use-drill-file-origin": true,
-      "--precision": 6,
-      "--no-protel-ext": true,
-      "--plot-invisible-text": false,
-      "--common-layers": false,
-      "--board-plot-params": false,
-      "kie_include_drill": true
-    },
-    "drills": {
-      "--output_dir": "Export",
-      "--format": "excellon",
-      "--drill-origin": "plot",
-      "--excellon-zeros-format": "decimal",
-      "--excellon-oval-format": "route",
-      "--excellon-units": "mm",
-      "--excellon-mirror-y": false,
-      "--excellon-min-header": false,
-      "--excellon-separate-th": true,
-      "--generate-map": true,
-      "--map-format": "pdf",
-      "--gerber-precision": false
-    },
-    "bom": {
-      "CSV": {
-        "--output_dir": "Export",
-        "--preset": "Group by MPN-DNP",
-        "--format-preset": "CSV",
-        "--fields": "${ITEM_NUMBER},Reference,Value,Name,Footprint,${QUANTITY},${DNP},MPN,MFR,Alt MPN",
-        "--labels": "#,Reference,Value,Name,Footprint,Qty,DNP,MPN,MFR,Alt MPN",
-        "--group-by": "${DNP},MPN",
-        "--sort-field": false,
-        "--sort-asc": false,
-        "--filter": false,
-        "--exclude-dnp": false,
-        "--include-excluded-from-bom": false,
-        "--field-delimiter": false,
-        "--string-delimiter": false,
-        "--ref-delimiter": false,
-        "--ref-range-delimiter": false,
-        "--keep-tabs": false,
-        "--keep-line-breaks": false
-      },
-      "XLS": {
-        "--output_dir": "Export"
-      },
-      "HTML": {
-        "--output_dir": "Export",
-        "--show-dialog": false,
-        "--dark-mode": true,
-        "--hide-pads": false,
-        "--show-fabrication": false,
-        "--hide-silkscreen": false,
-        "--highlight-pin1": "all",
-        "--no-redraw-on-drag": false,
-        "--board-rotation": "0",
-        "--offset-back-rotation": "0",
-        "--checkboxes": "Source,Placed",
-        "--bom-view": "left-right",
-        "--layer-view": "FB",
-        "--no-compression": false,
-        "--no-browser": true,
-        "--include-tracks": true,
-        "--include-nets": true,
-        "--sort-order": "C,R,L,D,U,Y,X,F,SW,A,~,HS,CNN,J,P,NT,MH",
-        "--blacklist": false,
-        "--no-blacklist-virtual": false,
-        "--blacklist-empty-value": false,
-        "--netlist-file": false,
-        "--extra-data-file": true,
-        "--extra-fields": false,
-        "--show-fields": "Value,Footprint,Name,MPN,MFR,Alt MPN",
-        "--group-fields": "Value,Footprint,MPN",
-        "--normalize-field-case": false,
-        "--variant-fields": false,
-        "--variants-whitelist": false,
-        "--dnp-field": false
-      }
-    },
-    "sch_pdf": {
-      "--output_dir": "Export",
-      "--drawing-sheet": false,
-      "--theme": "User",
-      "--black-and-white": false,
-      "--exclude-drawing-sheet": false,
-      "--default-font": false,
-      "--exclude-pdf-property-popups": false,
-      "--exclude-pdf-hierarchical-links": false,
-      "--exclude-pdf-metadata": false,
-      "--no-background-color": false,
-      "--pages": false
-    },
-    "pcb_pdf": {
-      "--output_dir": "Export",
-      "--layers": [
-        "F.Cu",
-        "B.Cu",
-        "F.Paste",
-        "B.Paste",
-        "F.Silkscreen",
-        "B.Silkscreen",
-        "F.Mask",
-        "B.Mask",
-        "User.Drawings",
-        "User.Comments",
-        "Edge.Cuts",
-        "F.Courtyard",
-        "B.Courtyard",
-        "F.Fab",
-        "B.Fab"
-      ],
-      "kie_common_layers": ["Edge.Cuts"],
-      "--drawing-sheet": false,
-      "--mirror": false,
-      "--exclude-refdes": false,
-      "--exclude-value": false,
-      "--include-border-title": true,
-      "--subtract-soldermask": false,
-      "--sketch-pads-on-fab-layers": false,
-      "--hide-DNP-footprints-on-fab-layers": false,
-      "--sketch-DNP-footprints-on-fab-layers": false,
-      "--crossout-DNP-footprints-on-fab-layers": false,
-      "--negative": false,
-      "--black-and-white": false,
-      "--theme": "User",
-      "--drill-shape-opt": 1,
-      "--plot-invisible-text": false,
-      "kie_single_file": false
-    },
-    "positions": {
-      "--output_dir": "Export",
-      "--side": "front,back,both",
-      "--format": "csv",
-      "--units": "mm",
-      "--bottom-negate-x": false,
-      "--use-drill-file-origin": true,
-      "--smd-only": false,
-      "--exclude-fp-th": false,
-      "--exclude-dnp": false,
-      "--gerber-board-edge": false
-    },
-    "svg": {
-      "--output_dir": "Export",
-      "--layers": [
-        "F.Cu",
-        "B.Cu",
-        "F.Paste",
-        "B.Paste",
-        "F.Silkscreen",
-        "B.Silkscreen",
-        "F.Mask",
-        "B.Mask",
-        "User.Drawings",
-        "User.Comments",
-        "Edge.Cuts",
-        "F.Courtyard",
-        "B.Courtyard",
-        "F.Fab",
-        "B.Fab"
-      ],
-      "kie_common_layers": [""],
-      "--drawing-sheet": false,
-      "--mirror": false,
-      "--theme": "User",
-      "--negative": false,
-      "--black-and-white": false,
-      "--sketch-pads-on-fab-layers": false,
-      "--hide-DNP-footprints-on-fab-layers": false,
-      "--sketch-DNP-footprints-on-fab-layers": false,
-      "--crossout-DNP-footprints-on-fab-layers": false,
-      "--page-size-mode": 0,
-      "--fit-page-to-board": false,
-      "--exclude-drawing-sheet": false,
-      "--drill-shape-opt": 1,
-      "--plot-invisible-text": false
-    },
-    "ddd": {
-      "STEP": {
-        "--output_dir": "Export",
-        "--force": true,
-        "--no-unspecified": false,
-        "--no-dnp": false,
-        "--grid-origin": false,
-        "--drill-origin": false,
-        "--subst-models": true,
-        "--board-only": false,
-        "--cut-vias-in-body": true,
-        "--no-board-body": false,
-        "--no-components": false,
-        "--component-filter": false,
-        "--include-tracks": true,
-        "--include-pads": true,
-        "--include-zones": true,
-        "--include-inner-copper": false,
-        "--include-silkscreen": true,
-        "--include-soldermask": true,
-        "--fuse-shapes": false,
-        "--fill-all-vias": false,
-        "--min-distance": false,
-        "--net-filter": false,
-        "--no-optimize-step": false,
-        "--user-origin": false
-      },
-      "VRML": {
-        "--output_dir": "Export",
-        "--force": true,
-        "--no-unspecified": false,
-        "--no-dnp": false,
-        "--user-origin": false,
-        "--units": "mm",
-        "--models-dir": false,
-        "--models-relative": false
-      }
-    },
-    "pcb_render": {
-      "--output_dir": "Export",
-      "PCB-Front": {
-        "kie_type": "png",
-        "kie_name_stub": "PCB-Front",
-        "kie_generate_svg": true,
-        "kie_vtracer_params": {
-          "--colormode": "color",
-          "--color_precision": 8,
-          "--corner_threshold": 25,
-          "--filter_speckle": 1,
-          "--gradient_step": 0,
-          "--hierarchical": "stacked",
-          "--mode": "spline",
-          "--path_precision": false,
-          "--preset": false,
-          "--segment_length": 4,
-          "--splice_threshold": 0
-        },
-        "--width": 20000,
-        "--height": 15000,
-        "--side": "front",
-        "--background": "default",
-        "--quality": "basic",
-        "--preset": "Parts",
-        "--floor": false,
-        "--perspective": false,
-        "--zoom ": 1,
-        "--pan ": "0,0,0",
-        "--pivot": "0,0,0",
-        "--rotate": "0,0,0",
-        "--light-top": false,
-        "--light-bottom": false,
-        "--light-side": false,
-        "--light-camera": false,
-        "--light-side-elevation": false
-      },
-      "PCB-Back": {
-        "kie_type": "png",
-        "kie_name_stub": "PCB-Back",
-        "kie_generate_svg": true,
-        "kie_vtracer_params": {
-          "--colormode": "color",
-          "--color_precision": 8,
-          "--corner_threshold": 25,
-          "--filter_speckle": 1,
-          "--gradient_step": 0,
-          "--hierarchical": "stacked",
-          "--mode": "spline",
-          "--path_precision": false,
-          "--preset": false,
-          "--segment_length": 4,
-          "--splice_threshold": 0
-        },
-        "--width": 20000,
-        "--height": 15000,
-        "--side": "back",
-        "--background": "default",
-        "--quality": "basic",
-        "--preset": "Parts",
-        "--floor": false,
-        "--perspective": false,
-        "--zoom ": 1,
-        "--pan ": "0,0,0",
-        "--pivot": "0,0,0",
-        "--rotate": "0,0,0",
-        "--light-top": false,
-        "--light-bottom": false,
-        "--light-side": false,
-        "--light-camera": false,
-        "--light-side-elevation": false
-      },
-      "PCB-Left": {
-        "kie_type": "png",
-        "kie_name_stub": "PCB-Left",
-        "kie_generate_svg": true,
-        "kie_vtracer_params": {
-          "--colormode": "color",
-          "--color_precision": 8,
-          "--corner_threshold": 25,
-          "--filter_speckle": 1,
-          "--gradient_step": 0,
-          "--hierarchical": "stacked",
-          "--mode": "spline",
-          "--path_precision": false,
-          "--preset": false,
-          "--segment_length": 4,
-          "--splice_threshold": 0
-        },
-        "--width": 20000,
-        "--height": 15000,
-        "--side": "left",
-        "--background": "default",
-        "--quality": "basic",
-        "--preset": "Parts",
-        "--floor": false,
-        "--perspective": false,
-        "--zoom ": 1,
-        "--pan ": "0,0,0",
-        "--pivot": "0,0,0",
-        "--rotate": "0,0,0",
-        "--light-top": false,
-        "--light-bottom": false,
-        "--light-side": false,
-        "--light-camera": false,
-        "--light-side-elevation": false
-      },
-      "PCB-Right": {
-        "kie_type": "png",
-        "kie_name_stub": "PCB-Right",
-        "kie_generate_svg": true,
-        "kie_vtracer_params": {
-          "--colormode": "color",
-          "--color_precision": 8,
-          "--corner_threshold": 25,
-          "--filter_speckle": 1,
-          "--gradient_step": 0,
-          "--hierarchical": "stacked",
-          "--mode": "spline",
-          "--path_precision": false,
-          "--preset": false,
-          "--segment_length": 4,
-          "--splice_threshold": 0
-        },
-        "--width": 20000,
-        "--height": 15000,
-        "--side": "right",
-        "--background": "default",
-        "--quality": "basic",
-        "--preset": "Parts",
-        "--floor": false,
-        "--perspective": false,
-        "--zoom ": 1,
-        "--pan ": "0,0,0",
-        "--pivot": "0,0,0",
-        "--rotate": "0,0,0",
-        "--light-top": false,
-        "--light-bottom": false,
-        "--light-side": false,
-        "--light-camera": false,
-        "--light-side-elevation": false
-      },
-      "PCB-Parts-Front": {
-        "kie_type": "png",
-        "kie_name_stub": "PCB-Parts-Front",
-        "kie_generate_svg": true,
-        "kie_vtracer_params": {
-          "--colormode": "color",
-          "--color_precision": 8,
-          "--corner_threshold": 25,
-          "--filter_speckle": 1,
-          "--gradient_step": 0,
-          "--hierarchical": "stacked",
-          "--mode": "spline",
-          "--path_precision": false,
-          "--preset": false,
-          "--segment_length": 4,
-          "--splice_threshold": 0
-        },
-        "--width": 20000,
-        "--height": 15000,
-        "--side": "top",
-        "--background": "default",
-        "--quality": "basic",
-        "--preset": "Parts",
-        "--floor": false,
-        "--perspective": false,
-        "--zoom ": 1,
-        "--pan ": "0,0,0",
-        "--pivot": "0,0,0",
-        "--rotate": "0,0,0",
-        "--light-top": false,
-        "--light-bottom": false,
-        "--light-side": false,
-        "--light-camera": false,
-        "--light-side-elevation": false
-      },
-      "PCB-Parts-Back": {
-        "kie_type": "png",
-        "kie_name_stub": "PCB-Parts-Back",
-        "kie_generate_svg": true,
-        "kie_vtracer_params": {
-          "--colormode": "color",
-          "--color_precision": 8,
-          "--corner_threshold": 25,
-          "--filter_speckle": 1,
-          "--gradient_step": 0,
-          "--hierarchical": "stacked",
-          "--mode": "spline",
-          "--path_precision": false,
-          "--preset": false,
-          "--segment_length": 4,
-          "--splice_threshold": 0
-        },
-        "--width": 20000,
-        "--height": 15000,
-        "--side": "bottom",
-        "--background": "default",
-        "--quality": "basic",
-        "--preset": "Parts",
-        "--floor": false,
-        "--perspective": false,
-        "--zoom ": 1,
-        "--pan ": "0,0,0",
-        "--pivot": "0,0,0",
-        "--rotate": "0,0,0",
-        "--light-top": false,
-        "--light-bottom": false,
-        "--light-side": false,
-        "--light-camera": false,
-        "--light-side-elevation": false
-      },
-      "PCB-Pads-Front": {
-        "kie_type": "png",
-        "kie_name_stub": "PCB-Pads-Front",
-        "--width": 8000,
-        "--height": 6000,
-        "--side": "top",
-        "--background": "default",
-        "--quality": "basic",
-        "--preset": "Pads",
-        "--floor": false,
-        "--perspective": false,
-        "--zoom ": 1,
-        "--pan ": "0,0,0",
-        "--pivot": "0,0,0",
-        "--rotate": "0,0,0",
-        "--light-top": false,
-        "--light-bottom": false,
-        "--light-side": false,
-        "--light-camera": false,
-        "--light-side-elevation": false
-      },
-      "PCB-Pads-Back": {
-        "kie_type": "png",
-        "kie_name_stub": "PCB-Pads-Back",
-        "--width": 8000,
-        "--height": 6000,
-        "--side": "bottom",
-        "--background": "default",
-        "--quality": "basic",
-        "--preset": "Pads",
-        "--floor": false,
-        "--perspective": false,
-        "--zoom ": 1,
-        "--pan ": "0,0,0",
-        "--pivot": "0,0,0",
-        "--rotate": "0,0,0",
-        "--light-top": false,
-        "--light-bottom": false,
-        "--light-side": false,
-        "--light-camera": false,
-        "--light-side-elevation": false
-      },
-      "PCB-Paste-Front": {
-        "kie_type": "png",
-        "kie_name_stub": "PCB-Paste-Front",
-        "--width": 8000,
-        "--height": 6000,
-        "--side": "top",
-        "--background": "default",
-        "--quality": "basic",
-        "--preset": "Paste",
-        "--floor": false,
-        "--perspective": false,
-        "--zoom ": 1,
-        "--pan ": "0,0,0",
-        "--pivot": "0,0,0",
-        "--rotate": "0,0,0",
-        "--light-top": false,
-        "--light-bottom": false,
-        "--light-side": false,
-        "--light-camera": false,
-        "--light-side-elevation": false
-      },
-      "PCB-Paste-Back": {
-        "kie_type": "png",
-        "kie_name_stub": "PCB-Paste-Back",
-        "--width": 8000,
-        "--height": 6000,
-        "--side": "bottom",
-        "--background": "default",
-        "--quality": "basic",
-        "--preset": "Paste",
-        "--floor": false,
-        "--perspective": false,
-        "--zoom ": 1,
-        "--pan ": "0,0,0",
-        "--pivot": "0,0,0",
-        "--rotate": "0,0,0",
-        "--light-top": false,
-        "--light-bottom": false,
-        "--light-side": false,
-        "--light-camera": false,
-        "--light-side-elevation": false
-      }
-    }
-  }
-}
-'''
 
 #=============================================================================================#
 class Logger:
@@ -2116,6 +1534,7 @@ def generate3D (output_dir, pcb_filename, type = "STEP", to_overwrite = True):
   kicad_cli_path = f'{current_config.get ("kicad_cli_path", lambda: default_config ["kicad_cli_path"])}'
 
   # Common base command
+  # ddd_export_command = None
   if type == "STEP" or type == "step":
     ddd_export_command = [f'"{kicad_cli_path}"', "pcb", "export", "step"]
     type = "STEP"
@@ -2124,6 +1543,14 @@ def generate3D (output_dir, pcb_filename, type = "STEP", to_overwrite = True):
     ddd_export_command = [f'"{kicad_cli_path}"', "pcb", "export", "vrml"]
     type = "VRML"
     extension = "wrl"
+  elif type == "3DPDF" or type == "3dpdf":
+    ddd_export_command = [f'"{kicad_cli_path}"', "pcb", "export", "3dpdf"]
+    type = "3DPDF"
+    extension = "pdf"
+  else:
+    print (color.red (f"generate3D [ERROR]: Invalid 3D export type '{type}'. Supported types are STEP, VRML and 3DPDF."))
+    command_exec_status ["ddd" + "_" + type] = False
+    return
 
   if not check_file_exists (pcb_filename):
     print (color.red (f"generate3D [ERROR]: '{pcb_filename}' does not exist."))
@@ -2466,7 +1893,7 @@ def generateBomXls (output_dir, csv_file, sch_filename, to_overwrite = True):
 
 #=============================================================================================#
 
-def generateSvg (output_dir, pcb_filename, to_overwrite = True):
+def generatePcbSvg (output_dir, pcb_filename, to_overwrite = True):
   # Get the KiCad CLI path.
   kicad_cli_path = f'{current_config.get ("kicad_cli_path", lambda: default_config ["kicad_cli_path"])}'
 
@@ -2475,8 +1902,8 @@ def generateSvg (output_dir, pcb_filename, to_overwrite = True):
 
   # Check if the input file exists
   if not check_file_exists (pcb_filename):
-    print (color.red (f"generateSvg [ERROR]: '{pcb_filename}' does not exist."))
-    command_exec_status ["svg"] = False
+    print (color.red (f"generatePcbSvg [ERROR]: '{pcb_filename}' does not exist."))
+    command_exec_status ["pcb_svg"] = False
     return
 
   #---------------------------------------------------------------------------------------------#
@@ -2487,7 +1914,7 @@ def generateSvg (output_dir, pcb_filename, to_overwrite = True):
   project_name = extract_project_name (file_name)
   info = extract_info_from_pcb (pcb_filename) # Extract basic information from the input file
 
-  print (f"generateSvg [INFO]: Project name is '{color.magenta (project_name)}' and revision is {color.magenta ('R')}{color.magenta (info ['rev'])}.")
+  print (f"generatePcbSvg [INFO]: Project name is '{color.magenta (project_name)}' and revision is {color.magenta ('R')}{color.magenta (info ['rev'])}.")
 
   #---------------------------------------------------------------------------------------------#
 
@@ -2498,11 +1925,11 @@ def generateSvg (output_dir, pcb_filename, to_overwrite = True):
   project_dir = os.path.dirname (file_path)
   
   # Read the output directory name from the config file.
-  od_from_config = project_dir + "/" + current_config.get ("data", {}).get ("svg", {}).get ("--output_dir", lambda: default_config ["data"]["svg"]["--output_dir"])
+  od_from_config = project_dir + "/" + current_config.get ("data", {}).get ("pcb_svg", {}).get ("--output_dir", lambda: default_config ["data"]["pcb_svg"]["--output_dir"])
   od_from_cli = output_dir  # The output directory specified by the command line argument
 
   # Get the final directory path.
-  final_directory, filename_date = create_final_directory (od_from_config, od_from_cli, "SVG", info ["rev"], "generateSvg")
+  final_directory, filename_date = create_final_directory (od_from_config, od_from_cli, "SVG", info ["rev"], "generatePcbSvg")
   
   #---------------------------------------------------------------------------------------------#
 
@@ -2512,14 +1939,14 @@ def generateSvg (output_dir, pcb_filename, to_overwrite = True):
   #---------------------------------------------------------------------------------------------#
   
   # Get the argument list from the config file.
-  arg_list = current_config.get ("data", {}).get ("svg", {})
+  arg_list = current_config.get ("data", {}).get ("pcb_svg", {})
 
   # Check the number of technical layers to export. This is not the number of copper layers.
   layer_count = len (arg_list.get ("--layers", []))
 
   if layer_count <= 0:
-    print (color.red (f"generateSvg [ERROR]: No layers specified for export."))
-    command_exec_status ["svg"] = False
+    print (color.red (f"generatePcbSvg [ERROR]: No layers specified for export."))
+    command_exec_status ["pcb_svg"] = False
     return
 
   # Get the number of common layers to include in each of the PDF.
@@ -2551,6 +1978,21 @@ def generateSvg (output_dir, pcb_filename, to_overwrite = True):
             layers_csv = ",".join (layer_list) # Convert the list to a comma-separated string
             full_command.append (key)
             full_command.append (f'"{layers_csv}"')
+          elif key == "--common-layers":
+            full_command.append (key) # Add the command, but with an empty list to suppress warnings
+            common_layer_list = [""] # Create a list with an empty string as the only item
+            layers_csv = ",".join (common_layer_list) # Convert the list to a comma-separated string (which will just be an empty string)
+            full_command.append (f'"{layers_csv}"') # Add an empty string as the value to suppress warnings
+            print (color.yellow (f"generatePcbSvg [WARNING]: The argument '{key}' is not supported due to the inability to rename files. Please use the 'kie_common_layers' argument instead."))
+            # continue
+          elif key == "--mode-single":
+            print (color.yellow (f"generatePcbSvg [WARNING]: The argument '{key}' has no effect, because the behavior is already supported by KiExport in a better way."))
+            # print (color.yellow (f"generatePcbSvg [WARNING]: '{key}' will be set as `true` always for forward compatibility."))
+            full_command.append (key) # This will suppress the warnings
+            continue
+          elif key == "--mode-multi": # Skip the mode command
+            print (color.yellow (f"generatePcbSvg [WARNING]: The argument '{key}' is not supported, because the behavior is already supported by KiExport in a better way."))
+            continue
           else:
             # Check if the value is empty
             if value == "": # Skip if the value is empty
@@ -2570,23 +2012,23 @@ def generateSvg (output_dir, pcb_filename, to_overwrite = True):
                     full_command.append (str (value))  # Append the numeric value as string
 
     full_command.append (f'"{pcb_filename}"')
-    print ("generateSvg [INFO]: Running command: ", color.blue (' '.join (full_command)))
+    print ("generatePcbSvg [INFO]: Running command: ", color.blue (' '.join (full_command)))
 
       # Run the command
     try:
       full_command = ' '.join (full_command) # Convert the list to a string
       subprocess.run (full_command, check = True)
-      # print (color.green ("generateSvg [OK]: PCB SVG files exported successfully."))
+      # print (color.green ("generatePcbSvg [OK]: PCB PDF files exported successfully."))
     
     except subprocess.CalledProcessError as e:
-      print (color.red (f"generateSvg [ERROR]: Error occurred: {e}"))
-      command_exec_status ["svg"] = False
+      print (color.red (f"generatePcbSvg [ERROR]: Error occurred: {e}"))
+      command_exec_status ["pcb_svg"] = False
       continue
 
   #---------------------------------------------------------------------------------------------#
 
-  print (color.green ("generateSvg [OK]: SVG files exported successfully."))
-  command_exec_status ["svg"] = True
+  print (color.green ("generatePcbSvg [OK]: SVG files exported successfully."))
+  command_exec_status ["pcb_svg"] = True
 
   #---------------------------------------------------------------------------------------------#
   
@@ -2604,7 +2046,7 @@ def generateSvg (output_dir, pcb_filename, to_overwrite = True):
     else:
       # zip_all_files (final_directory, f"{final_directory}/{zip_file_name}")
       zip_all_files_2 (final_directory, files_to_include, zip_file_name)
-      print (f"generateSvg [OK]: ZIP file '{color.magenta (zip_file_name)}' created successfully.")
+      print (f"generatePcbSvg [OK]: ZIP file '{color.magenta (zip_file_name)}' created successfully.")
       print()
       not_completed = False
 
@@ -2939,8 +2381,8 @@ def validate_command_list (cli_string):
     "bom": ["CSV", "XLS", "HTML"],
     "pcb_pdf": [],
     "positions": [],
-    "svg": [],
-    "ddd": ["STEP", "VRML"],
+    "pcb_svg": [],
+    "ddd": ["STEP", "VRML", "3DPDF"],
     "pcb_render": []
   })
 
@@ -2979,7 +2421,7 @@ def validate_command_list (cli_string):
     # Standalone commands. 
     if isinstance (item, str):
       if item not in valid_commands_dict: # Check if the command is a valid top-level command
-        print (color.red (f"validate_command_list [ERROR]: Invalid standalone command '{item}'"))
+        print (color.red (f"validate_command_list [ERROR]: Invalid standalone command '{item}'."))
         return False
       
       validated_list.append (item)
@@ -2992,12 +2434,12 @@ def validate_command_list (cli_string):
         return False
       
       if (main not in preset_commands_json) and (sub not in valid_commands_dict [main]):
-        print (color.red (f"validate_command_list [ERROR]: Invalid subcommand '{sub}' for main command '{main}'"))
+        print (color.red (f"validate_command_list [ERROR]: Invalid subcommand '{sub}' for main command '{main}'."))
         return False
       
       validated_list.append ([main, sub])
     else:
-      print (color.red (f"validate_command_list [ERROR]: Unrecognized command format '{item}'"))
+      print (color.red (f"validate_command_list [ERROR]: Unrecognized command format '{item}'."))
     
   return validated_list
 
@@ -3089,7 +2531,7 @@ def run (config_file, command_list = None):
   #---------------------------------------------------------------------------------------------#
 
   # List of top-level commands.
-  valid_commands = ["pcb_drc", "gerbers", "drills", "sch_pdf", "bom", "pcb_pdf", "positions", "ddd", "svg", "pcb_render"]
+  valid_commands = ["gerbers", "drills", "sch_pdf", "bom", "pcb_pdf", "positions", "ddd", "pcb_svg", "pcb_render"]
 
   #---------------------------------------------------------------------------------------------#
 
@@ -3131,8 +2573,9 @@ def run (config_file, command_list = None):
     cli_cmd_list = validate_command_list (cli_string = command_list)
 
     if cli_cmd_list is False:
-      print (color.red ("run [ERROR]: Invalid command list provided."))
-      return
+      print (color.red ("run [ERROR]: Invalid command list provided. Check your command or export configuration file for unsupported commands."))
+      exit (1)
+      # return
 
     cli_cmd_strings = []
     cli_cmd_lists = []
@@ -3247,10 +2690,10 @@ def run (config_file, command_list = None):
       output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
       generate3D (output_dir = output_dir, pcb_filename = pcb_file_path, type = "STEP")
     
-    elif cmd == "svg":
-      output_dir = current_config.get ("data", {}).get ("svg", {}).get ("--output_dir", lambda: default_config ["data"]["svg"]["--output_dir"])
+    elif cmd == "pcb_svg":
+      output_dir = current_config.get ("data", {}).get ("pcb_svg", {}).get ("--output_dir", lambda: default_config ["data"]["pcb_svg"]["--output_dir"])
       output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
-      generateSvg (output_dir = output_dir, pcb_filename = pcb_file_path)
+      generatePcbSvg (output_dir = output_dir, pcb_filename = pcb_file_path)
 
     elif cmd == "pcb_render":
       output_dir = current_config.get ("data", {}).get ("pcb_render", {}).get ("--output_dir", lambda: default_config ["data"]["pcb_render"]["--output_dir"])
@@ -3318,16 +2761,21 @@ def run (config_file, command_list = None):
         output_dir = current_config.get ("data", {}).get ("ddd", {}).get ("VRML", {}).get ("--output_dir", lambda: default_config ["data"]["ddd"]["VRML"]["--output_dir"])
         output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
         generate3D (output_dir = output_dir, pcb_filename = pcb_file_path, type = "VRML")
+      
+      elif cmd [1] == "3DPDF":
+        output_dir = current_config.get ("data", {}).get ("ddd", {}).get ("3DPDF", {}).get ("--output_dir", lambda: default_config ["data"]["ddd"]["3DPDF"]["--output_dir"])
+        output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
+        generate3D (output_dir = output_dir, pcb_filename = pcb_file_path, type = "3DPDF")
         
       else: # Default is STEP
         output_dir = current_config.get ("data", {}).get ("ddd", {}).get ("STEP", {}).get ("--output_dir", lambda: default_config ["data"]["ddd"]["STEP"]["--output_dir"])
         output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
         generate3D (output_dir = output_dir, pcb_filename = pcb_file_path, type = "STEP")
     
-    elif cmd [0] == "svg":
-      output_dir = current_config.get ("data", {}).get ("svg", {}).get ("--output_dir", lambda: default_config ["data"]["svg"]["--output_dir"])
+    elif cmd [0] == "pcb_svg":
+      output_dir = current_config.get ("data", {}).get ("pcb_svg", {}).get ("--output_dir", lambda: default_config ["data"]["pcb_svg"]["--output_dir"])
       output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
-      generateSvg (output_dir = output_dir, pcb_filename = pcb_file_path)
+      generatePcbSvg (output_dir = output_dir, pcb_filename = pcb_file_path)
     
     elif cmd [0] == "pcb_render":
       output_dir = current_config.get ("data", {}).get ("pcb_render", {}).get ("--output_dir", lambda: default_config ["data"]["pcb_render"]["--output_dir"])
@@ -3592,10 +3040,10 @@ def parseArguments():
 
   # Subparser for the 3D file export command.
   # Example: python .\kiexport.py ddd -t "VRML" -od "Mitayi-Pico-D1/Export" -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb"
-  ddd_parser = subparsers.add_parser ("ddd", help = "Export 3D files.")
+  ddd_parser = subparsers.add_parser ("ddd", help = "Export PCB 3D files.")
   ddd_parser.add_argument ("-if", "--input_filename", required = True, help = "Path to the .kicad_pcb file.")
   ddd_parser.add_argument ("-od", "--output_dir", required = True, help = "Directory to save the 3D files to.")
-  ddd_parser.add_argument ("-t", "--type", required = True, help = "The type of file to generate. Can be STEP or VRML.")
+  ddd_parser.add_argument ("-t", "--type", required = True, help = "The type of file to generate. Can be STEP/VRML/3DPDF.")
 
   # Subparser for the BoM file export command.
   # Example: python .\kiexport.py bom -od "Mitayi-Pico-D1/Export" -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_sch" -t "CSV"
@@ -3612,7 +3060,7 @@ def parseArguments():
 
   # Subparser for the SVG export command.
   # Example: python .\kiexport.py svg -od "Mitayi-Pico-D1/Export" -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb"
-  svg_parser = subparsers.add_parser ("svg", help = "Export SVG files.")
+  svg_parser = subparsers.add_parser ("pcb_svg", help = "Export PCB SVG files.")
   svg_parser.add_argument ("-if", "--input_filename", required = True, help = "Path to the .kicad_pcb file.")
   svg_parser.add_argument ("-od", "--output_dir", required = True, help = "Directory to save the SVG files to.")
 
@@ -3756,8 +3204,8 @@ def parseArguments():
   elif args.command == "ddd":
     generate3D (output_dir = args.output_dir, pcb_filename = args.input_filename, type = args.type)
 
-  elif args.command == "svg":
-    generateSvg (output_dir = args.output_dir, pcb_filename = args.input_filename)
+  elif args.command == "pcb_svg":
+    generatePcbSvg (output_dir = args.output_dir, pcb_filename = args.input_filename)
 
   elif args.command == "pcb_render":
     generatePcbRenders (output_dir = args.output_dir, pcb_filename = args.input_filename, preset = args.preset)

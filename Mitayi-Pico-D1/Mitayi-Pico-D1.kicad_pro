@@ -80,6 +80,7 @@
         "extra_footprint": "ignore",
         "footprint": "error",
         "footprint_filters_mismatch": "ignore",
+        "footprint_symbol_field_mismatch": "warning",
         "footprint_symbol_mismatch": "warning",
         "footprint_type_mismatch": "ignore",
         "hole_clearance": "error",
@@ -118,9 +119,11 @@
         "too_many_vias": "error",
         "track_angle": "error",
         "track_dangling": "warning",
+        "track_on_post_machined_layer": "error",
         "track_segment_length": "error",
         "track_width": "error",
         "tracks_crossing": "error",
+        "tuning_profile_track_geometries": "ignore",
         "unconnected_items": "error",
         "unresolved_variable": "ignore",
         "via_dangling": "warning",
@@ -469,6 +472,7 @@
       "duplicate_sheet_names": "error",
       "endpoint_off_grid": "warning",
       "extra_units": "error",
+      "field_name_whitespace": "warning",
       "footprint_filter": "ignore",
       "footprint_link_issues": "warning",
       "four_way_junction": "ignore",
@@ -512,7 +516,7 @@
     "pinned_symbol_libs": []
   },
   "meta": {
-    "filename": "Mitayi-Pico-RP2040.kicad_pro",
+    "filename": "Mitayi-Pico-D1.kicad_pro",
     "version": 3
   },
   "net_settings": {
@@ -914,17 +918,18 @@
     "subpart_id_separator": 0,
     "top_level_sheets": [
       {
-        "filename": "Mitayi-Pico-RP2040.kicad_sch",
-        "name": "Mitayi-Pico-RP2040",
-        "uuid": "00000000-0000-0000-0000-000000000000"
+        "filename": "Mitayi-Pico-D1.kicad_sch",
+        "name": "Mitayi-Pico-D1",
+        "uuid": "35c47459-45a7-4753-acae-c8b47e7575e1"
       }
     ],
-    "used_designators": ""
+    "used_designators": "",
+    "variants": []
   },
   "sheets": [
     [
       "35c47459-45a7-4753-acae-c8b47e7575e1",
-      "Root"
+      "Mitayi-Pico-D1"
     ]
   ],
   "text_variables": {},

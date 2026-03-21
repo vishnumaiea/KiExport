@@ -8,8 +8,8 @@ KiExport generates the manufacturing files based on the options available in the
 The [**Mitayi Pico RP2040**](https://github.com/CIRCUITSTATE/Mitayi-Pico-RP2040) project is added as a sample project to test the script. If you are on Windows, you can run the `EXPORT-ALL.bat` batch script to automatically generate the manufacturing files with a double-click.
 
 - **Author:** [Vishnu Mohanan](https://github.com/vishnumaiea)
-- **Version:** `0.1.15`
-- **Contributors:** Dominic Le Blanc ([@domleblanc94](https://github.com/domleblanc94)), Leor Weinstein
+- **Version:** `0.2.19`
+- **Contributors:** Dominic Le Blanc ([@domleblanc94](https://github.com/domleblanc94))
 
 This tool was created with the help of [**ChatGPT**](https://chat.openai.com/chat). Thanks to humanity!
 
@@ -33,7 +33,7 @@ This tool was created with the help of [**ChatGPT**](https://chat.openai.com/cha
     - [`pcb_render`](#pcb_render)
     - [`sch_pdf`](#sch_pdf)
     - [`ddd`](#ddd)
-    - [`svg`](#svg)
+    - [`pcb_svg`](#pcb_svg)
     - [`bom`](#bom)
     - [`run`](#run)
   - [Configuration File](#configuration-file)
@@ -71,7 +71,7 @@ This software was developed and tested on Windows 11. It should work on other pl
 
 ## Installation
 
-KiExport relies on the [**KiCad-CLI**](https://docs.kicad.org/9.0/en/cli/cli.html) tool to generate the files and therefore supports all the features of KiCad-CLI. You should have a KiCad version installed in your system to use this tool. You can download and install the latest version of KiCad from [here](https://kicad.org/download/). After installation, browse to the installation folder and find the `bin` directory where the `kicad-cli.exe` file is located. Add the `bin` folder to your system `Path`. If you do not know how to add a new path to the system `Path` variable, check out any tutorials on the internet.
+KiExport relies on the [**KiCad-CLI**](https://docs.kicad.org/9.0/en/cli/cli.html) tool to generate the files and therefore supports all the features of KiCad-CLI. You should have a KiCad version installed in your system to use this tool. You can download and install the latest version of KiCad from [here](https://kicad.org/download/). After installation, browse to the installation folder and find the `bin` directory where the `kicad-cli.exe` file is located. Add the `bin` folder to your system `PATH`. If you do not know how to add a new path to the system `PATH` variable, check out any tutorials on the internet. If you do not want to add the `kicad-cli` file to the `PATH`, then you can provide the complete path of the **kicad-cli.exe** file in the JSON configuration file. This allows you to have multiple versions of KiCad and use them for different projects.
 
 You can clone/fork the project to obtain a copy of the repository in your system using the following command. [Git](https://git-scm.com/downloads) should be installed and available on the path.
 
@@ -81,7 +81,11 @@ git clone https://github.com/vishnumaiea/KiExport.git
 
 Additionally, you can download the project as a ZIP file from the main page or the [Releases](/releases) page and extract it in your system. After getting the files, you can add the project folder to the system `Path` variable. If your system opens Python script files with the Python interpreter by default, you can run any python script directly from the terminal even without using the `.py` extension as shown in the image below.
 
-![Windows Terminal](/resources/2025-10-25_10-39-03-AM-Administrator_-PowerShell.jpg)
+![Windows Terminal](/resources/2026-03-06%2015_27_48-PowerShell.png)
+
+If it still says "kiexport" is not a valid command, add the `.PY` extension to the `PATHEXT` system environment variable in Windows as shown below.
+
+![PATHEXT System Environtment variable in Windows](/resources/2026-03-06%2014_43_50-Edit%20System%20Variable.png)
 
 If you are going to run the app as a Python script, install the dependencies using the following command.
 
@@ -109,6 +113,7 @@ If you generate the files multiple times a day, older files will be overwritten 
         +---3D
         |       Mitayi-Pico-RP2040-R0.6-STEP-26102024-1.step
         |       Mitayi-Pico-RP2040-R0.6-VRML-26102024-1.wrl
+        |       Mitayi-Pico-RP2040-R0.6-3DPDF-26102024-1.pdf
         |
         +---Position
         |       Mitayi-Pico-RP2040-R0.6-Position-All.csv
@@ -224,8 +229,8 @@ You can automate running multiple commands with a batch script if you are on Win
 
 :: Set variables
 set OUTPUT_DIR=Export
-set SCH_FILE=Mitayi-Pico-RP2040.kicad_sch
-set PCB_FILE=Mitayi-Pico-RP2040.kicad_pcb
+set SCH_FILE=Mitayi-Pico-D1.kicad_sch
+set PCB_FILE=Mitayi-Pico-D1.kicad_pcb
 
 :: Execute commands
 @REM kiexport pcb_drc -od "%OUTPUT_DIR%" -if "%PCB_FILE%" -t "report"
@@ -239,6 +244,7 @@ set PCB_FILE=Mitayi-Pico-RP2040.kicad_pcb
 @REM kiexport positions -od "%OUTPUT_DIR%" -if "%PCB_FILE%"
 @REM kiexport ddd -od "%OUTPUT_DIR%" -if "%PCB_FILE%" -t "STEP"
 @REM kiexport ddd -od "%OUTPUT_DIR%" -if "%PCB_FILE%" -t "VRML"
+@REM kiexport ddd -od "%OUTPUT_DIR%" -if "%PCB_FILE%" -t "3DPDF"
 
 pause
 ```
@@ -409,7 +415,10 @@ kiexport ddd -if <input_file> -od <output_dir> -t <type>
 
 - `-if`: Path to the input `.kicad_pcb` file. Required.
 - `-od`: Path to the output directory. Required.
-- `-t`: The type of 3D file to export. Possible values are `STEP` and `VRML`. Required.
+- `-t`: The type of 3D file to export. Required. Possible values are,
+  - `STEP`
+  - `VRML`
+  - `3DPDF`
 
 Example:
 
@@ -417,12 +426,12 @@ Example:
 kiexport ddd -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb" -od "Mitayi-Pico-D1/Export" -t STEP
 ```
 
-### `svg`
+### `pcb_svg`
 
 Export the PCB as SVG files. The list of layers can be specified in the config file. You can also define common layers to be used when generating each layer. A ZIP file is created at the end while keeping the original files intact. Each run of the command will overwrite the standalone files but will create a new ZIP file with a new sequence number.
 
 ```bash
-kiexport svg -if <input_file> -od <output_dir>
+kiexport pcb_svg -if <input_file> -od <output_dir>
 ```
 
 - `-if`: Path to the input `.kicad_pcb` file. Required.
@@ -431,7 +440,7 @@ kiexport svg -if <input_file> -od <output_dir>
 Example:
 
 ```bash
-kiexport svg -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb" -od "Mitayi-Pico-D1/Export"
+kiexport pcb_svg -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb" -od "Mitayi-Pico-D1/Export"
 ```
 
 ### `bom`

@@ -2,10 +2,80 @@
 # Changes
 
 #
-### **+05:30 10:06:13 AM 25-10-2025, Saturday**
+### **+05:30 03:23:41 PM 06-03-2026, Friday**
+
+  - Renamed the `svg` command to `pcb_svg`.
+    - This is to avoid confusion with other SVG exports, for example schematic SVG export.
+  - Bumped up the configuration JSON version to `2.11` since this is a breaking change.
+  - Updated Readme.
+  - New Version 🆕 `0.2.19`.
+
+#
+### **+05:30 03:05:17 PM 06-03-2026, Friday**
 
   - Updated Readme.
-    - Added attribution to `Leor Weinstein`.
+  - Corrected the version string.
+  - Exported new executable for version `0.2.18`.
+
+#
+### **+05:30 12:33:56 PM 06-03-2026, Friday**
+
+  - Added 3D-PDF export support for the `ddd` command.
+    - Updated `generate3D()`.
+      - It now supports the new format `3DPDF`.
+    - Updated `valid_commands_json` to include `3DPDF`.
+  - Updated `run()`.
+    - `run()` will now exit when an invalid command list is provided.
+    - Added support for `3DPDF`.
+  - New "3DPDF" section under the "ddd" command in the configuration files.
+  - New Version 🆕 `0.2.18`.
+
+#
+### **+05:30 11:33:59 AM 06-03-2026, Friday**
+
+  - Moved the value for `DEFAULT_CONFIG_JSON` to a separate file called `default.json`.
+    - This file is loaded when the dependencies are checked.
+  - New Version 🆕 `0.2.17`.
+
+#
+### **+05:30 10:54:07 AM 06-03-2026, Friday**
+
+  - Updated `generateSvg()`.
+    - Even though `--common-layers`, `--mode-multi`, and `--mode-single` were added int the configuration file, they won't have any effect on the current SVG generation process.
+    - This is because KiExport was already handling this process in a better way. So we will stick with that.
+    - I also found additional bugs and restrictions with the new modes.
+    - The user will be warned about this ignored arguments.
+  - New Version 🆕 `0.2.16`.
+    - The minor version is incremented since this is a V10 support branch.
+    - Patches for `v0.1.x` will continue untill the support is dropped.
+
+#
+### **+05:30 05:38:23 PM 05-03-2026, Thursday**
+
+  - Updated KiExport configuration file to new version `1.9`.
+    - Updated `svg` command argument list.
+      - Removed `kie_common_layers`.
+        - KiCad now supports specifying a common layer list and there are multiple output modes.
+      - Added `--common-layers`.
+        - A comma-separated list of layer names to plot on all layers, such as `F.Cu`,`B.Cu`. Layer names can be specified as canonical layer names (`F.Cu`, `In.1`, `F.Fab`, etc.) or as user-defined (custom) layer names, but user-defined layer names are matched first.
+      - Added `--subtract-soldermask`.
+        - Remove silkscreen from areas without soldermask.
+      - Added `--mode-single`.
+        - Generates a single file with the output arg path acting as the complete directory and filename path. `COMMON_LAYER_LIST` does not function in this mode. Instead `LAYER_LIST` controls all layers plotted.
+      - Added `--mode-multi`.
+        - Plot the layers to one or more SVG files, with each file representing a single layer from `LAYER_LIST`. The output path specifies the directory in which the files will be written.
+      - Added `--scale`.
+        - A scaling factor to use for plotting the PCB. The border and title block are not scaled. A scale factor of 0 autoscales the plot.
+      - Added `--check-zones`.
+        - Check zone fills and refill zones, if required, prior to export. Any zone fill updates are not saved in the board file.
+      - Added `--variant`.
+        - The name(s) of the variant(s) to output. Can be used multiple times to output multiple variants. When specifying multiple variants, use `${VARIANT}` in the output path to generate separate files for each variant. When `--variant` is not used, the default variant is output.
+
+#
+### **+05:30 05:10:51 PM 05-03-2026, Thursday**
+
+  - Updated KiExport configuration.
+  - Generated manufacturing files.
 
 #
 ### **+05:30 12:09:17 AM 25-10-2025, Saturday**
@@ -139,10 +209,10 @@
 ### **+05:30 03:16:03 PM 16-06-2025, Monday**
 
   - Updated `runDRC()`.
-    - It now checks how many violations were found in the DRC report and print them.
+    - It now checks how many voilations were found in the DRC report and print them.
     - If violations are found, the user will be prompted to continue or exit the app.
     - The export log won't be saved if the user chooses to exit. The report will still be saved.
-    - `pcb_drc` command execution will be set to false if the user chooses to continue with DRC errors.
+    - `pcb_drc` command execcution will be set to false if the user chooses to continue with DRC errors.
   - New Version 🆕 `0.1.7`.
 
 #

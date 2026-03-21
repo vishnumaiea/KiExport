@@ -2,8 +2,8 @@
   "name": "KiExport.JSON",
   "description": "Configuration file for KiExport",
   "filetype": "json",
-  "version": "1.8",
-  "project_name": "Mitayi-Pico-RP2040",
+  "version": "2.11",
+  "project_name": "Mitayi-Pico-D1",
   "commands": [
     "pcb_drc",
     "gerbers",
@@ -13,7 +13,7 @@
     ["bom", "HTML"],
     "pcb_pdf",
     "positions",
-    "svg",
+    "pcb_svg",
     ["pcb_render", "PCB-Front"],
     ["pcb_render", "PCB-Back"],
     ["pcb_render", "PCB-Left"],
@@ -25,11 +25,12 @@
     ["pcb_render", "PCB-Paste-Front"],
     ["pcb_render", "PCB-Paste-Back"],
     ["ddd", "STEP"],
-    ["ddd", "VRML"]
+    ["ddd", "VRML"],
+    ["ddd", "3DPDF"]
   ],
-  "kicad_cli_path": "C:\\Program Files\\KiCad\\9.99\\bin\\kicad-cli.exe",
-  "kicad_python_path": "C:\\Program Files\\KiCad\\9.99\\bin\\python.exe",
-  "ibom_path": "%USERPROFILE%\\Documents\\KiCad\\9.99\\3rdparty\\plugins\\org_openscopeproject_InteractiveHtmlBom\\generate_interactive_bom.py",
+  "kicad_cli_path": "C:\\Program Files\\KiCad\\10.0\\bin\\kicad-cli.exe",
+  "kicad_python_path": "C:\\Program Files\\KiCad\\10.0\\bin\\python.exe",
+  "ibom_path": "%USERPROFILE%\\Documents\\KiCad\\10.0\\3rdparty\\plugins\\org_openscopeproject_InteractiveHtmlBom\\generate_interactive_bom.py",
   "vtracer_path": "C:\\Apps\\VTracer\\vtracer.exe",
   "kiexport_log_path": "Export\\kiexport.log",
   "data": {
@@ -50,6 +51,10 @@
       "--layers": [
         "F.Cu",
         "B.Cu",
+        "In1.Cu",
+        "In2.Cu",
+        "In3.Cu",
+        "In4.Cu",
         "F.Paste",
         "B.Paste",
         "F.Silkscreen",
@@ -172,6 +177,10 @@
       "--layers": [
         "F.Cu",
         "B.Cu",
+        "In1.Cu",
+        "In2.Cu",
+        "In3.Cu",
+        "In4.Cu",
         "F.Paste",
         "B.Paste",
         "F.Silkscreen",
@@ -216,11 +225,15 @@
       "--exclude-dnp": false,
       "--gerber-board-edge": false
     },
-    "svg": {
+    "pcb_svg": {
       "--output_dir": "Export",
       "--layers": [
         "F.Cu",
         "B.Cu",
+        "In1.Cu",
+        "In2.Cu",
+        "In3.Cu",
+        "In4.Cu",
         "F.Paste",
         "B.Paste",
         "F.Silkscreen",
@@ -235,8 +248,14 @@
         "F.Fab",
         "B.Fab"
       ],
-      "kie_common_layers": [""],
+      "--common-layers": [
+        "Edge.Cuts"
+      ],
+      "kie_common_layers": [
+        "Edge.Cuts"
+      ],
       "--drawing-sheet": false,
+      "--subtract-soldermask": false,
       "--mirror": false,
       "--theme": "User",
       "--negative": false,
@@ -249,7 +268,11 @@
       "--fit-page-to-board": false,
       "--exclude-drawing-sheet": false,
       "--drill-shape-opt": 1,
-      "--plot-invisible-text": false
+      "--mode-single": true,
+      "--mode-multi": false,
+      "--scale": false,
+      "--check-zones": false,
+      "--variant": false
     },
     "ddd": {
       "STEP": {
@@ -287,6 +310,33 @@
         "--units": "mm",
         "--models-dir": false,
         "--models-relative": false
+      },
+      "3DPDF": {
+        "--output_dir": "Export",
+        "--force": true,
+        "--no-unspecified": true,
+        "--no-dnp": true,
+        "--variant": false,
+        "--grid-origin": false,
+        "--drill-origin": false,
+        "--subst-models": true,
+        "--board-only": false,
+        "--cut-vias-in-body": true,
+        "--no-board-body": false,
+        "--no-components": false,
+        "--component-filter": false,
+        "--include-tracks": true,
+        "--include-pads": true,
+        "--include-zones": true,
+        "--include-inner-copper": false,
+        "--include-silkscreen": true,
+        "--include-soldermask": true,
+        "--fuse-shapes": false,
+        "--fill-all-vias": true,
+        "--no-extra-pad-thickness": false,
+        "--min-distance": false,
+        "--net-filter": false,
+        "--user-origin": false
       }
     },
     "pcb_render": {
@@ -308,8 +358,8 @@
           "--segment_length": 4,
           "--splice_threshold": 0
         },
-        "--width": 20000,
-        "--height": 15000,
+        "--width": 8000,
+        "--height": 6000,
         "--side": "front",
         "--background": "default",
         "--quality": "basic",
@@ -343,8 +393,8 @@
           "--segment_length": 4,
           "--splice_threshold": 0
         },
-        "--width": 20000,
-        "--height": 15000,
+        "--width": 8000,
+        "--height": 6000,
         "--side": "back",
         "--background": "default",
         "--quality": "basic",
@@ -378,8 +428,8 @@
           "--segment_length": 4,
           "--splice_threshold": 0
         },
-        "--width": 20000,
-        "--height": 15000,
+        "--width": 8000,
+        "--height": 6000,
         "--side": "left",
         "--background": "default",
         "--quality": "basic",
@@ -413,8 +463,8 @@
           "--segment_length": 4,
           "--splice_threshold": 0
         },
-        "--width": 20000,
-        "--height": 15000,
+        "--width": 8000,
+        "--height": 6000,
         "--side": "right",
         "--background": "default",
         "--quality": "basic",
@@ -448,8 +498,8 @@
           "--segment_length": 4,
           "--splice_threshold": 0
         },
-        "--width": 20000,
-        "--height": 15000,
+        "--width": 8000,
+        "--height": 6000,
         "--side": "top",
         "--background": "default",
         "--quality": "basic",
@@ -483,8 +533,8 @@
           "--segment_length": 4,
           "--splice_threshold": 0
         },
-        "--width": 20000,
-        "--height": 15000,
+        "--width": 8000,
+        "--height": 6000,
         "--side": "bottom",
         "--background": "default",
         "--quality": "basic",

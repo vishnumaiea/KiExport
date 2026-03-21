@@ -9,11 +9,11 @@
     "net_color_mode": 2,
     "opacity": {
       "images": 1.0,
-      "pads": 1.0,
+      "pads": 0.7900000214576721,
       "shapes": 1.0,
-      "tracks": 1.0,
-      "vias": 1.0,
-      "zones": 1.0
+      "tracks": 0.7599999904632568,
+      "vias": 0.699999988079071,
+      "zones": 0.6899999976158142
     },
     "prototype_zone_fills": false,
     "ratsnest_display_mode": 1,
@@ -22,7 +22,7 @@
       "footprints": true,
       "graphics": false,
       "keepouts": false,
-      "lockedItems": false,
+      "lockedItems": true,
       "otherItems": false,
       "pads": false,
       "text": false,
@@ -54,13 +54,14 @@
     "zone_display_mode": 0
   },
   "git": {
+    "integration_disabled": false,
     "repo_password": "",
     "repo_type": "",
     "repo_username": "",
     "ssh_key": ""
   },
   "meta": {
-    "filename": "Mitayi-Pico-RP2040.kicad_prl",
+    "filename": "Mitayi-Pico-D1.kicad_prl",
     "version": 5
   },
   "net_inspector_panel": {
