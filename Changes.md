@@ -2,6 +2,11 @@
 # Changes
 
 #
+### **+05:30 01:28:52 PM 21-03-2026, Saturday**
+
+  - Updated Readme.
+
+#
 ### **+05:30 03:23:41 PM 06-03-2026, Friday**
 
   - Renamed the `svg` command to `pcb_svg`.

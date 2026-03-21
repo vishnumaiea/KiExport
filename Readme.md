@@ -9,7 +9,7 @@ The [**Mitayi Pico RP2040**](https://github.com/CIRCUITSTATE/Mitayi-Pico-RP2040)
 
 - **Author:** [Vishnu Mohanan](https://github.com/vishnumaiea)
 - **Version:** `0.2.19`
-- **Contributors:** Dominic Le Blanc ([@domleblanc94](https://github.com/domleblanc94))
+- **Contributors:** Dominic Le Blanc ([@domleblanc94](https://github.com/domleblanc94)), Leor Weinstein
 
 This tool was created with the help of [**ChatGPT**](https://chat.openai.com/chat). Thanks to humanity!
 
@@ -71,7 +71,7 @@ This software was developed and tested on Windows 11. It should work on other pl
 
 ## Installation
 
-KiExport relies on the [**KiCad-CLI**](https://docs.kicad.org/9.0/en/cli/cli.html) tool to generate the files and therefore supports all the features of KiCad-CLI. You should have a KiCad version installed in your system to use this tool. You can download and install the latest version of KiCad from [here](https://kicad.org/download/). After installation, browse to the installation folder and find the `bin` directory where the `kicad-cli.exe` file is located. Add the `bin` folder to your system `PATH`. If you do not know how to add a new path to the system `PATH` variable, check out any tutorials on the internet. If you do not want to add the `kicad-cli` file to the `PATH`, then you can provide the complete path of the **kicad-cli.exe** file in the JSON configuration file. This allows you to have multiple versions of KiCad and use them for different projects.
+KiExport relies on the [**KiCad-CLI**](https://docs.kicad.org/10.0/en/cli/cli.html) tool to generate the files and therefore supports all the features of KiCad-CLI. You should have a KiCad version installed in your system to use this tool. You can download and install the latest version of KiCad from [here](https://kicad.org/download/). After installation, browse to the installation folder and find the `bin` directory where the `kicad-cli.exe` file is located. Add the `bin` folder to your system `PATH`. If you do not know how to add a new path to the system `PATH` variable, check out any tutorials on the internet. If you do not want to add the `kicad-cli` file to the `PATH`, then you can provide the complete path of the **kicad-cli.exe** file in the JSON configuration file using the `kicad_cli_path` parameter. This allows you to have multiple versions of KiCad and use them for different projects.
 
 You can clone/fork the project to obtain a copy of the repository in your system using the following command. [Git](https://git-scm.com/downloads) should be installed and available on the path.
 
@@ -79,13 +79,13 @@ You can clone/fork the project to obtain a copy of the repository in your system
 git clone https://github.com/vishnumaiea/KiExport.git
 ```
 
-Additionally, you can download the project as a ZIP file from the main page or the [Releases](/releases) page and extract it in your system. After getting the files, you can add the project folder to the system `Path` variable. If your system opens Python script files with the Python interpreter by default, you can run any python script directly from the terminal even without using the `.py` extension as shown in the image below.
+Additionally, you can download the project as a ZIP file from the main page or the [Releases](/releases) page and extract it in your system. After getting the files, you can add the project folder to the system `PATH` variable. If your system opens Python script files with the Python interpreter by default, you can run any python script directly from the terminal even without using the `.py` extension as shown in the image below.
 
 ![Windows Terminal](/resources/2026-03-06%2015_27_48-PowerShell.png)
 
 If it still says "kiexport" is not a valid command, add the `.PY` extension to the `PATHEXT` system environment variable in Windows as shown below.
 
-![PATHEXT System Environtment variable in Windows](/resources/2026-03-06%2014_43_50-Edit%20System%20Variable.png)
+![PATHEXT System Environment variable in Windows](/resources/2026-03-06%2014_43_50-Edit%20System%20Variable.png)
 
 If you are going to run the app as a Python script, install the dependencies using the following command.
 
@@ -93,7 +93,10 @@ If you are going to run the app as a Python script, install the dependencies usi
 pip install -r requirements.txt
 ```
 
-Additionally, the app can tell you which dependencies are missing in most cases, and guide you to install them. Check if the app is working by checking the version of the tool. Open a terminal and run the following command.
+Additionally, the app can tell you which dependencies are missing in most cases, and guide you to install them. If you do not want to run KiEXport as a Python script, or if you do not want to setup Python in your system, then you can use the Windows executable directly. The executable is available in the [`dist`](/dist/) folder. You can add the `dist` folder to your system `PATH` variable to run the app from anywhere in the terminal.
+
+
+Check if the app is working by checking the version of the tool. Open a terminal and run the following command.
 
 ```bash
 kiexport -v
@@ -373,7 +376,7 @@ kiexport pcb_pdf -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb" -od "Mitayi-P
 
 ### `pcb_render`
 
-Export the PCB as a rendered image using KiCad's native raytracing renderer. Currently supported formats are PNG and SVG. The SVG is a vector format created from the PNG image using the [**VTracer**](https://github.com/visioncortex/vtracer) application. VTracer must be installed for the SVG conversion to work. You can set the app path using the `vtracer_path` parameter. Working parameters for the VTracer can be passed using the `kie_vtracer_params` parameter. Rendering the PCB uses the CPU/GPU intensively and can take some time depending on your system configuration.
+Export the PCB as a rendered image using KiCad's native raytracing renderer. Currently supported formats are PNG and SVG. The SVG is a vector format created from the PNG image using the [**VTracer**](https://github.com/visioncortex/vtracer) application. VTracer must be installed for the SVG conversion to work. You can set the app path using the `vtracer_path` parameter. Working parameters for the VTracer can be passed using the `kie_vtracer_params` parameter. Rendering the PCB uses the CPU/GPU intensively and can take some time depending on your system specifications.
 
 ```bash
 kiexport pcb_render -if <input_file> -od <output_dir>
@@ -498,7 +501,7 @@ kiexport run Mitayi-Pico-D1/kiexport.json "gerbers, [ddd, STEP], [ddd, VRML]"
 
 KiExport supports a JSON configuration file called `kiexport.json`. The name of the file should be exact when running the all of the generic commands except `run`. The `run` command will accept a configuration file with any name. The configuration file should be placed in the root folder of your KiCad project where the main `.kicad_sch` and `.kicad_pcb` files are located. Check the `Mitayi-Pico-D1` folder for an example. A copy of the default configuration file is integrated into the script to use as the default one. So if any of the input parameters are missing from your configuration file, the script will use the default values.
 
-To create a configuration file for your own project, add the `project_name`, the required commands under `commands`. The commands can be a simple list of strings, or a nested list. You can add any number of instances of the same command. The data for the commands should be added under `data`.  All keys that starts with `--` are directly passed to the KiCad-CLI and anything that starts with `kie_` is a data for the KiExport application.
+To create a configuration file for your own project, add the `project_name`, and the required commands under `commands`. The commands can be a simple list of strings, or a nested list. You can add any number of instances of the same command. The data for the commands should be added under `data`.  All keys that starts with `--` are directly passed to the KiCad-CLI and anything that starts with `kie_` is an input for the KiExport application.
 
 If you want to disable any of the commands in the `commands` list, you can simply prefix or suffix them with, for example `_`, and KiExport will ignore such invalid commands. This is better than deleting the commands.
 
@@ -516,7 +519,7 @@ This project is licensed under the MIT license.
 
 ## References
 
-- [KiCad Command-Line Interface](https://docs.kicad.org/9.0/en/cli/cli.html)
+- [KiCad Command-Line Interface](https://docs.kicad.org/10.0/en/cli/cli.html)
 - [Getting Started with KiCad Version 6 : Beginner’s Tutorial to Schematic and PCB Design](https://www.circuitstate.com/tutorials/getting-started-with-kicad-version-6-beginners-tutorial-to-schematic-and-pcb-design/)
 - [How to Install KiCad Version 6 and Organize Part Libraries](https://www.circuitstate.com/tutorials/how-to-install-kicad-version-6-and-organize-part-libraries/)
 - [How to Get Your KiCad PCB Design Ready for Automated Assembly – KiCad 6 Tutorial](https://www.circuitstate.com/tutorials/how-to-get-your-kicad-pcb-design-ready-for-automated-assembly-kicad-6-tutorial/)

@@ -19,6 +19,6 @@ set PCB_FILE=Mitayi-Pico-D1.kicad_pcb
 @REM kiexport ddd -od "%OUTPUT_DIR%" -if "%PCB_FILE%" -t "VRML"
 @REM kiexport ddd -od "%OUTPUT_DIR%" -if "%PCB_FILE%" -t "3DPDF"
 
-kiexport run "kiexport.json"
+kiexport run "kiexport.json" "[bom, HTML]"
 
 pause
