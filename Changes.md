@@ -2,6 +2,7 @@
 # Changes
 
 #
+<<<<<<< HEAD
 ### **+05:30 03:23:41 PM 06-03-2026, Friday**
 
   - Renamed the `svg` command to `pcb_svg`.
@@ -76,6 +77,12 @@
 
   - Updated KiExport configuration.
   - Generated manufacturing files.
+=======
+### **+05:30 10:06:13 AM 25-10-2025, Saturday**
+
+  - Updated Readme.
+    - Added attribution to `Leor Weinstein`.
+>>>>>>> origin/V10-Support
 
 #
 ### **+05:30 12:09:17 AM 25-10-2025, Saturday**
@@ -209,10 +216,17 @@
 ### **+05:30 03:16:03 PM 16-06-2025, Monday**
 
   - Updated `runDRC()`.
+<<<<<<< HEAD
     - It now checks how many voilations were found in the DRC report and print them.
     - If violations are found, the user will be prompted to continue or exit the app.
     - The export log won't be saved if the user chooses to exit. The report will still be saved.
     - `pcb_drc` command execcution will be set to false if the user chooses to continue with DRC errors.
+=======
+    - It now checks how many violations were found in the DRC report and print them.
+    - If violations are found, the user will be prompted to continue or exit the app.
+    - The export log won't be saved if the user chooses to exit. The report will still be saved.
+    - `pcb_drc` command execution will be set to false if the user chooses to continue with DRC errors.
+>>>>>>> origin/V10-Support
   - New Version 🆕 `0.1.7`.
 
 #
@@ -240,7 +254,7 @@
 #
 ### **+05:30 05:15:30 PM 28-05-2025, Wednesday**
 
-  - Added support for version checking of the confguration JSON files.
+  - Added support for version checking of the configuration JSON files.
     - Added `semver` library to handle version comparison.
     - Added `normalize_version()` to convert partial-semver versions to full-semver versions.
     - Added `MIN_CONFIG_JSON_VERSION` that tells the minimum version required.

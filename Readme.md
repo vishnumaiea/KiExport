@@ -8,8 +8,13 @@ KiExport generates the manufacturing files based on the options available in the
 The [**Mitayi Pico RP2040**](https://github.com/CIRCUITSTATE/Mitayi-Pico-RP2040) project is added as a sample project to test the script. If you are on Windows, you can run the `EXPORT-ALL.bat` batch script to automatically generate the manufacturing files with a double-click.
 
 - **Author:** [Vishnu Mohanan](https://github.com/vishnumaiea)
+<<<<<<< HEAD
 - **Version:** `0.2.19`
 - **Contributors:** Dominic Le Blanc ([@domleblanc94](https://github.com/domleblanc94))
+=======
+- **Version:** `0.1.15`
+- **Contributors:** Dominic Le Blanc ([@domleblanc94](https://github.com/domleblanc94)), Leor Weinstein
+>>>>>>> origin/V10-Support
 
 This tool was created with the help of [**ChatGPT**](https://chat.openai.com/chat). Thanks to humanity!
 
@@ -25,6 +30,7 @@ This tool was created with the help of [**ChatGPT**](https://chat.openai.com/cha
   - [Commands](#commands)
     - [`version`](#version)
     - [`help`](#help)
+    - [`pcb_drc`](#pcb_drc)
     - [`gerbers`](#gerbers)
     - [`drills`](#drills)
     - [`positions`](#positions)
@@ -63,6 +69,7 @@ This software was developed and tested on Windows 11. It should work on other pl
 - [KiCad 8.x or later](https://www.kicad.org/download/)
 - [Git](https://git-scm.com/downloads)
 - [Interactive HTML BoM Plugin](https://github.com/openscopeproject/InteractiveHtmlBom) (if you want to generate HTML BoM)
+- [VTracer](https://github.com/visioncortex/vtracer) (if you want to generate SVG renderings)
 - Recommended:
   - [VS Code](https://code.visualstudio.com/download)
   - [Windows Terminal](https://github.com/microsoft/terminal/releases)
@@ -79,11 +86,15 @@ git clone https://github.com/vishnumaiea/KiExport.git
 
 Additionally, you can download the project as a ZIP file from the main page or the [Releases](/releases) page and extract it in your system. After getting the files, you can add the project folder to the system `Path` variable. If your system opens Python script files with the Python interpreter by default, you can run any python script directly from the terminal even without using the `.py` extension as shown in the image below.
 
+<<<<<<< HEAD
 ![Windows Terminal](/resources/2026-03-06%2015_27_48-PowerShell.png)
 
 If it still says "kiexport" is not a valid command, add the `.PY` extension to the `PATHEXT` system environment variable in Windows as shown below.
 
 ![PATHEXT System Environtment variable in Windows](/resources/2026-03-06%2014_43_50-Edit%20System%20Variable.png)
+=======
+![Windows Terminal](/resources/2025-10-25_10-39-03-AM-Administrator_-PowerShell.jpg)
+>>>>>>> origin/V10-Support
 
 If you are going to run the app as a Python script, install the dependencies using the following command.
 
@@ -91,7 +102,7 @@ If you are going to run the app as a Python script, install the dependencies usi
 pip install -r requirements.txt
 ```
 
-Check if the app is working by checking the version of the tool. Open a terminal and run the following command.
+Additionally, the app can tell you which dependencies are missing in most cases, and guide you to install them. Check if the app is working by checking the version of the tool. Open a terminal and run the following command.
 
 ```bash
 kiexport -v
@@ -113,10 +124,10 @@ If you generate the files multiple times a day, older files will be overwritten 
         |       Mitayi-Pico-RP2040-R0.6-VRML-26102024-1.wrl
         |       Mitayi-Pico-RP2040-R0.6-3DPDF-26102024-1.pdf
         |
-        +---Assembly
-        |       Mitayi-Pico-RP2040-R0.6-Pos-All.csv
-        |       Mitayi-Pico-RP2040-R0.6-Pos-Back.csv
-        |       Mitayi-Pico-RP2040-R0.6-Pos-Front.csv
+        +---Position
+        |       Mitayi-Pico-RP2040-R0.6-Position-All.csv
+        |       Mitayi-Pico-RP2040-R0.6-Position-Back.csv 
+        |       Mitayi-Pico-RP2040-R0.6-Position-Front.csv
         |       Mitayi-Pico-RP2040-R0.6-Position-Files-26102024-1.zip
         |
         +---BoM
@@ -168,20 +179,47 @@ If you generate the files multiple times a day, older files will be overwritten 
         |
         +---Render
         |       Mitayi-Pico-RP2040-R0.6-Top-26102024-1.png
+        |       Mitayi-Pico-RP2040-R0.6-Top-26102024-1-Cropped.png
+        |       Mitayi-Pico-RP2040-R0.6-Top-26102024-1-Cropped.svg
         |       Mitayi-Pico-RP2040-R0.6-Bottom-26102024-1.png
+        |       Mitayi-Pico-RP2040-R0.6-Bottom-26102024-1-Cropped.png
+        |       Mitayi-Pico-RP2040-R0.6-Bottom-26102024-1-Cropped.svg
         |       Mitayi-Pico-RP2040-R0.6-Front-26102024-1.png
+        |       Mitayi-Pico-RP2040-R0.6-Front-26102024-1-Cropped.png
+        |       Mitayi-Pico-RP2040-R0.6-Front-26102024-1-Cropped.svg
         |       Mitayi-Pico-RP2040-R0.6-Back-26102024-1.png
+        |       Mitayi-Pico-RP2040-R0.6-Back-26102024-1-Cropped.png
+        |       Mitayi-Pico-RP2040-R0.6-Back-26102024-1-Cropped.svg
+        |
+        +---Report
+        |       Mitayi-Pico-RP2040-R0.6-DRC-26102024-1.rpt
+        |       Mitayi-Pico-RP2040-R0.6-DRC-26102024-1.json
         |
         +---SCH
         |       Mitayi-Pico-RP2040-R0.6-SCH-26102024-1.pdf
         |
         \---SVG
-                Mitayi-Pico-RP2040-R0.6-SVG-26102024-1.svg
+                Mitayi-Pico-RP2040-R0.6-B_Courtyard.svg
+                Mitayi-Pico-RP2040-R0.6-B_Cu.svg
+                Mitayi-Pico-RP2040-R0.6-B_Fab.svg
+                Mitayi-Pico-RP2040-R0.6-B_Mask.svg
+                Mitayi-Pico-RP2040-R0.6-B_Paste.svg
+                Mitayi-Pico-RP2040-R0.6-B_Silkscreen.svg
+                Mitayi-Pico-RP2040-R0.6-Edge_Cuts.svg
+                Mitayi-Pico-RP2040-R0.6-F_Courtyard.svg
+                Mitayi-Pico-RP2040-R0.6-F_Cu.svg
+                Mitayi-Pico-RP2040-R0.6-F_Fab.svg
+                Mitayi-Pico-RP2040-R0.6-F_Mask.svg
+                Mitayi-Pico-RP2040-R0.6-F_Paste.svg
+                Mitayi-Pico-RP2040-R0.6-F_Silkscreen.svg
+                Mitayi-Pico-RP2040-R0.6-PCB-SVG-25102025-1.zip
+                Mitayi-Pico-RP2040-R0.6-User_Comments.svg
+                Mitayi-Pico-RP2040-R0.6-User_Drawings.svg
 ```
 
 ## Usage
 
-You can run the Python script directly from the source folder with the following command. Python should be installed and available on the `Path`.
+After installing KiExport, you can create a new `kiexport.json` file inside the root folder of your KiCad project. You can also copy the configuration file included with the [**Mitayi-Pico-RP2040**](/Mitayi-Pico-D1/kiexport.json) project and modify it. You need to update the KiCad installation path, secondary application paths, and project information. After that, you can run the Python script directly from the source folder with the following command. Python should be installed and available on the `Path`.
 
 ```bash
 python kiexport.py <command> <arguments>
@@ -204,6 +242,7 @@ set SCH_FILE=Mitayi-Pico-D1.kicad_sch
 set PCB_FILE=Mitayi-Pico-D1.kicad_pcb
 
 :: Execute commands
+@REM kiexport pcb_drc -od "%OUTPUT_DIR%" -if "%PCB_FILE%" -t "report"
 @REM kiexport sch_pdf -od "%OUTPUT_DIR%" -if "%SCH_FILE%"
 @REM kiexport bom -od "%OUTPUT_DIR%" -if "%SCH_FILE%" -t "CSV"
 @REM kiexport bom -od "%OUTPUT_DIR%" -if "%SCH_FILE%" -t "XLS"
@@ -259,6 +298,20 @@ You can include the command to get the help menu of a specific command. For exam
 kiexport gerbers -h
 ```
 
+### `pcb_drc`
+
+Runs a DRC (Design Rule Check) on the PCB file. If there are errors in the design, evaluated as per the DRC rules, the command will return the type and number of errors found. It will also generate a report file and save it to the output directory. When ran as part of the `run` command, you can choose to skip other commands if there are DRC errors. The configuration for this command can be specified in the configuration file under the `pcb_drc` section. If a format type is specified in the CLI command, it will override the type specified in the configuration file.
+
+```bash
+kiexport pcb_drc -if <input_file> -od <output_dir> -t <type>
+```
+
+- `-if`: Path to the input `.kicad_pcb` file. Required.
+- `-od`: Path to the output directory where the report will be saved. Required.
+- `-t`: The type of report to generate. Possible values are `report`, and `json`. Optional. Defaults to the type specified in the configuration file.
+  - `report` - Generates a text report file with `.rpt` extension.
+  - `json` - Generates a JSON report file with `.json` extension.
+
 ### `gerbers`
 
 Export the Gerber files. Gerber files export does not include the drill files by default. If you want to generate the drill files as well, you can either manually run the `drills` command or enable the drill file generation in the JSON configuration file using the `kie_include_drill` flag.
@@ -295,7 +348,7 @@ kiexport drills -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb" -od "Mitayi-Pi
 
 ### `positions`
 
-Export the Position or Centroid files for PCB assembly (PCBA).
+Export the Position or Centroid files for automatic PCB assembly (PCBA).
 
 ```bash
 kiexport positions -if <input_file> -od <output_dir>
@@ -329,7 +382,7 @@ kiexport pcb_pdf -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb" -od "Mitayi-P
 
 ### `pcb_render`
 
-Export the PCB as a rendered image.
+Export the PCB as a rendered image using KiCad's native raytracing renderer. Currently supported formats are PNG and SVG. The SVG is a vector format created from the PNG image using the [**VTracer**](https://github.com/visioncortex/vtracer) application. VTracer must be installed for the SVG conversion to work. You can set the app path using the `vtracer_path` parameter. Working parameters for the VTracer can be passed using the `kie_vtracer_params` parameter. Rendering the PCB uses the CPU/GPU intensively and can take some time depending on your system configuration.
 
 ```bash
 kiexport pcb_render -if <input_file> -od <output_dir>
@@ -401,7 +454,7 @@ kiexport pcb_svg -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb" -od "Mitayi-P
 
 ### `bom`
 
-Export the bill of materials files.
+Export the bill of materials files. KiCad's native format is CSV. This CSV file is converted to an Excel (XLS/XLSX) format when you choose that option.
 
 ```bash
 kiexport bom -if <input_file> -od <output_dir> -t <type>

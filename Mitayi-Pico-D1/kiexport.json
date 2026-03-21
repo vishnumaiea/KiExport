@@ -2,8 +2,13 @@
   "name": "KiExport.JSON",
   "description": "Configuration file for KiExport",
   "filetype": "json",
+<<<<<<< HEAD
   "version": "2.11",
   "project_name": "Mitayi-Pico-D1",
+=======
+  "version": "1.8",
+  "project_name": "Mitayi-Pico-RP2040",
+>>>>>>> origin/V10-Support
   "commands": [
     "pcb_drc",
     "gerbers",
@@ -13,7 +18,11 @@
     ["bom", "HTML"],
     "pcb_pdf",
     "positions",
+<<<<<<< HEAD
     "pcb_svg",
+=======
+    "svg",
+>>>>>>> origin/V10-Support
     ["pcb_render", "PCB-Front"],
     ["pcb_render", "PCB-Back"],
     ["pcb_render", "PCB-Left"],
@@ -25,12 +34,20 @@
     ["pcb_render", "PCB-Paste-Front"],
     ["pcb_render", "PCB-Paste-Back"],
     ["ddd", "STEP"],
+<<<<<<< HEAD
     ["ddd", "VRML"],
     ["ddd", "3DPDF"]
   ],
   "kicad_cli_path": "C:\\Program Files\\KiCad\\10.0\\bin\\kicad-cli.exe",
   "kicad_python_path": "C:\\Program Files\\KiCad\\10.0\\bin\\python.exe",
   "ibom_path": "%USERPROFILE%\\Documents\\KiCad\\10.0\\3rdparty\\plugins\\org_openscopeproject_InteractiveHtmlBom\\generate_interactive_bom.py",
+=======
+    ["ddd", "VRML"]
+  ],
+  "kicad_cli_path": "C:\\Program Files\\KiCad\\9.99\\bin\\kicad-cli.exe",
+  "kicad_python_path": "C:\\Program Files\\KiCad\\9.99\\bin\\python.exe",
+  "ibom_path": "%USERPROFILE%\\Documents\\KiCad\\9.99\\3rdparty\\plugins\\org_openscopeproject_InteractiveHtmlBom\\generate_interactive_bom.py",
+>>>>>>> origin/V10-Support
   "vtracer_path": "C:\\Apps\\VTracer\\vtracer.exe",
   "kiexport_log_path": "Export\\kiexport.log",
   "data": {
@@ -268,11 +285,15 @@
       "--fit-page-to-board": false,
       "--exclude-drawing-sheet": false,
       "--drill-shape-opt": 1,
+<<<<<<< HEAD
       "--mode-single": true,
       "--mode-multi": false,
       "--scale": false,
       "--check-zones": false,
       "--variant": false
+=======
+      "--plot-invisible-text": false
+>>>>>>> origin/V10-Support
     },
     "ddd": {
       "STEP": {
@@ -358,8 +379,13 @@
           "--segment_length": 4,
           "--splice_threshold": 0
         },
+<<<<<<< HEAD
         "--width": 8000,
         "--height": 6000,
+=======
+        "--width": 20000,
+        "--height": 15000,
+>>>>>>> origin/V10-Support
         "--side": "front",
         "--background": "default",
         "--quality": "basic",
@@ -393,8 +419,13 @@
           "--segment_length": 4,
           "--splice_threshold": 0
         },
+<<<<<<< HEAD
         "--width": 8000,
         "--height": 6000,
+=======
+        "--width": 20000,
+        "--height": 15000,
+>>>>>>> origin/V10-Support
         "--side": "back",
         "--background": "default",
         "--quality": "basic",
@@ -428,8 +459,13 @@
           "--segment_length": 4,
           "--splice_threshold": 0
         },
+<<<<<<< HEAD
         "--width": 8000,
         "--height": 6000,
+=======
+        "--width": 20000,
+        "--height": 15000,
+>>>>>>> origin/V10-Support
         "--side": "left",
         "--background": "default",
         "--quality": "basic",
@@ -463,8 +499,13 @@
           "--segment_length": 4,
           "--splice_threshold": 0
         },
+<<<<<<< HEAD
         "--width": 8000,
         "--height": 6000,
+=======
+        "--width": 20000,
+        "--height": 15000,
+>>>>>>> origin/V10-Support
         "--side": "right",
         "--background": "default",
         "--quality": "basic",
@@ -498,8 +539,13 @@
           "--segment_length": 4,
           "--splice_threshold": 0
         },
+<<<<<<< HEAD
         "--width": 8000,
         "--height": 6000,
+=======
+        "--width": 20000,
+        "--height": 15000,
+>>>>>>> origin/V10-Support
         "--side": "top",
         "--background": "default",
         "--quality": "basic",
@@ -533,8 +579,13 @@
           "--segment_length": 4,
           "--splice_threshold": 0
         },
+<<<<<<< HEAD
         "--width": 8000,
         "--height": 6000,
+=======
+        "--width": 20000,
+        "--height": 15000,
+>>>>>>> origin/V10-Support
         "--side": "bottom",
         "--background": "default",
         "--quality": "basic",

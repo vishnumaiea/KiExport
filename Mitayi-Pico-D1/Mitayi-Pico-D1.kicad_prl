@@ -22,7 +22,11 @@
       "footprints": true,
       "graphics": false,
       "keepouts": false,
+<<<<<<< HEAD:Mitayi-Pico-D1/Mitayi-Pico-D1.kicad_prl
       "lockedItems": true,
+=======
+      "lockedItems": false,
+>>>>>>> origin/V10-Support:Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_prl
       "otherItems": false,
       "pads": false,
       "text": false,

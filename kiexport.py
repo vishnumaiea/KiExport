@@ -1,11 +1,15 @@
-
 #=============================================================================================#
 
 # KiExport
 # Tool to export manufacturing files from KiCad PCB projects.
 # Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)
+<<<<<<< HEAD
 # Version: 0.2.19
 # Last Modified: +05:30 03:25:06 PM 06-03-2026, Friday
+=======
+# Version: 0.1.15
+# Last Modified: +05:30 00:11:18 AM 25-10-2025, Saturday
+>>>>>>> origin/V10-Support
 # GitHub: https://github.com/vishnumaiea/KiExport
 # License: MIT
 
@@ -26,7 +30,11 @@ import csv
 #=============================================================================================#
 
 APP_NAME = "KiExport"
+<<<<<<< HEAD
 APP_VERSION = "0.2.19"
+=======
+APP_VERSION = "0.1.15"
+>>>>>>> origin/V10-Support
 APP_DESCRIPTION = "Tool to export manufacturing files from KiCad PCB projects."
 APP_AUTHOR = "Vishnu Mohanan (@vishnumaiea)"
 
@@ -34,8 +42,11 @@ SAMPLE_PCB_FILE = "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb"
 MIN_CONFIG_JSON_VERSION = "1.7"  # Minimum required version of the config JSON file
 MIN_KICAD_VERSION = "8.0"  # Minimum required version of KiCad
 
+<<<<<<< HEAD
 DEFAULT_CONFIG_JSON = None
 
+=======
+>>>>>>> origin/V10-Support
 #=============================================================================================#
 
 def check_dependencies() -> bool:
@@ -85,6 +96,7 @@ if check_dependencies():
   from openpyxl.utils import get_column_letter
   from openpyxl.worksheet.dimensions import ColumnDimension
   from PIL import Image
+<<<<<<< HEAD
 
   # Load default configuration from default.json
   default_json_path = os.path.join (os.path.dirname (__file__), 'default.json')
@@ -93,6 +105,8 @@ if check_dependencies():
       DEFAULT_CONFIG_JSON = f.read()
   except Exception as e:
     print (f"[ERROR]: Could not load default.json: {e}")
+=======
+>>>>>>> origin/V10-Support
 else:
   print ("\nCannot continue without required dependencies.")
   sys.exit (1)
@@ -107,9 +121,607 @@ logPath = None  # Path to the log file
 
 command_exec_status = {}  # Command execution status
 
-#=============================================================================================#
+<<<<<<< HEAD
+=======
+DEFAULT_CONFIG_JSON = '''
+{
+  "name": "KiExport.JSON",
+  "description": "Configuration file for KiExport",
+  "filetype": "json",
+  "version": "1.6",
+  "project_name": "Mitayi-Pico-RP2040",
+  "commands": [
+    "pcb_drc",
+    "gerbers",
+    "sch_pdf",
+    ["bom", "CSV"],
+    ["bom", "XLS"],
+    ["bom", "HTML"],
+    "pcb_pdf",
+    "positions",
+    "svg",
+    ["pcb_render", "PCB-Front"],
+    ["pcb_render", "PCB-Back"],
+    ["pcb_render", "PCB-Left"],
+    ["pcb_render", "PCB-Right"],
+    ["pcb_render", "PCB-Parts-Front"],
+    ["pcb_render", "PCB-Parts-Back"],
+    ["pcb_render", "PCB-Pads-Front"],
+    ["pcb_render", "PCB-Pads-Back"],
+    ["pcb_render", "PCB-Paste-Front"],
+    ["pcb_render", "PCB-Paste-Back"],
+    ["ddd", "STEP"],
+    ["ddd", "VRML"]
+  ],
+  "kicad_cli_path": "C:\\\\Program Files\\\\KiCad\\\\9.99\\bin\\\\kicad-cli.exe",
+  "kicad_python_path": "C:\\\\Program Files\\\\KiCad\\\\9.99\\\\bin\\\\python.exe",
+  "ibom_path": "%USERPROFILE%\\\\Documents\\\\KiCad\\\\9.99\\\\3rdparty\\\\plugins\\\\org_openscopeproject_InteractiveHtmlBom\\\\generate_interactive_bom.py",
+  "kiexport_log_path": "Export\\\\kiexport.log",
+  "data": {
+    "pcb_drc": {
+      "--output_dir": "Export",
+      "--format": "report",
+      "--all-track-errors": false,
+      "--schematic-parity": true,
+      "--units": "mm",
+      "--severity-all": false,
+      "--severity-error": true,
+      "--severity-warning": true,
+      "--severity-exclusions": false,
+      "--exit-code-violations": false
+    },
+    "gerbers": {
+      "--output_dir": "Export",
+      "--layers": [
+        "F.Cu",
+        "B.Cu",
+        "F.Paste",
+        "B.Paste",
+        "F.Silkscreen",
+        "B.Silkscreen",
+        "F.Mask",
+        "B.Mask",
+        "User.Drawings",
+        "User.Comments",
+        "Edge.Cuts",
+        "F.Courtyard",
+        "B.Courtyard",
+        "F.Fab",
+        "B.Fab"
+      ],
+      "--drawing-sheet": false,
+      "--exclude-refdes": false,
+      "--exclude-value": false,
+      "--include-border-title": false,
+      "--sketch-pads-on-fab-layers": false,
+      "--hide-DNP-footprints-on-fab-layers": false,
+      "--sketch-DNP-footprints-on-fab-layers": false,
+      "--crossout-DNP-footprints-on-fab-layers": false,
+      "--no-x2": false,
+      "--no-netlist": true,
+      "--subtract-soldermask": false,
+      "--disable-aperture-macros": false,
+      "--use-drill-file-origin": true,
+      "--precision": 6,
+      "--no-protel-ext": true,
+      "--plot-invisible-text": false,
+      "--common-layers": false,
+      "--board-plot-params": false,
+      "kie_include_drill": true
+    },
+    "drills": {
+      "--output_dir": "Export",
+      "--format": "excellon",
+      "--drill-origin": "plot",
+      "--excellon-zeros-format": "decimal",
+      "--excellon-oval-format": "route",
+      "--excellon-units": "mm",
+      "--excellon-mirror-y": false,
+      "--excellon-min-header": false,
+      "--excellon-separate-th": true,
+      "--generate-map": true,
+      "--map-format": "pdf",
+      "--gerber-precision": false
+    },
+    "bom": {
+      "CSV": {
+        "--output_dir": "Export",
+        "--preset": "Group by MPN-DNP",
+        "--format-preset": "CSV",
+        "--fields": "${ITEM_NUMBER},Reference,Value,Name,Footprint,${QUANTITY},${DNP},MPN,MFR,Alt MPN",
+        "--labels": "#,Reference,Value,Name,Footprint,Qty,DNP,MPN,MFR,Alt MPN",
+        "--group-by": "${DNP},MPN",
+        "--sort-field": false,
+        "--sort-asc": false,
+        "--filter": false,
+        "--exclude-dnp": false,
+        "--include-excluded-from-bom": false,
+        "--field-delimiter": false,
+        "--string-delimiter": false,
+        "--ref-delimiter": false,
+        "--ref-range-delimiter": false,
+        "--keep-tabs": false,
+        "--keep-line-breaks": false
+      },
+      "XLS": {
+        "--output_dir": "Export"
+      },
+      "HTML": {
+        "--output_dir": "Export",
+        "--show-dialog": false,
+        "--dark-mode": true,
+        "--hide-pads": false,
+        "--show-fabrication": false,
+        "--hide-silkscreen": false,
+        "--highlight-pin1": "all",
+        "--no-redraw-on-drag": false,
+        "--board-rotation": "0",
+        "--offset-back-rotation": "0",
+        "--checkboxes": "Source,Placed",
+        "--bom-view": "left-right",
+        "--layer-view": "FB",
+        "--no-compression": false,
+        "--no-browser": true,
+        "--include-tracks": true,
+        "--include-nets": true,
+        "--sort-order": "C,R,L,D,U,Y,X,F,SW,A,~,HS,CNN,J,P,NT,MH",
+        "--blacklist": false,
+        "--no-blacklist-virtual": false,
+        "--blacklist-empty-value": false,
+        "--netlist-file": false,
+        "--extra-data-file": true,
+        "--extra-fields": false,
+        "--show-fields": "Value,Footprint,Name,MPN,MFR,Alt MPN",
+        "--group-fields": "Value,Footprint,MPN",
+        "--normalize-field-case": false,
+        "--variant-fields": false,
+        "--variants-whitelist": false,
+        "--dnp-field": false
+      }
+    },
+    "sch_pdf": {
+      "--output_dir": "Export",
+      "--drawing-sheet": false,
+      "--theme": "User",
+      "--black-and-white": false,
+      "--exclude-drawing-sheet": false,
+      "--default-font": false,
+      "--exclude-pdf-property-popups": false,
+      "--exclude-pdf-hierarchical-links": false,
+      "--exclude-pdf-metadata": false,
+      "--no-background-color": false,
+      "--pages": false
+    },
+    "pcb_pdf": {
+      "--output_dir": "Export",
+      "--layers": [
+        "F.Cu",
+        "B.Cu",
+        "F.Paste",
+        "B.Paste",
+        "F.Silkscreen",
+        "B.Silkscreen",
+        "F.Mask",
+        "B.Mask",
+        "User.Drawings",
+        "User.Comments",
+        "Edge.Cuts",
+        "F.Courtyard",
+        "B.Courtyard",
+        "F.Fab",
+        "B.Fab"
+      ],
+      "kie_common_layers": ["Edge.Cuts"],
+      "--drawing-sheet": false,
+      "--mirror": false,
+      "--exclude-refdes": false,
+      "--exclude-value": false,
+      "--include-border-title": true,
+      "--subtract-soldermask": false,
+      "--sketch-pads-on-fab-layers": false,
+      "--hide-DNP-footprints-on-fab-layers": false,
+      "--sketch-DNP-footprints-on-fab-layers": false,
+      "--crossout-DNP-footprints-on-fab-layers": false,
+      "--negative": false,
+      "--black-and-white": false,
+      "--theme": "User",
+      "--drill-shape-opt": 1,
+      "--plot-invisible-text": false,
+      "kie_single_file": false
+    },
+    "positions": {
+      "--output_dir": "Export",
+      "--side": "front,back,both",
+      "--format": "csv",
+      "--units": "mm",
+      "--bottom-negate-x": false,
+      "--use-drill-file-origin": true,
+      "--smd-only": false,
+      "--exclude-fp-th": false,
+      "--exclude-dnp": false,
+      "--gerber-board-edge": false
+    },
+    "svg": {
+      "--output_dir": "Export",
+      "--layers": [
+        "F.Cu",
+        "B.Cu",
+        "F.Paste",
+        "B.Paste",
+        "F.Silkscreen",
+        "B.Silkscreen",
+        "F.Mask",
+        "B.Mask",
+        "User.Drawings",
+        "User.Comments",
+        "Edge.Cuts",
+        "F.Courtyard",
+        "B.Courtyard",
+        "F.Fab",
+        "B.Fab"
+      ],
+      "kie_common_layers": [""],
+      "--drawing-sheet": false,
+      "--mirror": false,
+      "--theme": "User",
+      "--negative": false,
+      "--black-and-white": false,
+      "--sketch-pads-on-fab-layers": false,
+      "--hide-DNP-footprints-on-fab-layers": false,
+      "--sketch-DNP-footprints-on-fab-layers": false,
+      "--crossout-DNP-footprints-on-fab-layers": false,
+      "--page-size-mode": 0,
+      "--fit-page-to-board": false,
+      "--exclude-drawing-sheet": false,
+      "--drill-shape-opt": 1,
+      "--plot-invisible-text": false
+    },
+    "ddd": {
+      "STEP": {
+        "--output_dir": "Export",
+        "--force": true,
+        "--no-unspecified": false,
+        "--no-dnp": false,
+        "--grid-origin": false,
+        "--drill-origin": false,
+        "--subst-models": true,
+        "--board-only": false,
+        "--cut-vias-in-body": true,
+        "--no-board-body": false,
+        "--no-components": false,
+        "--component-filter": false,
+        "--include-tracks": true,
+        "--include-pads": true,
+        "--include-zones": true,
+        "--include-inner-copper": false,
+        "--include-silkscreen": true,
+        "--include-soldermask": true,
+        "--fuse-shapes": false,
+        "--fill-all-vias": false,
+        "--min-distance": false,
+        "--net-filter": false,
+        "--no-optimize-step": false,
+        "--user-origin": false
+      },
+      "VRML": {
+        "--output_dir": "Export",
+        "--force": true,
+        "--no-unspecified": false,
+        "--no-dnp": false,
+        "--user-origin": false,
+        "--units": "mm",
+        "--models-dir": false,
+        "--models-relative": false
+      }
+    },
+    "pcb_render": {
+      "--output_dir": "Export",
+      "PCB-Front": {
+        "kie_type": "png",
+        "kie_name_stub": "PCB-Front",
+        "kie_generate_svg": true,
+        "kie_vtracer_params": {
+          "--colormode": "color",
+          "--color_precision": 8,
+          "--corner_threshold": 25,
+          "--filter_speckle": 1,
+          "--gradient_step": 0,
+          "--hierarchical": "stacked",
+          "--mode": "spline",
+          "--path_precision": false,
+          "--preset": false,
+          "--segment_length": 4,
+          "--splice_threshold": 0
+        },
+        "--width": 20000,
+        "--height": 15000,
+        "--side": "front",
+        "--background": "default",
+        "--quality": "basic",
+        "--preset": "Parts",
+        "--floor": false,
+        "--perspective": false,
+        "--zoom ": 1,
+        "--pan ": "0,0,0",
+        "--pivot": "0,0,0",
+        "--rotate": "0,0,0",
+        "--light-top": false,
+        "--light-bottom": false,
+        "--light-side": false,
+        "--light-camera": false,
+        "--light-side-elevation": false
+      },
+      "PCB-Back": {
+        "kie_type": "png",
+        "kie_name_stub": "PCB-Back",
+        "kie_generate_svg": true,
+        "kie_vtracer_params": {
+          "--colormode": "color",
+          "--color_precision": 8,
+          "--corner_threshold": 25,
+          "--filter_speckle": 1,
+          "--gradient_step": 0,
+          "--hierarchical": "stacked",
+          "--mode": "spline",
+          "--path_precision": false,
+          "--preset": false,
+          "--segment_length": 4,
+          "--splice_threshold": 0
+        },
+        "--width": 20000,
+        "--height": 15000,
+        "--side": "back",
+        "--background": "default",
+        "--quality": "basic",
+        "--preset": "Parts",
+        "--floor": false,
+        "--perspective": false,
+        "--zoom ": 1,
+        "--pan ": "0,0,0",
+        "--pivot": "0,0,0",
+        "--rotate": "0,0,0",
+        "--light-top": false,
+        "--light-bottom": false,
+        "--light-side": false,
+        "--light-camera": false,
+        "--light-side-elevation": false
+      },
+      "PCB-Left": {
+        "kie_type": "png",
+        "kie_name_stub": "PCB-Left",
+        "kie_generate_svg": true,
+        "kie_vtracer_params": {
+          "--colormode": "color",
+          "--color_precision": 8,
+          "--corner_threshold": 25,
+          "--filter_speckle": 1,
+          "--gradient_step": 0,
+          "--hierarchical": "stacked",
+          "--mode": "spline",
+          "--path_precision": false,
+          "--preset": false,
+          "--segment_length": 4,
+          "--splice_threshold": 0
+        },
+        "--width": 20000,
+        "--height": 15000,
+        "--side": "left",
+        "--background": "default",
+        "--quality": "basic",
+        "--preset": "Parts",
+        "--floor": false,
+        "--perspective": false,
+        "--zoom ": 1,
+        "--pan ": "0,0,0",
+        "--pivot": "0,0,0",
+        "--rotate": "0,0,0",
+        "--light-top": false,
+        "--light-bottom": false,
+        "--light-side": false,
+        "--light-camera": false,
+        "--light-side-elevation": false
+      },
+      "PCB-Right": {
+        "kie_type": "png",
+        "kie_name_stub": "PCB-Right",
+        "kie_generate_svg": true,
+        "kie_vtracer_params": {
+          "--colormode": "color",
+          "--color_precision": 8,
+          "--corner_threshold": 25,
+          "--filter_speckle": 1,
+          "--gradient_step": 0,
+          "--hierarchical": "stacked",
+          "--mode": "spline",
+          "--path_precision": false,
+          "--preset": false,
+          "--segment_length": 4,
+          "--splice_threshold": 0
+        },
+        "--width": 20000,
+        "--height": 15000,
+        "--side": "right",
+        "--background": "default",
+        "--quality": "basic",
+        "--preset": "Parts",
+        "--floor": false,
+        "--perspective": false,
+        "--zoom ": 1,
+        "--pan ": "0,0,0",
+        "--pivot": "0,0,0",
+        "--rotate": "0,0,0",
+        "--light-top": false,
+        "--light-bottom": false,
+        "--light-side": false,
+        "--light-camera": false,
+        "--light-side-elevation": false
+      },
+      "PCB-Parts-Front": {
+        "kie_type": "png",
+        "kie_name_stub": "PCB-Parts-Front",
+        "kie_generate_svg": true,
+        "kie_vtracer_params": {
+          "--colormode": "color",
+          "--color_precision": 8,
+          "--corner_threshold": 25,
+          "--filter_speckle": 1,
+          "--gradient_step": 0,
+          "--hierarchical": "stacked",
+          "--mode": "spline",
+          "--path_precision": false,
+          "--preset": false,
+          "--segment_length": 4,
+          "--splice_threshold": 0
+        },
+        "--width": 20000,
+        "--height": 15000,
+        "--side": "top",
+        "--background": "default",
+        "--quality": "basic",
+        "--preset": "Parts",
+        "--floor": false,
+        "--perspective": false,
+        "--zoom ": 1,
+        "--pan ": "0,0,0",
+        "--pivot": "0,0,0",
+        "--rotate": "0,0,0",
+        "--light-top": false,
+        "--light-bottom": false,
+        "--light-side": false,
+        "--light-camera": false,
+        "--light-side-elevation": false
+      },
+      "PCB-Parts-Back": {
+        "kie_type": "png",
+        "kie_name_stub": "PCB-Parts-Back",
+        "kie_generate_svg": true,
+        "kie_vtracer_params": {
+          "--colormode": "color",
+          "--color_precision": 8,
+          "--corner_threshold": 25,
+          "--filter_speckle": 1,
+          "--gradient_step": 0,
+          "--hierarchical": "stacked",
+          "--mode": "spline",
+          "--path_precision": false,
+          "--preset": false,
+          "--segment_length": 4,
+          "--splice_threshold": 0
+        },
+        "--width": 20000,
+        "--height": 15000,
+        "--side": "bottom",
+        "--background": "default",
+        "--quality": "basic",
+        "--preset": "Parts",
+        "--floor": false,
+        "--perspective": false,
+        "--zoom ": 1,
+        "--pan ": "0,0,0",
+        "--pivot": "0,0,0",
+        "--rotate": "0,0,0",
+        "--light-top": false,
+        "--light-bottom": false,
+        "--light-side": false,
+        "--light-camera": false,
+        "--light-side-elevation": false
+      },
+      "PCB-Pads-Front": {
+        "kie_type": "png",
+        "kie_name_stub": "PCB-Pads-Front",
+        "--width": 8000,
+        "--height": 6000,
+        "--side": "top",
+        "--background": "default",
+        "--quality": "basic",
+        "--preset": "Pads",
+        "--floor": false,
+        "--perspective": false,
+        "--zoom ": 1,
+        "--pan ": "0,0,0",
+        "--pivot": "0,0,0",
+        "--rotate": "0,0,0",
+        "--light-top": false,
+        "--light-bottom": false,
+        "--light-side": false,
+        "--light-camera": false,
+        "--light-side-elevation": false
+      },
+      "PCB-Pads-Back": {
+        "kie_type": "png",
+        "kie_name_stub": "PCB-Pads-Back",
+        "--width": 8000,
+        "--height": 6000,
+        "--side": "bottom",
+        "--background": "default",
+        "--quality": "basic",
+        "--preset": "Pads",
+        "--floor": false,
+        "--perspective": false,
+        "--zoom ": 1,
+        "--pan ": "0,0,0",
+        "--pivot": "0,0,0",
+        "--rotate": "0,0,0",
+        "--light-top": false,
+        "--light-bottom": false,
+        "--light-side": false,
+        "--light-camera": false,
+        "--light-side-elevation": false
+      },
+      "PCB-Paste-Front": {
+        "kie_type": "png",
+        "kie_name_stub": "PCB-Paste-Front",
+        "--width": 8000,
+        "--height": 6000,
+        "--side": "top",
+        "--background": "default",
+        "--quality": "basic",
+        "--preset": "Paste",
+        "--floor": false,
+        "--perspective": false,
+        "--zoom ": 1,
+        "--pan ": "0,0,0",
+        "--pivot": "0,0,0",
+        "--rotate": "0,0,0",
+        "--light-top": false,
+        "--light-bottom": false,
+        "--light-side": false,
+        "--light-camera": false,
+        "--light-side-elevation": false
+      },
+      "PCB-Paste-Back": {
+        "kie_type": "png",
+        "kie_name_stub": "PCB-Paste-Back",
+        "--width": 8000,
+        "--height": 6000,
+        "--side": "bottom",
+        "--background": "default",
+        "--quality": "basic",
+        "--preset": "Paste",
+        "--floor": false,
+        "--perspective": false,
+        "--zoom ": 1,
+        "--pan ": "0,0,0",
+        "--pivot": "0,0,0",
+        "--rotate": "0,0,0",
+        "--light-top": false,
+        "--light-bottom": false,
+        "--light-side": false,
+        "--light-camera": false,
+        "--light-side-elevation": false
+      }
+    }
+  }
+}
+'''
 
+>>>>>>> origin/V10-Support
+#=============================================================================================#
 class Logger:
+  """
+  Logger class to capture console output and save it to a log file.
+  """
+  
   def __init__ (self, log_file):
     self.terminal = sys.stdout
     self.buffer = []
@@ -156,6 +768,9 @@ class Logger:
 #=============================================================================================#
 
 class Colorize:
+  """
+  Class to colorize text in the terminal using ANSI escape codes.
+  """
   def __init__(self, text):
     self.text = text
     self.ansi_code = '\033[0m'  # Default to reset
@@ -197,7 +812,11 @@ COLORS = {
   'cyan': '\033[96m',
   'reset': '\033[0m'
 }
+
 class _color:
+  """
+  A class to return a colorized version of the text.
+  """
   def __call__ (self, text, color):
     return f"{COLORS[color]}{text}{COLORS['reset']}"
   
@@ -213,15 +832,20 @@ color = _color()
 
 class LazyDict (dict):
   """
-  A class to overload the get() function so that the value look up is only done when needed.
+  A class to overload the `get()` function so that the value look up is only done when needed.
 
   Args:
-      dict (dic): The dictionary to be converted.
+    `dict` (`dic`): The dictionary to be converted.
   """
   def get (self, key, fallback = None):
     if key in self:
       return super().get (key)
-    return fallback() if callable (fallback) else fallback
+    if callable (fallback):
+      try:
+        return fallback()
+      except Exception:
+        return None
+    return fallback
 
 #=============================================================================================#
 
@@ -230,10 +854,10 @@ def to_lazy_dict (d):
   Recursively convert all dicts to LazyDict.
 
   Args:
-      d (dic): The normal dictionary to be converted.
+    `d` (`dic`): The normal dictionary to be converted.
 
   Returns:
-      LazyDict : A dictionary of type LazyDict.
+    `LazyDict` : A dictionary of type LazyDict.
   """
   if isinstance (d, dict):
     return LazyDict ({k: to_lazy_dict (v) for k, v in d.items()})
@@ -243,15 +867,16 @@ def to_lazy_dict (d):
 
 def generateBomHtml (output_dir = None, pcb_filename = None, extra_args = None):
   """
-  Runs the KiCad iBOM Python script on a specified PCB file.
+  Runs the KiCad iBOM Python script on a specified PCB file. The iBoM plugin should be installed
+  for this to work.
 
   Args:
-    pcb_filename (str): Path to the KiCad PCB file (.kicad_pcb).
-    output_dir (str): Directory to save the output files. Defaults to the PCB file's directory.
-    extra_args (list): Additional command-line arguments for customization (optional).
+    `pcb_filename` (`str`): Path to the KiCad PCB file (.kicad_pcb).
+    `output_dir` (`str`): Directory to save the output files. Defaults to the PCB file's directory.
+    `extra_args` (`list`): Additional command-line arguments for customization (optional).
 
   Returns:
-    str: Path to the generated iBOM HTML file.
+    `str`: Path to the generated iBOM HTML file.
   """
 
   # Read the paths.
@@ -403,17 +1028,19 @@ def generateBomHtml (output_dir = None, pcb_filename = None, extra_args = None):
 
 #=============================================================================================#
 
-def merge_pdfs (folder_path, output_file):
+def merge_pdfs (folder_path, output_file, pdf_files = None):
   """
   Merges PDF files in a folder and creates a TOC based on file names.
 
   Args:
-    folder_path (str): Path to the folder containing PDF files.
-    output_file (str): Name of the output PDF file.
+    `folder_path` (`str`): Path to the folder containing PDF files.
+    `output_file` (`str`): Name of the output PDF file.
+    `pdf_files` (`list`, optional): List of specific PDF files to merge. If None, all PDFs in the folder are merged.
   """
   try:
     # List all PDF files in the specified folder.
-    pdf_files = [f for f in os.listdir (folder_path) if f.endswith ('.pdf')]
+    if pdf_files == None:
+      pdf_files = [f for f in os.listdir (folder_path) if f.endswith ('.pdf')]
     
     if not pdf_files:
       print (f"merge_pdfs() [WARNING]: No PDF files found in the specified folder.")
@@ -579,6 +1206,29 @@ def generateGerbers (output_dir, pcb_filename, to_overwrite = True):
   
   # Rename the files by adding Revision after the project name.
   rename_files (final_directory, project_name, info ['rev'], [".gbr", ".gbrjob"])
+
+  # Since we are renaming the files, we must also update the file names in the Gerber job file.
+  # The gbrjob file is actually a json format file and so we can easily modify it.
+  gbrjob_file_path = os.path.join (final_directory, project_name + "-R" + info ['rev'] + "-job.gbrjob")
+
+  # Function to modify the Path value
+  def modify_path (original_path, prefix, revision):
+    base_name = original_path [len (prefix):]  # Remove the prefix part
+    return f"{prefix}-R{revision}{base_name}"
+
+  # Load the gbrjob (JSON) file
+  with open (gbrjob_file_path, "r", encoding = "utf-8") as f:
+    data = json.load (f)
+
+  # Modify all Path values inside FilesAttributes
+  if "FilesAttributes" in data:
+    for file_attr in data ["FilesAttributes"]:
+      if "Path" in file_attr:
+        file_attr ["Path"] = modify_path (file_attr ["Path"], project_name, info ['rev'])
+
+    # Save the modified JSON back to file
+  with open (gbrjob_file_path, "w", encoding = "utf-8") as f:
+    json.dump (data, f, indent = 2, ensure_ascii = False)
   
   #---------------------------------------------------------------------------------------------#
   
@@ -587,6 +1237,7 @@ def generateGerbers (output_dir, pcb_filename, to_overwrite = True):
 
   files_to_include = [".gbr", ".gbrjob"]
 
+  # If the drill files are generated together with the Gerbers, then include them as well.
   if kie_include_drill:
     files_to_include.extend ([".drl", ".ps", ".pdf"])
   
@@ -757,9 +1408,9 @@ def generatePositions (output_dir, pcb_filename, to_overwrite = True):
   
   #---------------------------------------------------------------------------------------------#
   
-  pos_front_filename = f"{final_directory}/{project_name}-Pos-Front.csv"
-  pos_back_filename = f"{final_directory}/{project_name}-Pos-Back.csv"
-  pos_all_filename = f"{final_directory}/{project_name}-Pos-All.csv"
+  pos_front_filename = f"{final_directory}/{project_name}-Position-Front.csv"
+  pos_back_filename = f"{final_directory}/{project_name}-Position-Back.csv"
+  pos_all_filename = f"{final_directory}/{project_name}-Position-All.csv"
 
   # Create a list of filenames for front, back, and both.
   pos_filenames = [pos_front_filename, pos_back_filename, pos_all_filename]
@@ -909,7 +1560,7 @@ def generatePcbPdf (output_dir, pcb_filename, to_overwrite = True):
   final_directory, filename_date = create_final_directory (od_from_config, od_from_cli, "PCB", info ["rev"], "generatePcbPdf")
 
   #---------------------------------------------------------------------------------------------#
-  
+
   # Delete the existing files in the output directory
   delete_files (final_directory, include_extensions = [".pdf", ".ps"])
 
@@ -1018,7 +1669,7 @@ def generatePcbPdf (output_dir, pcb_filename, to_overwrite = True):
   print (color.green ("generatePcbPdf [OK]: PCB PDF files exported successfully."))
 
   #---------------------------------------------------------------------------------------------#
-
+  
   seq_number = 1
   not_completed = True
 
@@ -1040,6 +1691,17 @@ def generatePcbPdf (output_dir, pcb_filename, to_overwrite = True):
 #==============================================================================================#
 
 def generatePcbRenders (output_dir, pcb_filename, preset = None, to_overwrite = True):
+  """
+  Renders images of the PCB using KiCad's native raytracer and save them as raster or 
+  vector images. Rendering will use your GPU and high-resoltution images can take time
+  to render.
+
+  Args:
+    `output_dir` (str): The output directory where the rendered images will be saved.
+    `pcb_filename` (str): The input PCB file name.
+    `preset` (str, optional): The preset to be used for rendering. Defaults to None.
+    `to_overwrite` (bool, optional): Whether to overwrite existing files. Defaults to True.
+  """
   global current_config  # Access the global config
   global default_config  # Access the global config
   
@@ -1057,6 +1719,8 @@ def generatePcbRenders (output_dir, pcb_filename, preset = None, to_overwrite = 
   
   #---------------------------------------------------------------------------------------------#
   
+  # Extract project information.
+  
   file_name = extract_pcb_file_name (pcb_filename) # Extract information from the input file
   file_name = file_name.replace (" ", "-") # If there are whitespace characters in the project name, replace them with a hyphen
 
@@ -1068,6 +1732,7 @@ def generatePcbRenders (output_dir, pcb_filename, preset = None, to_overwrite = 
   #---------------------------------------------------------------------------------------------#
 
   # Check if the passed preset exists in the config file.
+
   if preset == None:
     print (color.yellow (f"generatePcbRenders [WARNING]: No render presets are specified in cli. All render presets available in the config file will be used."))
 
@@ -1081,6 +1746,8 @@ def generatePcbRenders (output_dir, pcb_filename, preset = None, to_overwrite = 
       print (f"generatePcbRenders [INFO]: Using render preset '{color.magenta (preset)}' from the config file.")
     
   #---------------------------------------------------------------------------------------------#
+
+  # Create the output directory.
 
   file_path = os.path.abspath (pcb_filename) # Get the absolute path of the file.
 
@@ -1097,10 +1764,11 @@ def generatePcbRenders (output_dir, pcb_filename, preset = None, to_overwrite = 
 
   #---------------------------------------------------------------------------------------------#
 
+  # Get the list of presets to use.
+
   preset_list = []
 
   if preset == None:
-
     # Get the list of all render presets from the config file.
     for key, value in current_config.get ("data", {}).get ("pcb_render", {}).items():
       if not key.startswith ("--"):
@@ -1111,10 +1779,11 @@ def generatePcbRenders (output_dir, pcb_filename, preset = None, to_overwrite = 
   
   else:
     preset_list = [preset] # Create a list with the specified preset
-  
+
   #---------------------------------------------------------------------------------------------#
 
-  # Now render images using all of the presets.
+  # Render images using the selected presets.
+
   for preset in preset_list:
     full_command = []
     full_command.extend (pcb_render_export_command)
@@ -1711,7 +2380,7 @@ def generateBomCsv (output_dir, sch_filename, to_overwrite = True):
 def generateBomXls (output_dir, csv_file, sch_filename, to_overwrite = True):
   # Check if the input schematic file exists
   if not check_file_exists (sch_filename):
-    print (color.red (f"generateBomCsv [ERROR]: '{sch_filename}' does not exist."))
+    print (color.red (f"generateBomXls [ERROR]: '{sch_filename}' does not exist."))
     command_exec_status ["bom_csv"] = False
     return False
   
@@ -1959,7 +2628,11 @@ def generatePcbSvg (output_dir, pcb_filename, to_overwrite = True):
     try:
       full_command = ' '.join (full_command) # Convert the list to a string
       subprocess.run (full_command, check = True)
+<<<<<<< HEAD
       # print (color.green ("generatePcbSvg [OK]: PCB PDF files exported successfully."))
+=======
+      # print (color.green ("generateSvg [OK]: PCB SVG files exported successfully."))
+>>>>>>> origin/V10-Support
     
     except subprocess.CalledProcessError as e:
       print (color.red (f"generatePcbSvg [ERROR]: Error occurred: {e}"))
@@ -2060,8 +2733,8 @@ def zip_all_files (source_folder, zip_file_path):
   Compresses all files from a folder into a ZIP file.
 
   Args:
-      source_folder (str): Path to the folder containing files.
-      zip_file_path (str): Path where the ZIP file will be saved.
+    `source_folder` (`str`): Path to the folder containing files.
+    `zip_file_path` (`str`): Path where the ZIP file will be saved.
   """
   with zipfile.ZipFile (zip_file_path, 'w') as zipf:
     for foldername, subfolders, filenames in os.walk (source_folder):
@@ -2076,33 +2749,33 @@ def zip_all_files (source_folder, zip_file_path):
 # ============================================================================================#
 
 def zip_all_files_2 (source_folder, extensions = None, zip_file_name = None):
-    """
-    Compresses files from a folder into a ZIP file, including only files with specified extensions.
+  """
+  Compresses files from a folder into a ZIP file, including only files with specified extensions.
 
-    Args:
-        source_folder (str): Path to the folder containing files.
-        extensions (list of str, optional): List of file extensions to include (e.g., ['.txt', '.jpg']).
-        zip_file_name (str, optional): Name of the ZIP file. If None, will use 'archive.zip'.
-    """
-    if extensions is None:
-        extensions = []  # Include all files if no extensions are specified
-    
-    if zip_file_name is None:
-        zip_file_name = 'archive.zip'  # Default ZIP file name
-    
-    zip_file_path = os.path.join (source_folder, zip_file_name)
-    
-    with zipfile.ZipFile (zip_file_path, 'w') as zipf:
-        for foldername, subfolders, filenames in os.walk (source_folder):
-            for filename in filenames:
-                file_path = os.path.join (foldername, filename)
-                # Check if the file has one of the specified extensions
-                if not extensions or any (filename.endswith (ext) for ext in extensions):
-                    # Exclude the ZIP file itself from being added
-                    if os.path.abspath (file_path) != os.path.abspath (zip_file_path):
-                        zipf.write (file_path, arcname = os.path.relpath (file_path, source_folder))
-    
-    # print(f"ZIP file created: {zip_file_name}")
+  Args:
+    `source_folder` (`str`): Path to the folder containing files.
+    `extensions` (list of `str`, optional): List of file extensions to include (e.g., ['.txt', '.jpg']).
+    `zip_file_name` (`str`, optional): Name of the ZIP file. If None, will use 'archive.zip'.
+  """
+  if extensions is None:
+    extensions = []  # Include all files if no extensions are specified
+  
+  if zip_file_name is None:
+    zip_file_name = 'archive.zip'  # Default ZIP file name
+  
+  zip_file_path = os.path.join (source_folder, zip_file_name)
+  
+  with zipfile.ZipFile (zip_file_path, 'w') as zipf:
+    for foldername, subfolders, filenames in os.walk (source_folder):
+      for filename in filenames:
+        file_path = os.path.join (foldername, filename)
+        # Check if the file has one of the specified extensions
+        if not extensions or any (filename.endswith (ext) for ext in extensions):
+          # Exclude the ZIP file itself from being added
+          if os.path.abspath (file_path) != os.path.abspath (zip_file_path):
+            zipf.write (file_path, arcname = os.path.relpath (file_path, source_folder))
+  
+  # print (f"ZIP file created: {zip_file_name}")
 
 #=============================================================================================#
 
@@ -2122,62 +2795,62 @@ def delete_non_zip_files (directory):
 #=============================================================================================#
 
 def delete_files_with_extensions (directory, extensions = None):
-    """
-    Deletes files in the specified directory with the specified extensions.
+  """
+  Deletes files in the specified directory with the specified extensions.
 
-    Args:
-        directory (str): Path to the directory where the cleanup will occur.
-        extensions (str or list of str, optional): Comma-separated string or list of file extensions to delete.
-    """
-    if extensions is None:
-        # print ("No extensions provided. No files will be deleted.")
-        return
-    
-    if isinstance (extensions, str):
-        extensions = extensions.split (',')
+  Args:
+    `directory` (`str`): Path to the directory where the cleanup will occur.
+    `extensions` (`str` or list of str, optional): Comma-separated string or list of file extensions to delete.
+  """
+  if extensions is None:
+    # print ("No extensions provided. No files will be deleted.")
+    return
+  
+  if isinstance (extensions, str):
+    extensions = extensions.split (',')
 
-    # Ensure all extensions are in the form of '.ext'
-    extensions = [f".{ext.strip()}" for ext in extensions]
+  # Ensure all extensions are in the form of '.ext'
+  extensions = [f".{ext.strip()}" for ext in extensions]
 
-    for filename in os.listdir (directory):
-        file_path = os.path.join (directory, filename)
-        if os.path.isfile (file_path):
-            # Check if file extension matches one of the provided extensions
-            if any (filename.endswith (ext) for ext in extensions):
-                os.remove (file_path)
-                # print(f"Deleted: {filename}")
+  for filename in os.listdir (directory):
+    file_path = os.path.join (directory, filename)
+    if os.path.isfile (file_path):
+      # Check if file extension matches one of the provided extensions
+      if any (filename.endswith (ext) for ext in extensions):
+        os.remove (file_path)
+        # print(f"Deleted: {filename}")
 
 #=============================================================================================#
 
 def delete_files (directory, include_extensions = None, exclude_extensions = None):
-    """
-    Deletes files in the specified directory based on the inclusion and exclusion lists of file extensions.
+  """
+  Deletes files in the specified directory based on the inclusion and exclusion lists of file extensions.
 
-    Args:
-        directory (str): Path to the directory where the cleanup will occur.
-        include_extensions (list of str, optional): List of file extensions to include for deletion, e.g., ['.txt', '.jpg'].
-        exclude_extensions (list of str, optional): List of file extensions to exclude from deletion, e.g., ['.zip'].
-    """
-    # Ensure inclusion and exclusion lists are properly formatted
-    if include_extensions is None:
-        include_extensions = []
-    # Ensure that include_extensions have leading dots and are unique
-    include_extensions = [ext.strip().lower() for ext in include_extensions if ext.startswith('.')]
-    
-    if exclude_extensions is None:
-        exclude_extensions = []
-    # Ensure that exclude_extensions have leading dots and are unique
-    exclude_extensions = [ext.strip().lower() for ext in exclude_extensions if ext.startswith('.')]
+  Args:
+    `directory` (`str`): Path to the directory where the cleanup will occur.
+    `include_extensions` (list of `str`, optional): List of file extensions to include for deletion, e.g., ['.txt', '.jpg'].
+    `exclude_extensions` (list of `str`, optional): List of file extensions to exclude from deletion, e.g., ['.zip'].
+  """
+  # Ensure inclusion and exclusion lists are properly formatted
+  if include_extensions is None:
+    include_extensions = []
+  # Ensure that include_extensions have leading dots and are unique
+  include_extensions = [ext.strip().lower() for ext in include_extensions if ext.startswith('.')]
+  
+  if exclude_extensions is None:
+    exclude_extensions = []
+  # Ensure that exclude_extensions have leading dots and are unique
+  exclude_extensions = [ext.strip().lower() for ext in exclude_extensions if ext.startswith('.')]
 
-    for filename in os.listdir (directory):
-        file_path = os.path.join (directory, filename)
-        if os.path.isfile (file_path):
-            # Get the file extension
-            file_ext = os.path.splitext (filename) [1].lower()
-            # Check if file extension is in the inclusion list and not in the exclusion list
-            if (not include_extensions or file_ext in include_extensions) and (file_ext not in exclude_extensions):
-                os.remove(file_path)
-                # print(f"Deleted: {filename}")
+  for filename in os.listdir (directory):
+    file_path = os.path.join (directory, filename)
+    if os.path.isfile (file_path):
+      # Get the file extension
+      file_ext = os.path.splitext (filename) [1].lower()
+      # Check if file extension is in the inclusion list and not in the exclusion list
+      if (not include_extensions or file_ext in include_extensions) and (file_ext not in exclude_extensions):
+        os.remove(file_path)
+        # print(f"Deleted: {filename}")
 
 #=============================================================================================#
 
@@ -2189,10 +2862,10 @@ def rename_files (directory, prefix, revision = "", extensions = None):
   all files will be renamed.
 
   Args:
-      directory (str): The directory of the files to rename.
-      prefix (str): The prefix of the files to be renamed. Only these files will be renamed.
-      revision (str, optional): The revision tag. For example, "0.1". Defaults to "".
-      extensions (list of str, optional): The list of extensions. Only these files will be renamed. Defaults to None.
+    `directory` (`str`): The directory of the files to rename.
+    `prefix` (`str`): The prefix of the files to be renamed. Only these files will be renamed.
+    `revision` (`str`, optional): The revision tag. For example, "0.1". Defaults to "".
+    `extensions` (list of `str`, optional): The list of extensions. Only these files will be renamed. Defaults to None.
   """
   
   if extensions is None:
@@ -2315,6 +2988,7 @@ def validate_command_list (cli_string):
 
   # Top level commands.
   valid_commands_json = json.dumps ({
+    "pcb_drc": ["report", "json"],
     "gerbers": [],
     "drills": [],
     "sch_pdf": [],
@@ -2471,7 +3145,11 @@ def run (config_file, command_list = None):
   #---------------------------------------------------------------------------------------------#
 
   # List of top-level commands.
+<<<<<<< HEAD
   valid_commands = ["gerbers", "drills", "sch_pdf", "bom", "pcb_pdf", "positions", "ddd", "pcb_svg", "pcb_render"]
+=======
+  valid_commands = ["pcb_drc", "gerbers", "drills", "sch_pdf", "bom", "pcb_pdf", "positions", "ddd", "svg", "pcb_render"]
+>>>>>>> origin/V10-Support
 
   #---------------------------------------------------------------------------------------------#
 
@@ -2588,7 +3266,12 @@ def run (config_file, command_list = None):
 
   # Process the commands without any arguments or modifiers. eg. "gerbers", "drills", "sch_pdf", etc.
   for cmd in cmd_strings:
-    if cmd == "gerbers":
+    if cmd == "pcb_drc":
+      output_dir = current_config.get ("data", {}).get ("pcb_drc", {}).get ("--output_dir", lambda: default_config ["data"]["pcb_drc"]["--output_dir"])
+      output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
+      runDRC (output_dir = output_dir, pcb_filename = pcb_file_path, type = "report") # Default is "report"
+
+    elif cmd == "gerbers":
       output_dir = current_config.get ("data", {}).get ("gerbers", {}).get ("--output_dir", lambda: default_config ["data"]["gerbers"]["--output_dir"])
       output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
       generateGerbers (output_dir = output_dir, pcb_filename = pcb_file_path)
@@ -2639,7 +3322,18 @@ def run (config_file, command_list = None):
 
   # Process the commands with arguments or modifiers. eg. "["ddd", "STEP"]", "[ddd, VRML]"
   for cmd in cmd_lists:
-    if cmd [0] == "gerbers":
+    if cmd [0] == "pcb_drc":
+      if cmd [1] == "report":
+        output_dir = current_config.get ("data", {}).get ("pcb_drc", {}).get ("--output_dir", lambda: default_config ["data"]["pcb_drc"]["--output_dir"])
+        output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
+        runDRC (output_dir = output_dir, pcb_filename = pcb_file_path, type = "report")
+      
+      elif cmd [1] == "json":
+        output_dir = current_config.get ("data", {}).get ("pcb_drc", {}).get ("--output_dir", lambda: default_config ["data"]["pcb_drc"]["--output_dir"])
+        output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
+        runDRC (output_dir = output_dir, pcb_filename = pcb_file_path, type = "json")
+
+    elif cmd [0] == "gerbers":
       output_dir = current_config.get ("data", {}).get ("gerbers", {}).get ("--output_dir", lambda: default_config ["data"]["gerbers"]["--output_dir"])
       output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
       generateGerbers (output_dir = output_dir, pcb_filename = pcb_file_path)
@@ -2717,6 +3411,196 @@ def run (config_file, command_list = None):
       print (color.red (f"run [INFO]: {cmd}: {command_exec_status [cmd]}"))
 
   return
+
+#=============================================================================================#
+
+def runDRC (output_dir, pcb_filename, type = "default"):
+  """
+  Runs the DRC (Design Rule Check) on the PCB file.
+  This function is a placeholder and should be implemented with actual DRC logic.
+  """
+  global current_config  # Access the global config
+  global default_config  # Access the global config
+
+  # Get the KiCad CLI path.
+  kicad_cli_path = f'{current_config.get ("kicad_cli_path", lambda: default_config ["kicad_cli_path"])}'
+
+  # Common base command
+  pcb_drc_command = [f'"{kicad_cli_path}"', "pcb", "drc"]
+
+  # Check if the input file exists
+  if not check_file_exists (pcb_filename):
+    print (color.red (f"runDRC [ERROR]: '{pcb_filename}' does not exist."))
+    command_exec_status ["pcb_drc"] = False
+    return
+  
+  #---------------------------------------------------------------------------------------------#
+
+  file_name = extract_pcb_file_name (pcb_filename) # Extract information from the input file
+  file_name = file_name.replace (" ", "-") # If there are whitespace characters in the project name, replace them with a hyphen
+
+  project_name = extract_project_name (file_name)
+  info = extract_info_from_pcb (pcb_filename) # Extract basic information from the input file
+
+  print (f"runDRC [INFO]: Project name is '{color.magenta (project_name)}' and revision is {color.magenta ('R')}{color.magenta (info ['rev'])}.")
+
+  #---------------------------------------------------------------------------------------------#
+
+  # print (color.yellow ("runDRC [INFO]: Running DRC (Design Rule Check) on the PCB file.."))
+
+  file_path = os.path.abspath (pcb_filename) # Get the absolute path of the file.
+
+  # Get the directory path of the file and save it as the project directory.
+  # All other export directories will be relative to the project directory.
+  project_dir = os.path.dirname (file_path)
+  
+  # Read the output directory name from the config file.
+  od_from_config = project_dir + "/" + current_config.get ("data", {}).get ("pcb_drc", {}).get ("--output_dir", lambda: default_config ["data"]["pcb_drc"]["--output_dir"])
+  od_from_cli = output_dir  # The output directory specified by the command line argument
+
+  # Get the final directory path.
+  final_directory, filename_date = create_final_directory (od_from_config, od_from_cli, "Report", info ["rev"], "runDRC")
+  
+  #---------------------------------------------------------------------------------------------#
+
+  # Get the argument list from the config file.
+  arg_list = current_config.get ("data", {}).get ("pcb_drc", {})
+
+  full_command = [] # Store the full command to run
+  full_command.extend (pcb_drc_command) # Add the base command
+
+  if type == "default": # If the default type is specified, then use type specified in the config file.
+    if arg_list: # Check if the argument list is not empty.
+      if "--format" in arg_list: # Check if the "--format" argument is present in the argument list.
+        format_value = arg_list ["--format"] # Get the format value from the argument list.
+        if format_value == "report":
+          type = format_value
+        elif format_value == "json":
+          type = format_value
+      else:
+        type = "report"  # Default to report if no format is specified in the config file.
+    else: # If the argument list is empty, then default to report.
+      type = "report"  # Default to report if no argument list is provided.
+  else:
+    pass
+
+  #---------------------------------------------------------------------------------------------#
+
+  seq_number = 1
+  not_completed = True
+  
+  # Create the output file name.
+  while not_completed:
+    if type == "report":
+      file_name = f"{final_directory}/{project_name}-R{info ['rev']}-PCB-DRC-Report-{filename_date}-{seq_number}.rpt"
+    elif type == "json":
+      file_name = f"{final_directory}/{project_name}-R{info ['rev']}-PCB-DRC-Report-{filename_date}-{seq_number}.json"
+
+    if os.path.exists (file_name):
+      seq_number += 1 # Increment the sequence number and try again
+      not_completed = True
+    else:
+      full_command.append ("--output")
+      full_command.append (f'"{file_name}"') # Add the output file name with double quotes around it
+      break
+  
+  # Add the remaining arguments.
+  # Check if the argument list is not an empty dictionary.
+  if arg_list:
+    for key, value in arg_list.items():
+      if key.startswith ("--"): # Only fetch the arguments that start with "--"
+        if key == "--output_dir": # Skip the --output_dir argument, sice we already added it
+          continue
+        elif key == "--format": # Skip the --format argument, since we already set the type
+          if isinstance (value, str):
+            full_command.append (key)
+            full_command.append (f'"{type}"') # Use the override value. Add as a double-quoted string.
+        else:
+          # Check if the value is empty
+          if value == "": # Skip if the value is empty
+            continue
+          else:
+            # Check if the vlaue is a JSON boolean
+            if isinstance (value, bool):
+              if value == True: # If the value is true, then append the key as an argument
+                full_command.append (key)
+            else:
+              # Check if the value is a string and not a numeral
+              if isinstance (value, str) and not value.isdigit():
+                  full_command.append (key)
+                  full_command.append (f'"{value}"') # Add as a double-quoted string
+              elif isinstance (value, (int, float)):
+                  full_command.append (key)
+                  full_command.append (str (value))  # Append the numeric value as string
+  
+  # Finally add the input file
+  full_command.append (f'"{pcb_filename}"')
+  print ("runDRC [INFO]: Running command: ", color.blue (' '.join (full_command)))
+
+  #----------------------------------------------------------------------------------------------#
+
+  # Run the command
+  try:
+    full_command = ' '.join (full_command) # Convert the list to a string
+    result = subprocess.run (full_command, check = True, capture_output = True, text = True)
+
+    print (result.stdout)  # Print the standard output
+
+    is_drc_error = False
+
+    # Check for a 0 DRC violations.
+    if "Found 0 violations" in result.stdout:
+      print (color.green ("runDRC [OK]: No DRC violations found."))
+    
+    # Search for the "Found <number> violations" string in the output using regex.
+    elif re.search (r"Found \d+ violations", result.stdout):
+      violations = re.search (r"Found (\d+) violations", result.stdout)
+      if violations:
+        num_violations = violations.group (1)
+        print (color.red (f"runDRC [ERROR]: Found {num_violations} DRC violations. Check the report file for details."))
+        is_drc_error = True
+    
+    if "Found 0 unconnected items" in result.stdout:
+      print (color.green ("runDRC [OK]: No unconnected items found."))
+
+    # Search for the "Found <number> unconnected items" string in the output using regex.
+    elif re.search (r"Found \d+ unconnected items", result.stdout):
+      unconnected = re.search (r"Found (\d+) unconnected items", result.stdout)
+      if unconnected:
+        num_unconnected = unconnected.group (1)
+        print (color.red (f"runDRC [ERROR]: Found {num_unconnected} unconnected items. Check the report file for details."))
+        is_drc_error = True
+    
+    if "Found 0 schematic parity issues" in result.stdout:
+      print (color.green ("runDRC [OK]: No schematic parity issues found."))
+    
+    # Search for the "Found <number> schematic parity issues" string in the output using regex.
+    elif re.search (r"Found \d+ schematic parity issues", result.stdout):
+      parity_issues = re.search (r"Found (\d+) schematic parity issues", result.stdout)
+      if parity_issues:
+        num_parity_issues = parity_issues.group (1)
+        print (color.red (f"runDRC [ERROR]: Found {num_parity_issues} schematic parity issues. Check the report file for details."))
+        is_drc_error = True
+  
+    if is_drc_error:
+      print (color.yellow ("runDRC [WARNING]: Multiple DRC errors were found. Do you want to continue? [Y/N] "), end = "")
+      user_input = input ("").strip().lower()
+      if user_input == "y":
+        print (color.yellow ("runDRC [WARNING]: Process will continue with DRC errors."))
+        command_exec_status ["pcb_drc"] = False
+      else:
+        print (color.yellow ("runDRC [WARNING]: Process will exit."))
+        exit (1)  # Exit the script with an error code if the user does not want to continue
+
+  except subprocess.CalledProcessError as e: # If the DRC command fails for some reason.
+    print (color.red (f"runDRC [ERROR]: Error occurred: {e}"))
+    print()
+    command_exec_status ["pcb_drc"] = False
+    return
+
+  print (color.green ("runDRC [OK]: DRC completed successfully."))
+  print()
+  command_exec_status ["pcb_drc"] = True
 
 #=============================================================================================#
 
@@ -2805,6 +3689,13 @@ def parseArguments():
   pcb_render_parser.add_argument ("-od", "--output_dir", required = True, help = "Directory to save the rendered images to.")
   pcb_render_parser.add_argument ("-ps", "--preset", required = False, help = "The render preset to use.")
 
+  # Subparser for the DRC Run command.
+  # Example: python .\kiexport.py pcb_drc -od "Mitayi-Pico-D1/Export" -if "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb" -t "report"
+  pcb_drc_parser = subparsers.add_parser ("pcb_drc", help = "Run DRC on the PCB file and generate a report.")
+  pcb_drc_parser.add_argument ("-if", "--input_filename", required = True, help = "Path to the .kicad_pcb file.")
+  pcb_drc_parser.add_argument ("-od", "--output_dir", required = True, help = "Directory to save the report file to.")
+  pcb_drc_parser.add_argument ("-t", "--type", required = False, help = "The type of report file. Can be report or json.")
+
   # Subparser for the test function.
   test_parser = subparsers.add_parser ("test", help = "Internal test function.")
 
@@ -2866,9 +3757,9 @@ def parseArguments():
       logPath = path_from_config
     else: # If it is not absolute, we will add the project directory to it.
       if args.command == "run":
-        file_path = os.path.abspath (args.config_file) # Get the absolute path of the file.
-      elif args.config_file is not None:
-        file_path = os.path.abspath (args.input_filename) # Get the absolute path of the file.
+        file_path = os.path.abspath (args.config_file) # Get the absolute path of the config file.
+      else:
+        file_path = os.path.abspath (args.input_filename) # Get the absolute path of the input file.
       # Get the directory path of the file and save it as the project directory.
       # All other export directories will be relative to the project directory.
       project_dir = os.path.dirname (file_path)
@@ -2883,6 +3774,11 @@ def parseArguments():
   if args.command == "run":
     pass
 
+  elif args.command == "pcb_drc":
+    if args.type is None:
+      args.type = "default"  # Set the default type. This will use the type specified in the config file.
+    runDRC (output_dir = args.output_dir, pcb_filename = args.input_filename, type = args.type)
+  
   elif args.command == "gerbers":
     generateGerbers (output_dir = args.output_dir, pcb_filename = args.input_filename)
 
@@ -2945,7 +3841,7 @@ def printInfo():
   print (color.cyan (f"{APP_NAME} v{APP_VERSION}"))
   print (color.cyan ("CLI tool to export design and manufacturing files from KiCad projects."))
   print (color.cyan (f"Author: {APP_AUTHOR}"))
-  print (color.cyan ("Contributors: Dominic Le Blanc (@domleblanc94)"))
+  print (color.cyan ("Contributors: Dominic Le Blanc (@domleblanc94), Leor Weinstein"))
   print ("")
 
 #=============================================================================================#
