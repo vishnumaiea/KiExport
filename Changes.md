@@ -2,8 +2,17 @@
 # Changes
 
 #
+### **+05:30 17:41:56 PM 20-10-2026, 2020**
+
+  - Updated Readme.
+  - Added MacOS shell script.
+  - Added MacOS-specific JSON configuration file.
+
+#
 ### **+05:30 16:07:10 PM 20-10-2026, 2020**
 
+  - Added support for MacOS.
+    - Tested on MacOS 27.
   - Fixed OS path handling issues.
     - All paths are now handled with OS awareness.
       - Tested in Mac OS 27 and working.

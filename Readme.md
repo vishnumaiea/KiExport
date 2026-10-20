@@ -5,10 +5,12 @@
 
 KiExport generates the manufacturing files based on the options available in the `kiexport.json` file, and saves them in an organized way. It renames the files, folders and create ZIP archive files with proper names and date stamps so that you can send them to a manufacturer or client easily. Since the `kiexport.json` configuration file can be edited for any project, you only have to create the file once. You can also create multiple configuration files according to different manufacturing requirements.
 
-The [**Mitayi Pico RP2040**](https://github.com/CIRCUITSTATE/Mitayi-Pico-RP2040) project is added as a sample project to test the script. If you are on Windows, you can run the `EXPORT-ALL.bat` batch script to automatically generate the manufacturing files with a double-click.
+The [**Mitayi Pico RP2040**](https://github.com/CIRCUITSTATE/Mitayi-Pico-RP2040) project is added as a sample project to test the script. If you are on Windows, you can run the `EXPORT-ALL.bat` batch script, or if you're on MacOS, you can run the `EXPORT-ALL.sh` script to automatically generate the manufacturing files.
+
+This tool is not yet tested with Linux.
 
 - **Author:** [Vishnu Mohanan](https://github.com/vishnumaiea)
-- **Version:** `0.2.19`
+- **Version:** `0.2.20`
 - **Contributors:** Dominic Le Blanc ([@domleblanc94](https://github.com/domleblanc94)), Leor Weinstein
 
 This tool was created with the help of [**ChatGPT**](https://chat.openai.com/chat). Thanks to humanity!
@@ -20,6 +22,8 @@ This tool was created with the help of [**ChatGPT**](https://chat.openai.com/cha
   - [Why not KiCad Jobsets?](#why-not-kicad-jobsets)
   - [Requirements](#requirements)
   - [Installation](#installation)
+    - [Windows](#windows)
+    - [MacOS](#macos)
   - [Example](#example)
   - [Usage](#usage)
   - [Commands](#commands)
@@ -62,16 +66,24 @@ This software was developed and tested on Windows 11. It should work on other pl
 
 - [Python 3.x](https://www.python.org/downloads/)
 - [KiCad 8.x or later](https://www.kicad.org/download/)
-- [Git](https://git-scm.com/downloads)
-- [Interactive HTML BoM Plugin](https://github.com/openscopeproject/InteractiveHtmlBom) (if you want to generate HTML BoM)
-- [VTracer](https://github.com/visioncortex/vtracer) (if you want to generate SVG renderings)
+- [Git](https://git-scm.com/downloads) (Optional)
+- [Interactive HTML BoM Plugin](https://github.com/openscopeproject/InteractiveHtmlBom) (Optional, if you want to generate HTML BoM)
+- [VTracer](https://github.com/visioncortex/vtracer) (Optional, if you want to generate SVG renderings)
 - Recommended:
   - [VS Code](https://code.visualstudio.com/download)
-  - [Windows Terminal](https://github.com/microsoft/terminal/releases)
+  - [Windows Terminal](https://github.com/microsoft/terminal/releases) (for Windows only)
 
 ## Installation
 
-KiExport relies on the [**KiCad-CLI**](https://docs.kicad.org/10.0/en/cli/cli.html) tool to generate the files and therefore supports all the features of KiCad-CLI. You should have a KiCad version installed in your system to use this tool. You can download and install the latest version of KiCad from [here](https://kicad.org/download/). After installation, browse to the installation folder and find the `bin` directory where the `kicad-cli.exe` file is located. Add the `bin` folder to your system `PATH`. If you do not know how to add a new path to the system `PATH` variable, check out any tutorials on the internet. If you do not want to add the `kicad-cli` file to the `PATH`, then you can provide the complete path of the **kicad-cli.exe** file in the JSON configuration file using the `kicad_cli_path` parameter. This allows you to have multiple versions of KiCad and use them for different projects.
+KiExport relies on the [**KiCad-CLI**](https://docs.kicad.org/10.0/en/cli/cli.html) tool to generate the files and therefore supports all the features of KiCad-CLI. You should have a KiCad version installed in your system to use this tool. You can download and install the latest version of KiCad from [here](https://kicad.org/download/).
+
+### Windows
+
+After installing KiCad, browse to the installation folder and find the `bin` directory where the `kicad-cli.exe` file is located. Add the `bin` folder to your system `PATH`. If you do not know how to add a new path to the system `PATH` variable, check out any tutorials on the internet. If you do not want to add the `kicad-cli` file to the `PATH`, then you can provide the complete path of the **kicad-cli.exe** file in the JSON configuration file using the `kicad_cli_path` parameter. This allows you to have multiple versions of KiCad and use them for different projects.
+
+### MacOS
+
+After installing KiCad, browse to the `Applications` folder and find the `KiCad` application icon. Right click on the icon and click "Show Package Contents" to navigate to the `Contents/MacOS` directory where the `kicad-cli` file is located. Copy the path of the `kicad-cli` file by right clicking on the file and selecting "Copy as Pathname" (for example `/Applications/KiCad/KiCad.app/Contents/MacOS/kicad-cli`) and add it to the JSON configuration file using the `kicad_cli_path` parameter. This allows you to have multiple versions of KiCad and use them for different projects.
 
 You can clone/fork the project to obtain a copy of the repository in your system using the following command. [Git](https://git-scm.com/downloads) should be installed and available on the path.
 
@@ -258,6 +270,23 @@ You can also create a batch file for running the `run` command as shown below. Y
 kiexport run Mitayi-Pico-D1/kiexport.json
 
 pause
+```
+
+If you're on MacOS, you can create a shell script to run the commands. Refer to the [`EXPORT-ALL.sh`](/Mitayi-Pico-D1/EXPORT-ALL.sh) file for an example.
+
+```bash
+#!/bin/bash
+
+# 1. Force the shell to read aliases inside scripts
+shopt -s expand_aliases 2>/dev/null || set -o aliases
+
+# 2. Source your profile to load the 'kiexport' alias
+source ~/.zshrc
+
+kiexport run "kiexport-mac.json"
+
+# Pause script (macOS equivalent of windows "pause")
+read -p "Press [Enter] key to continue..."
 ```
 
 ## Commands
