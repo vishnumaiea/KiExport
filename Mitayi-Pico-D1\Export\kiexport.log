@@ -1,0 +1,57 @@
++05:30 03:26:54 PM 20-10-2026, Tuesday
+
+KiExport v0.2.19
+CLI tool to export design and manufacturing files from KiCad projects.
+Author: Vishnu Mohanan (@vishnumaiea)
+Contributors: Dominic Le Blanc (@domleblanc94), Leor Weinstein
+
+run [INFO]: Running KiExport with configuration file './Mitayi-Pico-D1/kiexport.json'.
+load_config [INFO]: Loading default configuration.
+load_config [INFO]: Loading configuration from './Mitayi-Pico-D1/kiexport.json'.
+load_config [WARNING]: The configuration file version '2.11' is newer than the minimum supported version '1.7'.
+run [INFO]: Found the following commands in the configuration file: ['pcb_drc', 'gerbers', 'sch_pdf', ['_bom', 'CSV'], ['bom', 'XLS'], ['bom', 'HTML'], 'pcb_pdf', 'positions', 'pcb_svg', ['pcb_render', 'PCB-Front'], ['pcb_render', 'PCB-Back'], ['pcb_render', 'PCB-Left'], ['pcb_render', 'PCB-Right'], ['pcb_render', 'PCB-Parts-Front'], ['pcb_render', 'PCB-Parts-Back'], ['pcb_render', 'PCB-Pads-Front'], ['pcb_render', 'PCB-Pads-Back'], ['pcb_render', 'PCB-Paste-Front'], ['pcb_render', 'PCB-Paste-Back'], ['ddd', 'STEP'], ['ddd', 'VRML'], ['ddd', '3DPDF']], 20.
+run [INFO]: Project Directory: /Users/vizmohanan/Home/Code/Python/KiExport/Mitayi-Pico-D1
+run [INFO]: PCB File: Mitayi-Pico-D1.kicad_pcb
+run [INFO]: Schematic File: Mitayi-Pico-D1.kicad_sch
+
+run [WARNING]: The PCB file '/Users/vizmohanan/Home/Code/Python/KiExport/Mitayi-Pico-D1\Mitayi-Pico-D1.kicad_pcb' does not exist.
+run [WARNING]: Commands that require the PCB file won't be executed.
+run [WARNING]: The Schematic file '/Users/vizmohanan/Home/Code/Python/KiExport/Mitayi-Pico-D1\Mitayi-Pico-D1.kicad_sch' does not exist.
+run [WARNING]: Commands that require the Schematic file won't be executed.
+generateDrills [ERROR]: '/Users/vizmohanan/Home/Code/Python/KiExport/Mitayi-Pico-D1\Mitayi-Pico-D1.kicad_pcb' does not exist.
+generateGerbers [ERROR]: '/Users/vizmohanan/Home/Code/Python/KiExport/Mitayi-Pico-D1\Mitayi-Pico-D1.kicad_pcb' does not exist.
+generateSchPdf [ERROR]: '/Users/vizmohanan/Home/Code/Python/KiExport/Mitayi-Pico-D1\Mitayi-Pico-D1.kicad_sch' does not exist.
+generatePcbPdf [ERROR]: '/Users/vizmohanan/Home/Code/Python/KiExport/Mitayi-Pico-D1\Mitayi-Pico-D1.kicad_pcb' does not exist.
+generatePositions [ERROR]: '/Users/vizmohanan/Home/Code/Python/KiExport/Mitayi-Pico-D1\Mitayi-Pico-D1.kicad_pcb' does not exist.
+generatePcbSvg [ERROR]: '/Users/vizmohanan/Home/Code/Python/KiExport/Mitayi-Pico-D1\Mitayi-Pico-D1.kicad_pcb' does not exist.
+generateBomCsv [ERROR]: '/Users/vizmohanan/Home/Code/Python/KiExport/Mitayi-Pico-D1\Mitayi-Pico-D1.kicad_sch' does not exist.
+generateBomXls [ERROR]: '/Users/vizmohanan/Home/Code/Python/KiExport/Mitayi-Pico-D1\Mitayi-Pico-D1.kicad_sch' does not exist.
+generateBomHtml [ERROR]: The KiCad Python path 'C:\Program Files\KiCad\10.0\bin\python.exe' does not exist. This command will be skipped.
+generatePcbRenders [ERROR]: '/Users/vizmohanan/Home/Code/Python/KiExport/Mitayi-Pico-D1\Mitayi-Pico-D1.kicad_pcb' does not exist.
+generatePcbRenders [ERROR]: '/Users/vizmohanan/Home/Code/Python/KiExport/Mitayi-Pico-D1\Mitayi-Pico-D1.kicad_pcb' does not exist.
+generatePcbRenders [ERROR]: '/Users/vizmohanan/Home/Code/Python/KiExport/Mitayi-Pico-D1\Mitayi-Pico-D1.kicad_pcb' does not exist.
+generatePcbRenders [ERROR]: '/Users/vizmohanan/Home/Code/Python/KiExport/Mitayi-Pico-D1\Mitayi-Pico-D1.kicad_pcb' does not exist.
+generatePcbRenders [ERROR]: '/Users/vizmohanan/Home/Code/Python/KiExport/Mitayi-Pico-D1\Mitayi-Pico-D1.kicad_pcb' does not exist.
+generatePcbRenders [ERROR]: '/Users/vizmohanan/Home/Code/Python/KiExport/Mitayi-Pico-D1\Mitayi-Pico-D1.kicad_pcb' does not exist.
+generatePcbRenders [ERROR]: '/Users/vizmohanan/Home/Code/Python/KiExport/Mitayi-Pico-D1\Mitayi-Pico-D1.kicad_pcb' does not exist.
+generatePcbRenders [ERROR]: '/Users/vizmohanan/Home/Code/Python/KiExport/Mitayi-Pico-D1\Mitayi-Pico-D1.kicad_pcb' does not exist.
+generatePcbRenders [ERROR]: '/Users/vizmohanan/Home/Code/Python/KiExport/Mitayi-Pico-D1\Mitayi-Pico-D1.kicad_pcb' does not exist.
+generatePcbRenders [ERROR]: '/Users/vizmohanan/Home/Code/Python/KiExport/Mitayi-Pico-D1\Mitayi-Pico-D1.kicad_pcb' does not exist.
+generate3D [ERROR]: '/Users/vizmohanan/Home/Code/Python/KiExport/Mitayi-Pico-D1\Mitayi-Pico-D1.kicad_pcb' does not exist.
+generate3D [ERROR]: '/Users/vizmohanan/Home/Code/Python/KiExport/Mitayi-Pico-D1\Mitayi-Pico-D1.kicad_pcb' does not exist.
+generate3D [ERROR]: '/Users/vizmohanan/Home/Code/Python/KiExport/Mitayi-Pico-D1\Mitayi-Pico-D1.kicad_pcb' does not exist.
+run [INFO]: Command execution completed. Statuses:
+run [INFO]: drills: False
+run [INFO]: gerbers: False
+run [INFO]: sch_pdf: False
+run [INFO]: pcb_pdf: False
+run [INFO]: positions: False
+run [INFO]: pcb_svg: False
+run [INFO]: bom_csv: False
+run [INFO]: bom_html: False
+run [INFO]: pcb_render: False
+run [INFO]: ddd_STEP: False
+run [INFO]: ddd_VRML: False
+run [INFO]: ddd_3DPDF: False
+
+Error fetching KiCad CLI version: [Errno 2] No such file or directory: 'C:\\Program Files\\KiCad\\10.0\\bin\\kicad-cli.exe'

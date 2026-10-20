@@ -2,6 +2,16 @@
 # Changes
 
 #
+### **+05:30 16:07:10 PM 20-10-2026, 2020**
+
+  - Fixed OS path handling issues.
+    - All paths are now handled with OS awareness.
+      - Tested in Mac OS 27 and working.
+  - Added new MacOS-specific `kiexport-mac.json` file.
+    - The paths in this file are specific to MacOS and will work only in MacOS.
+  - New Version 🆕 `0.2.20`.
+
+#
 ### **+05:30 01:28:52 PM 21-03-2026, Saturday**
 
   - Updated Readme.

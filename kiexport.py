@@ -3,8 +3,8 @@
 # KiExport
 # Tool to export manufacturing files from KiCad PCB projects.
 # Author: Vishnu Mohanan (@vishnumaiea, @vizmohanan)
-# Version: 0.2.19
-# Last Modified: +05:30 03:25:06 PM 06-03-2026, Friday
+# Version: 0.2.20
+# Last Modified: +05:30 16:06:49 PM 20-10-2026, Tuesday
 # GitHub: https://github.com/vishnumaiea/KiExport
 # License: MIT
 
@@ -13,6 +13,8 @@
 import subprocess
 import argparse
 import os
+import ntpath
+import shlex
 import stat
 import re
 from datetime import datetime
@@ -25,11 +27,11 @@ import csv
 #=============================================================================================#
 
 APP_NAME = "KiExport"
-APP_VERSION = "0.2.19"
+APP_VERSION = "0.2.20"
 APP_DESCRIPTION = "Tool to export manufacturing files from KiCad PCB projects."
 APP_AUTHOR = "Vishnu Mohanan (@vishnumaiea)"
 
-SAMPLE_PCB_FILE = "Mitayi-Pico-D1/Mitayi-Pico-RP2040.kicad_pcb"
+SAMPLE_PCB_FILE = os.path.join ("Mitayi-Pico-D1", "Mitayi-Pico-RP2040.kicad_pcb")
 MIN_CONFIG_JSON_VERSION = "1.7"  # Minimum required version of the config JSON file
 MIN_KICAD_VERSION = "8.0"  # Minimum required version of KiCad
 
@@ -107,6 +109,42 @@ logPath = None  # Path to the log file
 command_exec_status = {}  # Command execution status
 
 #=============================================================================================#
+
+def resolve_path (base_dir, path):
+  """Resolve a configured path relative to its base directory."""
+  if os.path.isabs (path):
+    return path
+  path = path.replace ("\\", os.sep)
+  return os.path.join (base_dir, path)
+
+#=============================================================================================#
+
+def check_config_paths_for_platform (config):
+  """Warn and stop when a Windows KiCad CLI path is loaded on macOS."""
+  if sys.platform != "darwin":
+    return True
+
+  windows_paths = []
+  for key in ("kicad_cli_path", "kicad_python_path", "ibom_path", "vtracer_path"):
+    path = config.get (key, lambda: default_config.get (key))
+    if isinstance (path, str) and ntpath.isabs (path):
+      windows_paths.append ((key, path))
+
+  if not windows_paths:
+    return True
+
+  print (color.yellow ("load_config [WARNING]: This configuration contains Windows absolute paths and may not work on macOS."))
+  for key, path in windows_paths:
+    print (color.yellow (f"  {key}: {path}"))
+
+  if any (key == "kicad_cli_path" for key, _ in windows_paths):
+    print (color.yellow ("Update 'kicad_cli_path' to the KiCad CLI location on this Mac, then run KiExport again."))
+    return False
+
+  return True
+
+#=============================================================================================#
+
 class Logger:
   """
   Logger class to capture console output and save it to a log file.
@@ -322,7 +360,7 @@ def generateBomHtml (output_dir = None, pcb_filename = None, extra_args = None):
   project_dir = os.path.dirname (file_path)
   
   # Read the output directory name from the config file.
-  od_from_config = project_dir + "/" + current_config.get ("data", {}).get ("bom", {}).get ("HTML").get ("--output_dir", lambda: default_config ["data"]["bom"]["HTML"]["--output_dir"])
+  od_from_config = resolve_path (project_dir, current_config.get ("data", {}).get ("bom", {}).get ("HTML").get ("--output_dir", lambda: default_config ["data"]["bom"]["HTML"]["--output_dir"]))
   od_from_cli = output_dir  # The directory specified by the command line argument
 
   # Get the final directory path
@@ -340,7 +378,7 @@ def generateBomHtml (output_dir = None, pcb_filename = None, extra_args = None):
   
   # Create the output file name.
   while not_completed:
-    file_name = f"{final_directory}/{project_name}-R{info ['rev']}-BoM-HTML-{filename_date}-{seq_number}.html" # Extension needed here
+    file_name = os.path.join (final_directory, f"{project_name}-R{info ['rev']}-BoM-HTML-{filename_date}-{seq_number}.html") # Extension needed here
 
     if os.path.exists (file_name):
       seq_number += 1
@@ -400,7 +438,7 @@ def generateBomHtml (output_dir = None, pcb_filename = None, extra_args = None):
   # Run the iBOM script with error handling
   try:
     full_command = ' '.join (full_command) # Convert the list to a string
-    subprocess.run (full_command, check = True)
+    subprocess.run (shlex.split (full_command), check = True)
     print (color.green (f"generateBomHtml [INFO]: Interactive HTML BoM generated successfully."))
     print()
     command_exec_status ["bom_html"] = True
@@ -522,7 +560,7 @@ def generateGerbers (output_dir, pcb_filename, to_overwrite = True):
   project_dir = os.path.dirname (file_path)
   
   # Read the output directory name from the config file.
-  od_from_config = project_dir + "/" + current_config.get ("data", {}).get ("gerbers", {}).get ("--output_dir", lambda: default_config ["data"]["gerbers"]["--output_dir"])
+  od_from_config = resolve_path (project_dir, current_config.get ("data", {}).get ("gerbers", {}).get ("--output_dir", lambda: default_config ["data"]["gerbers"]["--output_dir"]))
   od_from_cli = output_dir  # The output directory specified by the command line argument
 
   # Get the final directory path.
@@ -583,7 +621,7 @@ def generateGerbers (output_dir, pcb_filename, to_overwrite = True):
   # Run the command
   try:
     full_command = ' '.join (full_command) # Convert the list to a string
-    subprocess.run (full_command, check = True)
+    subprocess.run (shlex.split (full_command), check = True)
     print (color.green ("generateGerbers [OK]: Gerber files exported successfully."))
     command_exec_status ["gerbers"] = True
   
@@ -635,7 +673,7 @@ def generateGerbers (output_dir, pcb_filename, to_overwrite = True):
   while not_completed:
     zip_file_name = f"{project_name}-R{info ['rev']}-Gerber-{filename_date}-{seq_number}.zip"
 
-    if os.path.exists (f"{final_directory}/{zip_file_name}"):
+    if os.path.exists (os.path.join (final_directory, zip_file_name)):
       seq_number += 1
     else:
       # zip_all_files (final_directory, f"{final_directory}/{zip_file_name}")
@@ -677,16 +715,13 @@ def generateDrills (output_dir, pcb_filename):
   project_dir = os.path.dirname (file_path)
   
   # Read the target directory name from the config file
-  od_from_config = project_dir + "/" + current_config.get ("data", {}).get ("drills", {}).get ("--output_dir", lambda: default_config ["data"]["drills"]["--output_dir"])
+  od_from_config = resolve_path (project_dir, current_config.get ("data", {}).get ("drills", {}).get ("--output_dir", lambda: default_config ["data"]["drills"]["--output_dir"]))
   od_from_cli = output_dir  # The directory specified by the command line argument
 
   # Get the final directory path
   final_directory, filename_date = create_final_directory (od_from_config, od_from_cli, "Gerber", info ["rev"], "generateDrills")
 
   # Check if the final directory ends with a slash, and add one if not.
-  if final_directory [-1] != "/":
-    final_directory = f"{final_directory}/"
-    
   #-------------------------------------------------------------------------------------------#
   
   # Get the argument list from the config file.
@@ -738,7 +773,7 @@ def generateDrills (output_dir, pcb_filename):
   # Run the command
   try:
     full_command = ' '.join (full_command) # Convert the list to a string
-    subprocess.run (full_command, check = True)
+    subprocess.run (shlex.split (full_command), check = True)
     print (color.green ("generateDrills [OK]: Drill files exported successfully."))
     print()
     command_exec_status ["drills"] = True
@@ -790,7 +825,7 @@ def generatePositions (output_dir, pcb_filename, to_overwrite = True):
   project_dir = os.path.dirname (file_path)
   
   # Read the output directory name from the config file.
-  od_from_config = project_dir + "/" + current_config.get ("data", {}).get ("positions", {}).get ("--output_dir", lambda: default_config ["data"]["positions"]["--output_dir"])
+  od_from_config = resolve_path (project_dir, current_config.get ("data", {}).get ("positions", {}).get ("--output_dir", lambda: default_config ["data"]["positions"]["--output_dir"]))
   od_from_cli = output_dir  # The directory specified by the command line argument
 
   # Get the final directory path
@@ -798,9 +833,9 @@ def generatePositions (output_dir, pcb_filename, to_overwrite = True):
   
   #---------------------------------------------------------------------------------------------#
   
-  pos_front_filename = f"{final_directory}/{project_name}-Position-Front.csv"
-  pos_back_filename = f"{final_directory}/{project_name}-Position-Back.csv"
-  pos_all_filename = f"{final_directory}/{project_name}-Position-All.csv"
+  pos_front_filename = os.path.join (final_directory, f"{project_name}-Position-Front.csv")
+  pos_back_filename = os.path.join (final_directory, f"{project_name}-Position-Back.csv")
+  pos_all_filename = os.path.join (final_directory, f"{project_name}-Position-All.csv")
 
   # Create a list of filenames for front, back, and both.
   pos_filenames = [pos_front_filename, pos_back_filename, pos_all_filename]
@@ -876,7 +911,7 @@ def generatePositions (output_dir, pcb_filename, to_overwrite = True):
       try:
         command_string = ' '.join (full_command)  # Convert the list to a string
         print (f"generatePositions [INFO]: Running command: {color.blue (command_string)}")
-        subprocess.run (command_string, check = True)
+        subprocess.run (shlex.split (command_string), check = True)
       except subprocess.CalledProcessError as e:
         print (color.red (f"generatePositions [ERROR]: Error occurred while generating the files."))
         command_exec_status ["positions"] = False
@@ -901,7 +936,7 @@ def generatePositions (output_dir, pcb_filename, to_overwrite = True):
   while not_completed:
     zip_file_name = f"{project_name}-R{info ['rev']}-Position-Files-{filename_date}-{seq_number}.zip"
 
-    if os.path.exists (f"{final_directory}/{zip_file_name}"):
+    if os.path.exists (os.path.join (final_directory, zip_file_name)):
       seq_number += 1
     else:
       # zip_all_files (final_directory, f"{final_directory}/{zip_file_name}")
@@ -943,7 +978,7 @@ def generatePcbPdf (output_dir, pcb_filename, to_overwrite = True):
   project_dir = os.path.dirname (file_path)
   
   # Read the output directory name from the config file.
-  od_from_config = project_dir + "/" + current_config.get ("data", {}).get ("pcb_pdf", {}).get ("--output_dir", lambda: default_config ["data"]["pcb_pdf"]["--output_dir"])
+  od_from_config = resolve_path (project_dir, current_config.get ("data", {}).get ("pcb_pdf", {}).get ("--output_dir", lambda: default_config ["data"]["pcb_pdf"]["--output_dir"]))
   od_from_cli = output_dir  # The output directory specified by the command line argument
 
   # Get the final directory path
@@ -989,7 +1024,8 @@ def generatePcbPdf (output_dir, pcb_filename, to_overwrite = True):
             layer_name = layer_name.replace (" ", "_") # Replace spaces with underscores
 
             full_command.append ("--output")
-            full_command.append (f'"{final_directory}/{project_name}-R{info ["rev"]}-{layer_name}.pdf"') # This is the ouput file name, and not a directory name
+            output_file = os.path.join (final_directory, f"{project_name}-R{info ['rev']}-{layer_name}.pdf")
+            full_command.append (f'"{output_file}"') # This is the ouput file name, and not a directory name
 
             layer_name = arg_list ["--layers"][i] # Get a layer name from the layer list
             layer_list = [f"{layer_name}"]  # Now create a list with the first item as the layer name
@@ -1022,7 +1058,7 @@ def generatePcbPdf (output_dir, pcb_filename, to_overwrite = True):
       # Run the command
     try:
       full_command = ' '.join (full_command) # Convert the list to a string
-      subprocess.run (full_command, check = True)
+      subprocess.run (shlex.split (full_command), check = True)
       # print (color.green ("generatePcbPdf [OK]: PCB PDF files exported successfully."))
       command_exec_status ["pcb_pdf"] = True
     
@@ -1069,7 +1105,7 @@ def generatePcbPdf (output_dir, pcb_filename, to_overwrite = True):
   while not_completed:
     zip_file_name = f"{project_name}-R{info ['rev']}-PCB-PDF-{filename_date}-{seq_number}.zip"
 
-    if os.path.exists (f"{final_directory}/{zip_file_name}"):
+    if os.path.exists (os.path.join (final_directory, zip_file_name)):
       seq_number += 1
     else:
       # zip_all_files (final_directory, f"{final_directory}/{zip_file_name}")
@@ -1146,7 +1182,7 @@ def generatePcbRenders (output_dir, pcb_filename, preset = None, to_overwrite = 
   project_dir = os.path.dirname (file_path)
   
   # Read the output directory name from the config file.
-  od_from_config = project_dir + "/" + current_config.get ("data", {}).get ("pcb_render", {}).get ("--output_dir", lambda: default_config ["data"]["pcb_render"]["--output_dir"])
+  od_from_config = resolve_path (project_dir, current_config.get ("data", {}).get ("pcb_render", {}).get ("--output_dir", lambda: default_config ["data"]["pcb_render"]["--output_dir"]))
   od_from_cli = output_dir  # The directory specified by the command line argument
 
   # Get the final directory path
@@ -1186,7 +1222,7 @@ def generatePcbRenders (output_dir, pcb_filename, preset = None, to_overwrite = 
 
     # Generate the file name.
     while not_completed:
-      file_name = f"{final_directory}/{project_name}-R{info ['rev']}-{name_stub}-{filename_date}-{seq_number}.{kie_type}"
+      file_name = os.path.join (final_directory, f"{project_name}-R{info ['rev']}-{name_stub}-{filename_date}-{seq_number}.{kie_type}")
 
       if os.path.exists (file_name):
         seq_number += 1
@@ -1233,7 +1269,7 @@ def generatePcbRenders (output_dir, pcb_filename, preset = None, to_overwrite = 
     # Run the command
     try:
       full_command = ' '.join (full_command) # Convert the list to a string
-      subprocess.run (full_command, check = True)
+      subprocess.run (shlex.split (full_command), check = True)
     
     except subprocess.CalledProcessError as e:
       print (color.red (f"generatePcbRenders [ERROR]: Error occurred: {e}"))
@@ -1334,7 +1370,7 @@ def generatePcbRenders (output_dir, pcb_filename, preset = None, to_overwrite = 
     # Run the VTracer command
     try:
       full_command = ' '.join (full_command) # Convert the list to a string
-      subprocess.run (full_command, check = True)
+      subprocess.run (shlex.split (full_command), check = True)
       print()
 
     except subprocess.CalledProcessError as e:
@@ -1452,7 +1488,7 @@ def generateSchPdf (output_dir, sch_filename, to_overwrite = True):
   project_dir = os.path.dirname (file_path)
   
   # Read the output directory name from the config file.
-  od_from_config = project_dir + "/" + current_config.get ("data", {}).get ("sch_pdf", {}).get ("--output_dir", lambda: default_config ["data"]["sch_pdf"]["--output_dir"])
+  od_from_config = resolve_path (project_dir, current_config.get ("data", {}).get ("sch_pdf", {}).get ("--output_dir", lambda: default_config ["data"]["sch_pdf"]["--output_dir"]))
   od_from_cli = output_dir  # The output directory specified by the command line argument
 
   # Get the final directory path.
@@ -1471,7 +1507,7 @@ def generateSchPdf (output_dir, sch_filename, to_overwrite = True):
   
   # Create the output file name.
   while not_completed:
-    file_name = f"{final_directory}/{project_name}-R{info ['rev']}-SCH-{filename_date}-{seq_number}.pdf"
+    file_name = os.path.join (final_directory, f"{project_name}-R{info ['rev']}-SCH-{filename_date}-{seq_number}.pdf")
 
     if os.path.exists (file_name):
       seq_number += 1 # Increment the sequence number and try again
@@ -1515,7 +1551,7 @@ def generateSchPdf (output_dir, sch_filename, to_overwrite = True):
   # Run the command
   try:
     full_command = ' '.join (full_command) # Convert the list to a string
-    subprocess.run (full_command, check = True)
+    subprocess.run (shlex.split (full_command), check = True)
   
   except subprocess.CalledProcessError as e:
     print (color.red (f"generateSchPdf [ERROR]: Error occurred: {e}"))
@@ -1576,7 +1612,7 @@ def generate3D (output_dir, pcb_filename, type = "STEP", to_overwrite = True):
   project_dir = os.path.dirname (file_path)
   
   # Read the output directory name from the config file.
-  od_from_config = project_dir + "/" + current_config.get ("data", {}).get ("ddd", {}).get (type, {}).get ("--output_dir", lambda: default_config ["data"]["ddd"][type]["--output_dir"])
+  od_from_config = resolve_path (project_dir, current_config.get ("data", {}).get ("ddd", {}).get (type, {}).get ("--output_dir", lambda: default_config ["data"]["ddd"][type]["--output_dir"]))
   od_from_cli = output_dir  # The directory specified by the command line argument
 
   # Get the final directory path
@@ -1592,7 +1628,7 @@ def generate3D (output_dir, pcb_filename, type = "STEP", to_overwrite = True):
   
   # Generate the file name.
   while not_completed:
-    file_name = f"{final_directory}/{project_name}-R{info ['rev']}-{type}-{filename_date}-{seq_number}.{extension}"
+    file_name = os.path.join (final_directory, f"{project_name}-R{info ['rev']}-{type}-{filename_date}-{seq_number}.{extension}")
 
     if os.path.exists (file_name):
       seq_number += 1
@@ -1641,7 +1677,7 @@ def generate3D (output_dir, pcb_filename, type = "STEP", to_overwrite = True):
   # Run the command
   try:
     full_command = ' '.join (full_command) # Convert the list to a string
-    subprocess.run (full_command, check = True)
+    subprocess.run (shlex.split (full_command), check = True)
   
   except subprocess.CalledProcessError as e:
     print (color.red (f"generate3D [ERROR]: Error occurred: {e}"))
@@ -1687,7 +1723,7 @@ def generateBomCsv (output_dir, sch_filename, to_overwrite = True):
   project_dir = os.path.dirname (file_path)
   
   # Read the output directory name from the config file.
-  od_from_config = project_dir + "/" + current_config.get ("data", {}).get ("bom", {}).get ("CSV").get ("--output_dir", lambda: default_config ["data"]["bom"]["CSV"]["--output_dir"])
+  od_from_config = resolve_path (project_dir, current_config.get ("data", {}).get ("bom", {}).get ("CSV").get ("--output_dir", lambda: default_config ["data"]["bom"]["CSV"]["--output_dir"]))
   od_from_cli = output_dir  # The output directory specified by the command line argument
 
   # Get the final directory path.
@@ -1703,7 +1739,7 @@ def generateBomCsv (output_dir, sch_filename, to_overwrite = True):
   
   # Create the output file name.
   while not_completed:
-    file_name = f"{final_directory}/{project_name}-R{info ['rev']}-BoM-CSV-{filename_date}-{seq_number}.csv"
+    file_name = os.path.join (final_directory, f"{project_name}-R{info ['rev']}-BoM-CSV-{filename_date}-{seq_number}.csv")
 
     if os.path.exists (file_name):
       seq_number += 1
@@ -1752,7 +1788,7 @@ def generateBomCsv (output_dir, sch_filename, to_overwrite = True):
   # Run the command
   try:
     full_command = ' '.join (full_command) # Convert the list to a string
-    subprocess.run (full_command, check = True)
+    subprocess.run (shlex.split (full_command), check = True)
   
   except subprocess.CalledProcessError as e:
     print (color.red (f"generateBomCsv [ERROR]: Error occurred: {e}"))
@@ -1801,7 +1837,7 @@ def generateBomXls (output_dir, csv_file, sch_filename, to_overwrite = True):
   project_dir = os.path.dirname (file_path)
   
   # Read the output directory name from the config file.
-  od_from_config = project_dir + "/" + current_config.get ("data", {}).get ("bom", {}).get ("XLS").get ("--output_dir", lambda: default_config ["data"]["bom"]["XLS"]["--output_dir"])
+  od_from_config = resolve_path (project_dir, current_config.get ("data", {}).get ("bom", {}).get ("XLS").get ("--output_dir", lambda: default_config ["data"]["bom"]["XLS"]["--output_dir"]))
   od_from_cli = output_dir  # The output directory specified by the command line argument
 
   # Get the final directory path.
@@ -1814,7 +1850,7 @@ def generateBomXls (output_dir, csv_file, sch_filename, to_overwrite = True):
   
   # Create the output file name.
   while not_completed:
-    file_name = f"{final_directory}/{project_name}-R{info ['rev']}-BoM-XLS-{filename_date}-{seq_number}.xlsx"
+    file_name = os.path.join (final_directory, f"{project_name}-R{info ['rev']}-BoM-XLS-{filename_date}-{seq_number}.xlsx")
 
     if os.path.exists (file_name):
       seq_number += 1
@@ -1925,7 +1961,7 @@ def generatePcbSvg (output_dir, pcb_filename, to_overwrite = True):
   project_dir = os.path.dirname (file_path)
   
   # Read the output directory name from the config file.
-  od_from_config = project_dir + "/" + current_config.get ("data", {}).get ("pcb_svg", {}).get ("--output_dir", lambda: default_config ["data"]["pcb_svg"]["--output_dir"])
+  od_from_config = resolve_path (project_dir, current_config.get ("data", {}).get ("pcb_svg", {}).get ("--output_dir", lambda: default_config ["data"]["pcb_svg"]["--output_dir"]))
   od_from_cli = output_dir  # The output directory specified by the command line argument
 
   # Get the final directory path.
@@ -1969,7 +2005,8 @@ def generatePcbSvg (output_dir, pcb_filename, to_overwrite = True):
             layer_name = layer_name.replace (" ", "_") # Replace spaces with underscores
 
             full_command.append ("--output")
-            full_command.append (f'"{final_directory}/{project_name}-R{info ["rev"]}-{layer_name}.svg"') # This is the ouput file name, and not a directory name
+            output_file = os.path.join (final_directory, f"{project_name}-R{info ['rev']}-{layer_name}.svg")
+            full_command.append (f'"{output_file}"') # This is the ouput file name, and not a directory name
 
             layer_name = arg_list ["--layers"][i] # Get a layer name from the layer list
             layer_list = [f"{layer_name}"]  # Now create a list with the first item as the layer name
@@ -2017,7 +2054,7 @@ def generatePcbSvg (output_dir, pcb_filename, to_overwrite = True):
       # Run the command
     try:
       full_command = ' '.join (full_command) # Convert the list to a string
-      subprocess.run (full_command, check = True)
+      subprocess.run (shlex.split (full_command), check = True)
       # print (color.green ("generatePcbSvg [OK]: PCB PDF files exported successfully."))
     
     except subprocess.CalledProcessError as e:
@@ -2041,7 +2078,7 @@ def generatePcbSvg (output_dir, pcb_filename, to_overwrite = True):
   while not_completed:
     zip_file_name = f"{project_name}-R{info ['rev']}-PCB-SVG-{filename_date}-{seq_number}.zip"
 
-    if os.path.exists (f"{final_directory}/{zip_file_name}"):
+    if os.path.exists (os.path.join (final_directory, zip_file_name)):
       seq_number += 1
     else:
       # zip_all_files (final_directory, f"{final_directory}/{zip_file_name}")
@@ -2058,12 +2095,12 @@ def create_final_directory (dir_from_config, dir_from_cli, target_dir_name, rev,
   target_dir = None
 
   # The command line directory has precedence over the  configured directory.
-  if dir_from_cli == "":
-    print (f"{func_name} [INFO]: CLI directory '{color.magenta (dir_from_config)}' is empty. Using the configured directory.")
-    target_dir = dir_from_cli # If it's empty, use the configured directory
+  if dir_from_cli:
+    target_dir = os.path.normpath (dir_from_cli.replace ("\\", os.sep))
+    print (f"{func_name} [INFO]: CLI directory '{color.magenta (target_dir)}' is not empty. Using the CLI directory.")
   else:
-    print (f"{func_name} [INFO]: CLI directory '{color.magenta (dir_from_config)}' is not empty. Using the CLI directory.")
-    target_dir = dir_from_config # Otherwise, use the command line argument
+    print (f"{func_name} [INFO]: CLI directory is empty. Using the configured directory '{color.magenta (dir_from_config)}'.")
+    target_dir = dir_from_config
 
   if not os.path.exists (target_dir): # Check if the target directory exists
     print (f"{func_name} [INFO]: Output directory '{color.magenta (target_dir)}' does not exist. Creating it now.")
@@ -2074,7 +2111,7 @@ def create_final_directory (dir_from_config, dir_from_cli, target_dir_name, rev,
   #---------------------------------------------------------------------------------------------#
 
   # Create one more directory based on the revision number.
-  rev_directory = f"{target_dir}/R{rev}"
+  rev_directory = os.path.join (target_dir, f"R{rev}")
 
   # Check if the revision directory exists, and create if not.
   if not os.path.exists (rev_directory):
@@ -2095,8 +2132,8 @@ def create_final_directory (dir_from_config, dir_from_cli, target_dir_name, rev,
     filename_date = today_date.strftime ("%d%m%Y")
     seq_number += 1
     # date_directory = f"{rev_directory}/[{seq_number}] {formatted_date}"
-    date_directory = f"{rev_directory}/{formatted_date}"
-    final_directory = f"{date_directory}/{target_dir_name}"
+    date_directory = os.path.join (rev_directory, formatted_date)
+    final_directory = os.path.join (date_directory, target_dir_name)
 
     if not os.path.exists (final_directory):
       print (f"{func_name} [INFO]: Target directory '{color.magenta (final_directory)}' does not exist. Creating it now.")
@@ -2471,6 +2508,8 @@ def load_config (config_file = None):
       with open (config_file, 'r', encoding = "utf-8") as file:
           current_config = json.load (file)
           current_config = to_lazy_dict (current_config)
+          if not check_config_paths_for_platform (current_config):
+            return False
           # Compare the configuration JSON versions using semver library.
           if "version" in current_config:
             if semver.compare (normalize_version (MIN_CONFIG_JSON_VERSION), normalize_version (current_config ["version"])) == 0:
@@ -2488,12 +2527,16 @@ def load_config (config_file = None):
       user_input = input ("").strip().lower()
       if user_input != "y": return False
       current_config = default_config
+      if not check_config_paths_for_platform (current_config):
+        return False
       return True
 
   else:
     # Use the default configuration.
     print (f"load_config [INFO]: Using default configuration.")
     current_config = default_config
+    if not check_config_paths_for_platform (current_config):
+      return False
     return True
 
 #=============================================================================================#
@@ -2624,8 +2667,8 @@ def run (config_file, command_list = None):
   pcb_filename = project_name + ".kicad_pcb"
   sch_filename = project_name + ".kicad_sch"
 
-  pcb_file_path = project_dir + "\\" + pcb_filename
-  sch_file_path = project_dir + "\\" + sch_filename
+  pcb_file_path = os.path.join (project_dir, pcb_filename)
+  sch_file_path = os.path.join (project_dir, sch_filename)
 
   # Print the file names.
   print (f"run [INFO]: Project Directory: {color.magenta (project_dir)}")
@@ -2650,54 +2693,54 @@ def run (config_file, command_list = None):
   for cmd in cmd_strings:
     if cmd == "pcb_drc":
       output_dir = current_config.get ("data", {}).get ("pcb_drc", {}).get ("--output_dir", lambda: default_config ["data"]["pcb_drc"]["--output_dir"])
-      output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
+      output_dir = resolve_path (project_dir, output_dir)  # Output directory is relative to the project directory
       runDRC (output_dir = output_dir, pcb_filename = pcb_file_path, type = "report") # Default is "report"
 
     elif cmd == "gerbers":
       output_dir = current_config.get ("data", {}).get ("gerbers", {}).get ("--output_dir", lambda: default_config ["data"]["gerbers"]["--output_dir"])
-      output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
+      output_dir = resolve_path (project_dir, output_dir)  # Output directory is relative to the project directory
       generateGerbers (output_dir = output_dir, pcb_filename = pcb_file_path)
 
     elif cmd == "drills":
       output_dir = current_config.get ("data", {}).get ("drills", {}).get ("--output_dir", lambda: default_config ["data"]["drills"]["--output_dir"])
-      output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
+      output_dir = resolve_path (project_dir, output_dir)  # Output directory is relative to the project directory
       generateDrills (output_dir = output_dir, pcb_filename = pcb_file_path)
 
     elif cmd == "sch_pdf":
       output_dir = current_config.get ("data", {}).get ("sch_pdf", {}).get ("--output_dir", lambda: default_config ["data"]["sch_pdf"]["--output_dir"])
-      output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
+      output_dir = resolve_path (project_dir, output_dir)  # Output directory is relative to the project directory
       generateSchPdf (output_dir = output_dir, sch_filename = sch_file_path)
 
     elif cmd == "bom":
       # Default is CSV
       output_dir = current_config.get ("data", {}).get ("bom", {}).get ("CSV", {}).get ("--output_dir", lambda: default_config ["data"]["bom"]["CSV"]["--output_dir"])
-      output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
+      output_dir = resolve_path (project_dir, output_dir)  # Output directory is relative to the project directory
       generateBomCsv (output_dir = output_dir, sch_filename = sch_file_path)
 
     elif cmd == "pcb_pdf":
       output_dir = current_config.get ("data", {}).get ("pcb_pdf", {}).get ("--output_dir", lambda: default_config ["data"]["pcb_pdf"]["--output_dir"])
-      output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
+      output_dir = resolve_path (project_dir, output_dir)  # Output directory is relative to the project directory
       generatePcbPdf (output_dir = output_dir, pcb_filename = pcb_file_path)
 
     elif cmd == "positions":
       output_dir = current_config.get ("data", {}).get ("positions", {}).get ("--output_dir", lambda: default_config ["data"]["positions"]["--output_dir"])
-      output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
+      output_dir = resolve_path (project_dir, output_dir)  # Output directory is relative to the project directory
       generatePositions (output_dir = output_dir, pcb_filename = pcb_file_path)
 
     elif cmd == "ddd":
       # Default is STEP
       output_dir = current_config.get ("data", {}).get ("ddd", {}).get ("STEP", {}).get ("--output_dir", lambda: default_config ["data"]["ddd"]["STEP"]["--output_dir"])
-      output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
+      output_dir = resolve_path (project_dir, output_dir)  # Output directory is relative to the project directory
       generate3D (output_dir = output_dir, pcb_filename = pcb_file_path, type = "STEP")
     
     elif cmd == "pcb_svg":
       output_dir = current_config.get ("data", {}).get ("pcb_svg", {}).get ("--output_dir", lambda: default_config ["data"]["pcb_svg"]["--output_dir"])
-      output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
+      output_dir = resolve_path (project_dir, output_dir)  # Output directory is relative to the project directory
       generatePcbSvg (output_dir = output_dir, pcb_filename = pcb_file_path)
 
     elif cmd == "pcb_render":
       output_dir = current_config.get ("data", {}).get ("pcb_render", {}).get ("--output_dir", lambda: default_config ["data"]["pcb_render"]["--output_dir"])
-      output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
+      output_dir = resolve_path (project_dir, output_dir)  # Output directory is relative to the project directory
       generatePcbRenders (output_dir = output_dir, pcb_filename = pcb_file_path)
 
   #---------------------------------------------------------------------------------------------#
@@ -2707,79 +2750,79 @@ def run (config_file, command_list = None):
     if cmd [0] == "pcb_drc":
       if cmd [1] == "report":
         output_dir = current_config.get ("data", {}).get ("pcb_drc", {}).get ("--output_dir", lambda: default_config ["data"]["pcb_drc"]["--output_dir"])
-        output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
+        output_dir = resolve_path (project_dir, output_dir)  # Output directory is relative to the project directory
         runDRC (output_dir = output_dir, pcb_filename = pcb_file_path, type = "report")
       
       elif cmd [1] == "json":
         output_dir = current_config.get ("data", {}).get ("pcb_drc", {}).get ("--output_dir", lambda: default_config ["data"]["pcb_drc"]["--output_dir"])
-        output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
+        output_dir = resolve_path (project_dir, output_dir)  # Output directory is relative to the project directory
         runDRC (output_dir = output_dir, pcb_filename = pcb_file_path, type = "json")
 
     elif cmd [0] == "gerbers":
       output_dir = current_config.get ("data", {}).get ("gerbers", {}).get ("--output_dir", lambda: default_config ["data"]["gerbers"]["--output_dir"])
-      output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
+      output_dir = resolve_path (project_dir, output_dir)  # Output directory is relative to the project directory
       generateGerbers (output_dir = output_dir, pcb_filename = pcb_file_path)
     
     elif cmd [0] == "drills":
       output_dir = current_config.get ("data", {}).get ("drills", {}).get ("--output_dir", lambda: default_config ["data"]["drills"]["--output_dir"])
-      output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
+      output_dir = resolve_path (project_dir, output_dir)  # Output directory is relative to the project directory
       generateDrills (output_dir = output_dir, pcb_filename = pcb_file_path)
 
     elif cmd [0] == "sch_pdf":
       output_dir = current_config.get ("data", {}).get ("sch_pdf", {}).get ("--output_dir", lambda: default_config ["data"]["sch_pdf"]["--output_dir"])
-      output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
+      output_dir = resolve_path (project_dir, output_dir)  # Output directory is relative to the project directory
       generateSchPdf (output_dir = output_dir, sch_filename = sch_file_path)
     
     elif cmd [0] == "bom":
       if (cmd [1] == "CSV") or (cmd [1] == "XLS"):
         output_dir = current_config.get ("data", {}).get ("bom", {}).get ("CSV", {}).get ("--output_dir", lambda: default_config ["data"]["bom"]["CSV"]["--output_dir"])
-        output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
+        output_dir = resolve_path (project_dir, output_dir)  # Output directory is relative to the project directory
         csv_filename = generateBomCsv (output_dir = output_dir, sch_filename = sch_file_path)
 
         if cmd [1] == "XLS":
           output_dir = current_config.get ("data", {}).get ("bom", {}).get ("XLS", {}).get ("--output_dir", lambda: default_config ["data"]["bom"]["XLS"]["--output_dir"])
-          output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
+          output_dir = resolve_path (project_dir, output_dir)  # Output directory is relative to the project directory
           generateBomXls (output_dir = output_dir, csv_file = csv_filename, sch_filename = sch_file_path)
     
       elif cmd [1] == "HTML":
         output_dir = current_config.get ("data", {}).get ("bom", {}).get ("HTML", {}).get ("--output_dir", lambda: default_config ["data"]["bom"]["HTML"]["--output_dir"])
-        output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
+        output_dir = resolve_path (project_dir, output_dir)  # Output directory is relative to the project directory
         generateBomHtml (output_dir = output_dir, pcb_filename = pcb_file_path)
     
     elif cmd [0] == "pcb_pdf":
       output_dir = current_config.get ("data", {}).get ("pcb_pdf", {}).get ("--output_dir", lambda: default_config ["data"]["pcb_pdf"]["--output_dir"])
-      output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
+      output_dir = resolve_path (project_dir, output_dir)  # Output directory is relative to the project directory
       generatePcbPdf (output_dir = output_dir, pcb_filename = pcb_file_path)
     
     elif cmd [0] == "positions":
       output_dir = current_config.get ("data", {}).get ("positions", {}).get ("--output_dir", lambda: default_config ["data"]["positions"]["--output_dir"])
-      output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
+      output_dir = resolve_path (project_dir, output_dir)  # Output directory is relative to the project directory
       generatePositions (output_dir = output_dir, pcb_filename = pcb_file_path)
     
     elif cmd [0] == "ddd":
       if cmd [1] == "VRML":
         output_dir = current_config.get ("data", {}).get ("ddd", {}).get ("VRML", {}).get ("--output_dir", lambda: default_config ["data"]["ddd"]["VRML"]["--output_dir"])
-        output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
+        output_dir = resolve_path (project_dir, output_dir)  # Output directory is relative to the project directory
         generate3D (output_dir = output_dir, pcb_filename = pcb_file_path, type = "VRML")
       
       elif cmd [1] == "3DPDF":
         output_dir = current_config.get ("data", {}).get ("ddd", {}).get ("3DPDF", {}).get ("--output_dir", lambda: default_config ["data"]["ddd"]["3DPDF"]["--output_dir"])
-        output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
+        output_dir = resolve_path (project_dir, output_dir)  # Output directory is relative to the project directory
         generate3D (output_dir = output_dir, pcb_filename = pcb_file_path, type = "3DPDF")
         
       else: # Default is STEP
         output_dir = current_config.get ("data", {}).get ("ddd", {}).get ("STEP", {}).get ("--output_dir", lambda: default_config ["data"]["ddd"]["STEP"]["--output_dir"])
-        output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
+        output_dir = resolve_path (project_dir, output_dir)  # Output directory is relative to the project directory
         generate3D (output_dir = output_dir, pcb_filename = pcb_file_path, type = "STEP")
     
     elif cmd [0] == "pcb_svg":
       output_dir = current_config.get ("data", {}).get ("pcb_svg", {}).get ("--output_dir", lambda: default_config ["data"]["pcb_svg"]["--output_dir"])
-      output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
+      output_dir = resolve_path (project_dir, output_dir)  # Output directory is relative to the project directory
       generatePcbSvg (output_dir = output_dir, pcb_filename = pcb_file_path)
     
     elif cmd [0] == "pcb_render":
       output_dir = current_config.get ("data", {}).get ("pcb_render", {}).get ("--output_dir", lambda: default_config ["data"]["pcb_render"]["--output_dir"])
-      output_dir = project_dir + "\\" + output_dir  # Output directory is relative to the project directory
+      output_dir = resolve_path (project_dir, output_dir)  # Output directory is relative to the project directory
       # Run for the items in the list by iterating from the second item.
       for preset in cmd [1:]:
         generatePcbRenders (output_dir = output_dir, pcb_filename = pcb_file_path, preset = preset)
@@ -2837,7 +2880,7 @@ def runDRC (output_dir, pcb_filename, type = "default"):
   project_dir = os.path.dirname (file_path)
   
   # Read the output directory name from the config file.
-  od_from_config = project_dir + "/" + current_config.get ("data", {}).get ("pcb_drc", {}).get ("--output_dir", lambda: default_config ["data"]["pcb_drc"]["--output_dir"])
+  od_from_config = resolve_path (project_dir, current_config.get ("data", {}).get ("pcb_drc", {}).get ("--output_dir", lambda: default_config ["data"]["pcb_drc"]["--output_dir"]))
   od_from_cli = output_dir  # The output directory specified by the command line argument
 
   # Get the final directory path.
@@ -2874,9 +2917,9 @@ def runDRC (output_dir, pcb_filename, type = "default"):
   # Create the output file name.
   while not_completed:
     if type == "report":
-      file_name = f"{final_directory}/{project_name}-R{info ['rev']}-PCB-DRC-Report-{filename_date}-{seq_number}.rpt"
+      file_name = os.path.join (final_directory, f"{project_name}-R{info ['rev']}-PCB-DRC-Report-{filename_date}-{seq_number}.rpt")
     elif type == "json":
-      file_name = f"{final_directory}/{project_name}-R{info ['rev']}-PCB-DRC-Report-{filename_date}-{seq_number}.json"
+      file_name = os.path.join (final_directory, f"{project_name}-R{info ['rev']}-PCB-DRC-Report-{filename_date}-{seq_number}.json")
 
     if os.path.exists (file_name):
       seq_number += 1 # Increment the sequence number and try again
@@ -2924,7 +2967,7 @@ def runDRC (output_dir, pcb_filename, type = "default"):
   # Run the command
   try:
     full_command = ' '.join (full_command) # Convert the list to a string
-    result = subprocess.run (full_command, check = True, capture_output = True, text = True)
+    result = subprocess.run (shlex.split (full_command), check = True, capture_output = True, text = True)
 
     print (result.stdout)  # Print the standard output
 
@@ -3117,9 +3160,11 @@ def parseArguments():
     # Load the standard config file for other commands.
     if args.input_filename is not None: # Check if we received an input file
       config_file_path = os.path.join (os.path.dirname (args.input_filename), "kiexport.json")
-      load_config (config_file = config_file_path)
+      if load_config (config_file = config_file_path) is not True:
+        return
     else:
-      load_config (config_file = "kiexport.json")
+      if load_config (config_file = "kiexport.json") is not True:
+        return
   
   #---------------------------------------------------------------------------------------------#
   # Create the path for the log file.
@@ -3145,7 +3190,7 @@ def parseArguments():
       # Get the directory path of the file and save it as the project directory.
       # All other export directories will be relative to the project directory.
       project_dir = os.path.dirname (file_path)
-      logPath = project_dir + "\\" + path_from_config
+      logPath = resolve_path (project_dir, path_from_config)
 
   # if args.output_dir is not None:
   #   logPath = os.path.join (os.path.dirname (args.input_filename), "kiexport.log")
