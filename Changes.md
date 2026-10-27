@@ -2,6 +2,12 @@
 # Changes
 
 #
+### **+05:30 19:49:45 PM 20-10-2026, 2020**
+
+  - Added new branch `V11-Support` to test KiCad V11 support.
+  - New Version 🆕 `0.3.0`.
+
+#
 ### **+05:30 17:41:56 PM 20-10-2026, 2020**
 
   - Updated Readme.

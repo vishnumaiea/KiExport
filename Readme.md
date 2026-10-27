@@ -10,7 +10,7 @@ The [**Mitayi Pico RP2040**](https://github.com/CIRCUITSTATE/Mitayi-Pico-RP2040)
 This tool is not yet tested with Linux.
 
 - **Author:** [Vishnu Mohanan](https://github.com/vishnumaiea)
-- **Version:** `0.2.20`
+- **Version:** `0.3.0`
 - **Contributors:** Dominic Le Blanc ([@domleblanc94](https://github.com/domleblanc94)), Leor Weinstein
 
 This tool was created with the help of [**ChatGPT**](https://chat.openai.com/chat). Thanks to humanity!
